@@ -24,6 +24,7 @@ class NameValues(collections.OrderedDict):
             else:
                 unit = ''
             strReturn += '%s: ' % (prefix + name + suffix)
+
             def addValue(value):
                 s = ''
                 if type(value) in (list, tuple):
@@ -59,7 +60,6 @@ class NameValues(collections.OrderedDict):
         return sSuffix
 
 
-
 class AutoPad:
     def __init__(self, imgs, multiple):
         self.N, self.C, self.H, self.W = imgs.size()
@@ -69,9 +69,10 @@ class AutoPad:
     def pad(self, imgs):
         def _pad(img):
             imgPad = torch.zeros([self.N, self.C, self.HPad, self.WPad], dtype=img.dtype,
-                                  device=img.device.type)
+                                 device=img.device.type)
             imgPad[:, :, (self.HPad - self.H):, (self.WPad - self.W):] = img
             return imgPad
+
         return forNestingList(imgs, _pad)
 
     def unpad(self, imgs):
@@ -82,24 +83,10 @@ class AutoPad:
 def flipLR(ims):
     return forNestingList(ims, lambda im: im.flip(-1) if im is not None else None)
 
+
 def assertDisp(dispL=None, dispR=None):
     if (dispL is None or dispL.numel() == 0) and (dispR is None or dispR.numel() == 0):
         raise Exception('No disp input!')
-
-
-# Log First n ims into tensorboard
-# Log All ims if n == 0
-def logFirstNIms(writer, name, im, range, global_step=None, n=0):
-    if im is not None:
-        n = min(n, im.size(0))
-        if n > 0 and im.dim() > 2:
-            im = im[:n]
-        if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
-            im[im > range] = range
-            im[im < 0] = 0
-            im = im / range
-            im = gray2rgb(im.cpu())
-        writer.add_images(name, im, global_step=global_step)
 
 
 def gray2rgb(im):
@@ -108,6 +95,7 @@ def gray2rgb(im):
     if im.dim() == 3:
         im = im.unsqueeze(1)
     return im.repeat(1, 3, 1, 1)
+
 
 def gray2color(im):
     if im.dim() == 4 and im.size(1) == 1:
@@ -126,7 +114,6 @@ def gray2color(im):
         raise Exception('Error: Input of gray2color must have one channel!')
 
 
-
 def checkDir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -138,50 +125,50 @@ class DefaultParser:
 
     def seed(self):
         self.parser.add_argument('--seed', type=int, default=1, metavar='S',
-                                        help='random seed (default: 1)')
+                                 help='random seed (default: 1)')
         return self
 
     # model
     def outputFolder(self):
         self.parser.add_argument('--outputFolder', type=str, default=None,
-                                                help='output checkpoints and logs to foleder logs/outputFolder')
+                                 help='output checkpoints and logs to foleder logs/outputFolder')
         return self
 
     def maxDisp(self):
         self.parser.add_argument('--maxDisp', type=int, default=192,
-                                           help='maximum disparity of unscaled model (or dataset in some module test)')
+                                 help='maximum disparity of unscaled model (or dataset in some module test)')
         return self
 
     def dispScale(self):
         self.parser.add_argument('--dispScale', type=float, default=1,
-                                             help='scale disparity when training (gtDisp/dispscale) and predicting (outputDisp*dispscale')
+                                 help='scale disparity when training (gtDisp/dispscale) and predicting (outputDisp*dispscale')
         return self
 
     def model(self):
         self.parser.add_argument('--model', default='PSMNet',
-                                         help='select model')
+                                 help='select model')
         return self
 
     def chkpoint(self):
         self.parser.add_argument('--chkpoint', type=str, default=None, nargs='+',
-                                             help='checkpoint(s) of model(s) to load')
+                                 help='checkpoint(s) of model(s) to load')
         return self
 
     def noCuda(self):
         self.parser.add_argument('--noCuda', action='store_true', default=False,
-                                           help='enables CUDA training')
+                                 help='enables CUDA training')
         return self
 
     # logging
     def nSampleLog(self):
         self.parser.add_argument('--nSampleLog', type=int, default=1,
-                                            help='number of disparity maps to log')
+                                 help='number of disparity maps to log')
         return self
 
     # datasets
     def dataset(self):
         self.parser.add_argument('--dataset', type=str, default='sceneflow',
-                                           help='(sceneflow/kitti2012/kitti2015/carla_kitti)')
+                                 help='(sceneflow/kitti2012/kitti2015/carla_kitti)')
         return self
 
     def dataPath(self):
@@ -190,42 +177,43 @@ class DefaultParser:
 
     def loadScale(self):
         self.parser.add_argument('--loadScale', type=float, default=[1], nargs='+',
-                                              help='scaling applied to data during loading')
+                                 help='scaling applied to data during loading')
         return self
 
     # training
     def batchsize(self):
         self.parser.add_argument('--batchsize', type=int, default=[0], nargs='+',
-                                                   help='training and testing batch size')
+                                 help='training and testing batch size')
         return self
 
     def trainCrop(self):
         self.parser.add_argument('--trainCrop', type=int, default=(256, 512), nargs=2,
-                                             help='size of random crop (H x W) applied to data during training')
+                                 help='size of random crop (H x W) applied to data during training')
         return self
 
     def logEvery(self):
         self.parser.add_argument('--logEvery', type=int, default=10,
-                                             help='log every log_every iterations. set to 0 to stop logging')
+                                 help='log every log_every iterations. set to 0 to stop logging')
         return self
 
     def saveEvery(self):
         self.parser.add_argument('--saveEvery', type=int, default=1,
-                                              help='save every save_every epochs; '
-                                                   'set to -1 to train without saving; '
-                                                   'set to 0 to save after the last epoch.')
+                                 help='save every save_every epochs; '
+                                      'set to -1 to train without saving; '
+                                      'set to 0 to save after the last epoch.')
         return self
+
     def testEvery(self):
         self.parser.add_argument('--testEvery', type=int, default=1,
-                                              help='test every test_every epochs. '
-                                                   '> 0 will not test before training. '
-                                                   '= 0 will test before training and after final epoch. '
-                                                   '< 0 will test before training')
+                                 help='test every test_every epochs. '
+                                      '> 0 will not test before training. '
+                                      '= 0 will test before training and after final epoch. '
+                                      '< 0 will test before training')
         return self
 
     def epochs(self):
         self.parser.add_argument('--epochs', type=int, default=10,
-                                          help='number of epochs to train')
+                                 help='number of epochs to train')
         return self
 
     def lr(self):
@@ -234,43 +222,43 @@ class DefaultParser:
 
     def lossWeights(self):
         self.parser.add_argument('--lossWeights', type=float, default=[1], nargs='+',
-                                               help='weights of losses if model have multiple losses')
+                                 help='weights of losses if model have multiple losses')
         return self
 
     def resume(self):
         self.parser.add_argument('--resume', action='store_true', default=False,
-                                          help='resume specified training '
-                                               '(or save evaluation results to old folder)'
-                                               ' else save/log into a new folders')
+                                 help='resume specified training '
+                                      '(or save evaluation results to old folder)'
+                                      ' else save/log into a new folders')
         return self
 
     # evaluation
     def evalFcn(self):
         self.parser.add_argument('--evalFcn', type=str, default='outlier',
-                                            help='evaluation function used in testing')
+                                 help='evaluation function used in testing')
         return self
 
     def validSetSample(self):
         self.parser.add_argument('--validSetSample', type=float, default=1,
-                                               help='test with part of valid set')
+                                 help='test with part of valid set')
         return self
 
     # submission
     def subType(self):
         self.parser.add_argument('--subType', type=str, default=None,
-                                           help='dataset type used for submission (eval/test)')
+                                 help='dataset type used for submission (eval/test)')
         return self
 
     # half precision
     def half(self):
         self.parser.add_argument('--half', action='store_true', default=False,
-                                        help='enables half precision')
+                                 help='enables half precision')
         return self
 
     # SRdispStereoRefine specified param
     def itRefine(self):
         self.parser.add_argument('--itRefine', type=int, default=1,
-                                            help='iterations of refining process')
+                                 help='iterations of refining process')
         return self
 
     def parse(self):
@@ -285,6 +273,12 @@ class DefaultParser:
                 torch.cuda.manual_seed(args.seed)
 
         return args
+
+
+def struct2dict(struct):
+    argsDict = dict((name, getattr(struct, name)) for name in dir(struct)
+                    if not name.startswith('__') and not callable(getattr(struct, name)))
+    return argsDict
 
 
 def adjustLearningRate(optimizer, epoch, lr):
@@ -321,10 +315,11 @@ def quantize(img, rgb_range):
     return img.mul(pixel_range).clamp(0, 255).round().div(pixel_range)
 
 
-class TensorboardLogger:
-    def __init__(self):
+class Logger:
+    def __init__(self, experiment=None):
         self.writer = None
         self._folder = None
+        self.expriment = experiment
 
     def __del__(self):
         if self.writer is not None:
@@ -339,10 +334,18 @@ class TensorboardLogger:
                 self.writer = SummaryWriter(folder)
         self._folder = folder
 
-    def logFirstNIms(self, name, im, range, global_step=None, n=0):
-        if self.writer is None:
-            raise Exception('Error: SummaryWriter is not initialized!')
-        logFirstNIms(self.writer, name, im, range, global_step, n)
+    # Log First n ims into tensorboard
+    # Log All ims if n == 0
+    def log_image(self, im, name, range, global_step=None, n=0):
+        if im is not None:
+            n = min(n, im.size(0))
+            if n > 0 and im.dim() > 2:
+                im = im[:n]
+            if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
+                im = im / range
+                im = im.clamp(0, 1)
+                im = gray2rgb(im.cpu())
+            self.writer.add_images(name, im, global_step=global_step)
 
 
 class Batch:
@@ -375,7 +378,7 @@ class Batch:
         self.cuda = cuda
 
         # convert type
-        self.batch = forNestingList(self.batch, lambda im: im if im.numel() else None)
+        self.batch = forNestingList(self.batch, lambda im: im if im is not None and im.numel() else None)
         if half:
             self.batch = forNestingList(self.batch, lambda im: im.half() if im is not None else None)
         if cuda:
@@ -385,6 +388,7 @@ class Batch:
         def assertData(t):
             if t is not None and torch.isnan(t).any():
                 raise Exception('Error: Data has nan in it')
+
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
@@ -404,7 +408,7 @@ class Batch:
         return Batch(self)
 
     def scaleBatch(self, scale):
-        return Batch(self.batch[scale * 4 : (scale + 1) * 4], cuda=self.cuda, half=self.half)
+        return Batch(self.batch[scale * 4: (scale + 1) * 4], cuda=self.cuda, half=self.half)
 
     def lastScaleBatch(self):
         return Batch(self.batch[-4:], cuda=self.cuda, half=self.half)
@@ -454,6 +458,7 @@ class Batch:
             self.batch[3::4] = set[len(set) // 2:]
         return self.batch[2::4] + self.batch[3::4]
 
+
 def forNestingList(l, fcn):
     if type(l) in (list, tuple):
         l = [forNestingList(e, fcn) for e in l]
@@ -461,11 +466,14 @@ def forNestingList(l, fcn):
     else:
         return fcn(l)
 
+
 def getLastNotList(l):
     if type(l) in (list, tuple):
         return getLastNotList(l[-1])
     else:
         return l
+
+
 def scanCheckpoint(checkpointDirs):
     if type(checkpointDirs) in (list, tuple):
         checkpointDirs = [scanCheckpoint(dir) for dir in checkpointDirs]
@@ -499,6 +507,7 @@ def scanCheckpoint(checkpointDirs):
 
     return checkpointDirs
 
+
 def getSuffix(checkpointDirOrFolder):
     # saveFolderSuffix = myUtils.NameValues(('loadScale', 'trainCrop', 'batchSize', 'lossWeights'),
     #                                       (trainImgLoader.loadScale,
@@ -517,19 +526,23 @@ def getSuffix(checkpointDirOrFolder):
         saveFolderSuffix = ''
     return saveFolderSuffix
 
+
 def depth(l):
     if type(l) in (tuple, list):
         return 1 + max(depth(item) for item in l)
     else:
         return 0
 
+
 class Filter:
     def __init__(self, weight=0.1):
         self.weight = weight
         self.old = None
+
     def __call__(self, x):
         self.old = x if self.old is None else self.old * (1 - self.weight) + x * self.weight
         return self.old
+
 
 def savePreprocessRGB(im):
     output = im.squeeze()
@@ -538,15 +551,16 @@ def savePreprocessRGB(im):
     output = (output * 255).astype('uint8')
     return output
 
+
 def savePreprocessDisp(disp, dispScale=256):
     dispOut = disp.squeeze()
     dispOut = dispOut.data.cpu().numpy()
     dispOut = (dispOut * dispScale).astype('uint16')
     return dispOut
 
+
 def shuffleLists(lists):
     c = list(zip(*lists))
     random.shuffle(c)
     lists = list(zip(*c))
     return lists
-

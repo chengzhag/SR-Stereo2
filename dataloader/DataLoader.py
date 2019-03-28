@@ -36,7 +36,6 @@ class myImageFloder(data.Dataset):
         self.loadScale = loadScale
         self.argument = kitti and mode == 'training' and operator.eq(mask, (1, 1, 0, 0))
 
-
     def __getitem__(self, index):
         def scale(im, method, scaleRatios):
             w, h = im.size
@@ -87,7 +86,7 @@ class myImageFloder(data.Dataset):
             def loadIm(dirsIndex, loader, scaleRatios, isRGBorDepth):
                 ims = []
                 if not self.mask[dirsIndex] or self.dirs[dirsIndex] is None:
-                    return [np.array([], dtype=np.float32),] * len(self.loadScale)
+                    return [np.array([], dtype=np.float32), ] * len(self.loadScale)
                 im0 = loader(self.dirs[dirsIndex][index])
                 if type(im0) == np.ndarray:
                     im0 = Image.fromarray(im0)
@@ -240,14 +239,13 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
 
     if mode == 'trainSub':
         pathsTrain = [dirsTrain + dirsEval if dirsTrain is not None else None for dirsTrain, dirsEval in
-                     zip(pathsTrain, pathsTest)]
+                      zip(pathsTrain, pathsTest)]
         pathsTest = None
         mode = 'training'
 
-
     trainImgLoader = torch.utils.data.DataLoader(
         myImageFloder(*pathsTrain,
-                      cropSize=testCrop if mode =='testing' else trainCrop,
+                      cropSize=testCrop if mode == 'testing' else trainCrop,
                       kitti=kitti,
                       loadScale=loadScale,
                       mode=mode,
@@ -258,7 +256,7 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
 
     testImgLoader = torch.utils.data.DataLoader(
         myImageFloder(*pathsTest,
-                      cropSize=testCrop if mode =='testing' else trainCrop,
+                      cropSize=testCrop if mode == 'testing' else trainCrop,
                       kitti=kitti,
                       loadScale=loadScale,
                       mode='testing' if mode == 'training' else mode,
@@ -279,25 +277,25 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
 
     return trainImgLoader, testImgLoader
 
+
 def main():
-    from tensorboardX import SummaryWriter
     from utils import myUtils
 
     # Arguments
-    args = myUtils.DefaultParser(description='DataLoader module test')\
+    args = myUtils.DefaultParser(description='DataLoader module test') \
         .outputFolder().maxDisp().seed().dataPath().loadScale().nSampleLog().dataset().parse()
-
 
     # Dataset
     trainImgLoader, testImgLoader = getDataLoader(dataPath=args.dataPath, dataset=args.dataset,
-                                                 batchSizes=(1, 1),
-                                                 loadScale=args.loadScale,
-                                                 mode='rawScaledTensor')
+                                                  batchSizes=(1, 1),
+                                                  loadScale=args.loadScale,
+                                                  mode='rawScaledTensor')
 
     # Log samples
+    logger = myUtils.Logger()
     logFolder = [folder for folder in args.dataPath.split('/') if folder != '']
     logFolder[-1] += '_listTest'
-    writer = SummaryWriter(os.path.join(*logFolder))
+    logger.set(os.path.join(*logFolder))
 
     def logSamplesFrom(imgLoader, tag):
         if imgLoader is not None:
@@ -309,18 +307,15 @@ def main():
                         if im is not None:
                             name = tag + '/' + name + '_' + str(scale)
                             print('logging ' + name)
-                            myUtils.logFirstNIms(writer, name, im,
-                                                 args.maxDisp if im is not None and im.size(1) == 1 else 255,
-                                                 global_step=iSample, n=1)
+                            range = args.maxDisp if im.size(1) == 1 else 255
+                            logger.log_image(im, name, range, global_step=iSample, n=1)
+
                 if iSample >= args.nSampleLog:
                     break
 
     logSamplesFrom(trainImgLoader, 'trainImgLoader')
     logSamplesFrom(testImgLoader, 'testImgLoader')
 
-    writer.close()
-
 
 if __name__ == '__main__':
     main()
-
