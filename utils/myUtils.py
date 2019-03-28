@@ -264,8 +264,8 @@ class DefaultParser:
     def parse(self):
         args = self.parser.parse_args()
 
-        if hasattr(args, 'no_cuda'):
-            args.cuda = not args.no_cuda and torch.cuda.is_available()
+        if hasattr(args, 'noCuda'):
+            args.cuda = not args.noCuda and torch.cuda.is_available()
 
         if hasattr(args, 'seed'):
             torch.manual_seed(args.seed)
@@ -316,22 +316,21 @@ def quantize(img, rgb_range):
 
 
 class Logger:
-    def __init__(self, experiment=None):
+    def __init__(self, folder=None):
         self.writer = None
         self._folder = None
-        self.expriment = experiment
+        if folder is not None:
+            self.set(folder)
 
     def __del__(self):
         if self.writer is not None:
             self.writer.close()
 
     def set(self, folder):
-        if self.writer is None:
-            self.writer = SummaryWriter(folder)
-        else:
+        if self.writer is not None:
             if folder != self._folder:
                 self.writer.close()
-                self.writer = SummaryWriter(folder)
+        self.writer = SummaryWriter(folder)
         self._folder = folder
 
     # Log First n ims into tensorboard
