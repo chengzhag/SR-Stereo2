@@ -292,10 +292,9 @@ def main():
                                                   mode='rawScaledTensor')
 
     # Log samples
-    logger = myUtils.Logger()
     logFolder = [folder for folder in args.dataPath.split('/') if folder != '']
     logFolder[-1] += '_listTest'
-    logger.set(os.path.join(*logFolder))
+    logger = myUtils.Logger(os.path.join(*logFolder))
 
     def logSamplesFrom(imgLoader, tag):
         if imgLoader is not None:
