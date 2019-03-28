@@ -346,33 +346,45 @@ class TensorboardLogger:
 
 
 class Batch:
-    def __init__(self, batch, cuda=False, half=False):
+    def __init__(self, batch, cuda=None, half=None):
+        # for different param types
         if type(batch) in (list, tuple):
             self._assertLen(len(batch))
             self.batch = batch[:]  # deattach with initial list
         elif type(batch) is Batch:
-            self._assertLen(len(batch))
             self.batch = batch.batch[:]
+            if cuda is None:
+                cuda = batch.cuda
+            if half is None:
+                half = batch.half
         elif type(batch) is int:
             self._assertLen(batch)
             if batch % 4 != 0:
                 raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n!')
             self.batch = [None] * batch
         else:
-            raise Exception('Error: batch must be class list, tuple or Batch!')
+            raise Exception('Error: batch must be class list, tuple, Batch or int!')
+
+        # default params
+        if cuda is None:
+            cuda = False
+        if half is None:
+            half = False
 
         self.half = half
         self.cuda = cuda
-        self.batch = [(im if im.numel() else None) if im is not None else None for im in self.batch]
-        if half:
-            self.batch = [(im.half() if half else im) if im is not None else None for im in self.batch]
-        if cuda:
-            self.batch = [(im.cuda() if cuda else im) if im is not None else None for im in self.batch]
 
+        # convert type
+        self.batch = forNestingList(self.batch, lambda im: im if im.numel() else None)
+        if half:
+            self.batch = forNestingList(self.batch, lambda im: im.half() if im is not None else None)
+        if cuda:
+            self.batch = forNestingList(self.batch, lambda im: im.cuda() if im is not None else None)
+
+        # assert nan
         def assertData(t):
             if t is not None and torch.isnan(t).any():
                 raise Exception('Error: Data has nan in it')
-
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
@@ -389,7 +401,10 @@ class Batch:
         self.batch[key] = value
 
     def detach(self):
-        return Batch(self, cuda=self.cuda, half=self.half)
+        return Batch(self)
+
+    def scaleBatch(self, scale):
+        return Batch(self.batch[scale * 4 : (scale + 1) * 4], cuda=self.cuda, half=self.half)
 
     def lastScaleBatch(self):
         return Batch(self.batch[-4:], cuda=self.cuda, half=self.half)

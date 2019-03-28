@@ -283,6 +283,7 @@ def main():
     from tensorboardX import SummaryWriter
     from utils import myUtils
 
+    # Arguments
     args = myUtils.DefaultParser(description='DataLoader module test')\
         .outputFolder().maxDisp().seed().dataPath().loadScale().nSampleLog().dataset().parse()
 
@@ -293,29 +294,29 @@ def main():
                                                  loadScale=args.loadScale,
                                                  mode='rawScaledTensor')
 
+    # Log samples
     logFolder = [folder for folder in args.dataPath.split('/') if folder != '']
     logFolder[-1] += '_listTest'
     writer = SummaryWriter(os.path.join(*logFolder))
 
-    if trainImgLoader is not None:
-        for iSample, sample in enumerate(trainImgLoader, 1):
-            for name, im in zip(('inputL', 'inputR', 'gtL', 'gtR'), sample):
-                if im.numel() > 0:
-                    myUtils.logFirstNIms(writer, 'trainImgLoader/' + name, im,
-                                         args.maxDisp if im is not None and im.size(1) == 1 else 255,
-                                         global_step=iSample, n=1)
-            if iSample >= args.nSampleLog:
-                break
+    def logSamplesFrom(imgLoader, tag):
+        if imgLoader is not None:
+            for iSample, sample in enumerate(imgLoader, 1):
+                batch = myUtils.Batch(sample)
+                print('sample %d' % iSample)
+                for iScale, scale in enumerate(args.loadScale):
+                    for name, im in zip(('inputL', 'inputR', 'gtL', 'gtR'), batch.scaleBatch(iScale)):
+                        if im is not None:
+                            name = tag + '/' + name + '_' + str(scale)
+                            print('logging ' + name)
+                            myUtils.logFirstNIms(writer, name, im,
+                                                 args.maxDisp if im is not None and im.size(1) == 1 else 255,
+                                                 global_step=iSample, n=1)
+                if iSample >= args.nSampleLog:
+                    break
 
-    if testImgLoader is not None:
-        for iSample, sample in enumerate(testImgLoader, 1):
-            for name, im in zip(('inputL', 'inputR', 'gtL', 'gtR'), sample):
-                if im.numel() > 0:
-                    myUtils.logFirstNIms(writer, 'testImgLoader/' + name, im,
-                                         args.maxDisp if im is not None and im.size(1) == 1 else 255,
-                                         global_step=iSample, n=1)
-            if iSample >= args.nSampleLog:
-                break
+    logSamplesFrom(trainImgLoader, 'trainImgLoader')
+    logSamplesFrom(testImgLoader, 'testImgLoader')
 
     writer.close()
 
