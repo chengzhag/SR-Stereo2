@@ -5,7 +5,6 @@ from tensorboardX import SummaryWriter
 import collections
 import cv2
 import numpy as np
-import torchvision.transforms as transforms
 import random
 
 
@@ -336,15 +335,14 @@ class Logger:
     # Log First n ims into tensorboard
     # Log All ims if n == 0
     def log_image(self, im, name, range, global_step=None, n=0):
-        if im is not None:
-            n = min(n, im.size(0))
-            if n > 0 and im.dim() > 2:
-                im = im[:n]
-            if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
-                im = im / range
-                im = im.clamp(0, 1)
-                im = gray2rgb(im.cpu())
-            self.writer.add_images(name, im, global_step=global_step)
+        n = min(n, im.size(0))
+        if n > 0 and im.dim() > 2:
+            im = im[:n]
+        if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
+            im = im / range
+            im = im.clamp(0, 1)
+            im = gray2rgb(im.cpu())
+        self.writer.add_images(name, im, global_step=global_step)
 
 
 class Batch:
@@ -466,13 +464,6 @@ def forNestingList(l, fcn):
         return fcn(l)
 
 
-def getLastNotList(l):
-    if type(l) in (list, tuple):
-        return getLastNotList(l[-1])
-    else:
-        return l
-
-
 def scanCheckpoint(checkpointDirs):
     if type(checkpointDirs) in (list, tuple):
         checkpointDirs = [scanCheckpoint(dir) for dir in checkpointDirs]
@@ -508,11 +499,6 @@ def scanCheckpoint(checkpointDirs):
 
 
 def getSuffix(checkpointDirOrFolder):
-    # saveFolderSuffix = myUtils.NameValues(('loadScale', 'trainCrop', 'batchSize', 'lossWeights'),
-    #                                       (trainImgLoader.loadScale,
-    #                                        trainImgLoader.trainCrop,
-    #                                        args.batchsize_train,
-    #                                        args.lossWeights))
     if type(checkpointDirOrFolder) is str or \
             (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
         checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
