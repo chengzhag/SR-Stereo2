@@ -10,14 +10,14 @@ import random
 
 class NameValues(collections.OrderedDict):
     def __init__(self, names=(), values=(), prefix='', suffix=''):
-        super(NameValues, self).__init__()
+        super().__init__()
         for name, value in zip(names, values):
             if value is not None:
-                super(NameValues, self).__setitem__(prefix + name + suffix, value)
+                super().__setitem__(prefix + name + suffix, value)
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
-        for name, value in super(NameValues, self).items():
+        for name, value in super().items():
             if name.find('outlier') != -1:
                 unit = '%'
             else:
@@ -39,7 +39,7 @@ class NameValues(collections.OrderedDict):
 
     def strSuffix(self, prefix='', suffix=''):
         sSuffix = ''
-        for name, value in super(NameValues, self).items():
+        for name, value in super().items():
             sSuffix += '_%s' % (prefix + name + suffix)
 
             def addValue(sAppend, values):
@@ -78,9 +78,50 @@ class AutoPad:
         return forNestingList(imgs, lambda img: img[:, (self.HPad - self.H):, (self.WPad - self.W):])
 
 
+class Output(collections.OrderedDict):
+    def __init__(self, seq=None, **kwargs):
+        super().__init__(seq=seq, kwargs=kwargs)
+
+    def update(self, output, suffix=''):
+        assert type(output) is Output
+        for name in output.keys():
+            self[name + suffix] = output[name]
+
+    def clone(self):
+        r = Output()
+        for name, value in self.items():
+            r[name] = value.clone()
+        return r
+
+    def getOutDisp(self, side: str):
+        return self['outDisp' + side]
+
+    def addOutDisp(self, outDisp, side: str, maxDisp: float):
+        outDisp.maxDisp = maxDisp
+        self['outDisp' + side] = outDisp
+
+    def logPrepare(self):
+        for name in self.keys():
+            if 'Disp' in name:
+                self[name] /= self[name].maxDisp
+            else:
+                raise Exception(f'No rule to prepare logging for {name}')
+
+
+class Loss(NameValues):
+    def __init__(self, names=(), values=(), prefix='', suffix=''):
+        super().__init__(names=names, values=values, prefix=prefix, suffix=suffix)
+
+
 # Flip among W dimension. For NCHW data type.
 def flipLR(ims):
-    return forNestingList(ims, lambda im: im.flip(-1) if im is not None else None)
+    if type(ims) in (tuple, list):
+        return forNestingList(ims, flipLR)
+    elif type(ims) is Output:
+        for name in ims.keys():
+            ims[name] = flipLR(ims[name])
+    else:
+        return ims.flip(-1)
 
 
 def assertDisp(dispL=None, dispR=None):
@@ -299,16 +340,6 @@ def adjustLearningRate(optimizer, epoch, lr):
     return lr
 
 
-def assertBatchLen(batch, length):
-    if type(batch) is not Batch:
-        raise Exception('Error: batch must be class Batch!')
-    if type(length) in (list, tuple):
-        if len(batch) not in length:
-            raise Exception(f'Error: input batch with length {len(batch)} doesnot match required {length}!')
-    elif len(batch) != length:
-        raise Exception(f'Error: input batch with length {len(batch)} doesnot match required {length}!')
-
-
 def quantize(img, rgb_range):
     pixel_range = 255 / rgb_range
     return img.mul(pixel_range).clamp(0, 255).round().div(pixel_range)
@@ -389,8 +420,21 @@ class Batch:
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
-        if len % 4 != 0:
-            raise Exception(f'Error: input batch with length {len} doesnot match required 4n!')
+        assert len % 4 == 0
+
+    def assertLen(self, length):
+        if type(length) in (list, tuple):
+            for l in length:
+                self.assertLen(l)
+        else:
+            assert len(self) == length
+
+    def assertScales(self, nScales):
+        if type(nScales) in (list, tuple):
+            for nScale in nScales:
+                self.assertScales(nScale)
+        else:
+            self.assertLen(nScales * 4)
 
     def __len__(self):
         return len(self.batch)
