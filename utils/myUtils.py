@@ -9,11 +9,16 @@ import random
 
 
 class NameValues(collections.OrderedDict):
-    def __init__(self, names=(), values=(), prefix='', suffix=''):
+    def __init__(self, seq=(), prefix='', suffix=''):
         super().__init__()
-        for name, value in zip(names, values):
+        for name, value in seq:
             if value is not None:
                 super().__setitem__(prefix + name + suffix, value)
+
+    def update(self, output, suffix=''):
+        assert type(output) is Output
+        for name in output.keys():
+            self[name + suffix] = output[name]
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
@@ -79,8 +84,6 @@ class AutoPad:
 
 
 class Output(collections.OrderedDict):
-    def __init__(self, seq=None, **kwargs):
-        super().__init__(seq=seq, kwargs=kwargs)
 
     def update(self, output, suffix=''):
         assert type(output) is Output
@@ -93,24 +96,31 @@ class Output(collections.OrderedDict):
             r[name] = value.clone()
         return r
 
-    def getOutDisp(self, side: str):
-        return self['outDisp' + side]
+    def getOutput(self, name: str, side: str = ''):
+        return self[name + side]
 
-    def addOutDisp(self, outDisp, side: str, maxDisp: float):
-        outDisp.maxDisp = maxDisp
-        self['outDisp' + side] = outDisp
+    def addOutput(self, name: str, output, side: str = ''):
+        self[name + side] = output
+
+    def addDisp(self, disp, maxDisp, side=''):
+        disp.maxDisp = maxDisp
+        self.addOutput('disp', output=disp, side=side)
 
     def logPrepare(self):
         for name in self.keys():
-            if 'Disp' in name:
+            if 'disp' in name:
                 self[name] /= self[name].maxDisp
             else:
                 raise Exception(f'No rule to prepare logging for {name}')
 
 
 class Loss(NameValues):
-    def __init__(self, names=(), values=(), prefix='', suffix=''):
-        super().__init__(names=names, values=values, prefix=prefix, suffix=suffix)
+
+    def getLoss(self, name: str, prefix: str = 'loss', side: str = ''):
+        return self[prefix + name + side]
+
+    def addLoss(self, loss, name: str, prefix: str = 'loss', side: str = ''):
+        self[prefix + name + side] = loss
 
 
 # Flip among W dimension. For NCHW data type.

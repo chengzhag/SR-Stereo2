@@ -132,7 +132,7 @@ def main():
         errorL = getattr(evalFcn, args.evalFcn)(batch[0][masklRGB], imglw[masklRGB])
         errorR = getattr(evalFcn, args.evalFcn)(batch[1][maskrRGB], imgrw[maskrRGB])
 
-        for name, value in myUtils.NameValues(('L', 'R'), (errorL, errorR), prefix='error').items():
+        for name, value in myUtils.NameValues((('L', errorL), ('R', errorR)), prefix='error').items():
             logger.writer.add_scalar('warp/' + name, value, iSample)
         for name, im, range in zip(
                 ('inputL', 'inputR', 'gtL', 'gtR', 'warpToL', 'warpToR', 'maskL', 'maskR'),
