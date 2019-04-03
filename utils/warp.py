@@ -112,7 +112,8 @@ def main():
         .outputFolder().maxDisp().dataPath().noCuda().seed().evalFcn().dataset().loadScale().nSampleLog().parse()
 
     # Dataset
-    _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath, dataset=args.dataset,
+    _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
+                                                dataset=args.dataset,
                                                 batchSizes=(0, 1),
                                                 loadScale=args.loadScale,
                                                 mode='rawScaledTensor')
@@ -140,8 +141,8 @@ def main():
                 (255, 255, args.maxDisp, args.maxDisp, 255, 255, 1, 1)
         ):
             print('logging ' + name)
-            logger.log_image(im, 'warp/' + name, range,
-                             global_step=iSample, n=args.nSampleLog)
+            logger.logImage(im, 'warp/' + name, range,
+                            global_step=iSample, n=args.nSampleLog)
 
         if iSample >= args.nSampleLog:
             break

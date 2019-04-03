@@ -78,7 +78,8 @@ class myImageFloder(data.Dataset):
                 return output
 
         def getPatch():
-            randomCrop = RandomCrop(trainCrop=self.cropSize)
+            if self.cropSize is not None:
+                randomCrop = RandomCrop(trainCrop=self.cropSize)
             if self.argument:
                 randomScale = RandomScale(scaleFrom=1, scaleTo=0.5)
                 # randomRotate = RandomRotate(rotateFrom=-30, rotateTo=30)
@@ -222,7 +223,8 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
     else:
         dispScale = 1
         kittiScale = 1
-    testCrop = (round(1232 * loadScale[0] * kittiScale), round(368 * loadScale[0] * kittiScale))
+
+    testCrop = (round(1232 * loadScale[0] * kittiScale), round(368 * loadScale[0] * kittiScale)) if kitti else None
 
     if mode in ('subTrain', 'subEval', 'subTrainEval', 'subTest'):
         if mode == 'subTrain':
@@ -307,7 +309,7 @@ def main():
                             name = tag + '/' + name + '_' + str(scale)
                             print('logging ' + name)
                             range = args.maxDisp if im.size(1) == 1 else 255
-                            logger.log_image(im, name, range, global_step=iSample, n=1)
+                            logger.logImage(im, name, range, global_step=iSample, n=1)
 
                 if iSample >= args.nSampleLog:
                     break

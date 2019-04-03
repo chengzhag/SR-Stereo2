@@ -17,7 +17,7 @@ class RawPSMNetScale(rawPSMNet):
 
     # input: RGB value range 0~1
     # outputs: disparity range 0~self.maxdisp * self.dispScale
-    def forward(self, left, right) -> myUtils.Output:
+    def forward(self, left, right):
         def normalize(nTensor):
             nTensorClone = nTensor.clone()
             for tensor in nTensorClone:
@@ -35,8 +35,8 @@ class RawPSMNetScale(rawPSMNet):
             left, right = autoPad.pad((left, right))
             rawOutputs = super(RawPSMNetScale, self).forward(left, right)
             rawOutputs = autoPad.unpad(rawOutputs)
-        outputs = myUtils.Output()
-        outputs.addDisp(rawOutputs, maxDisp=self.maxdisp)
+        outputs = {}
+        outputs['outputDisp'] = rawOutputs
         return outputs
 
     def load_state_dict(self, state_dict, strict=False):
@@ -76,6 +76,14 @@ class PSMNet(Stereo):
     def initModel(self):
         self.model = RawPSMNetScale(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
+    def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+        if imgs is None:
+            imgs = myUtils.Imgs()
+        for key, value in outputs.items():
+            if key == 'outputDisp':
+                imgs.addImg(key, value, '', self.outMaxDisp)
+        return imgs
+
     # # input disparity maps:
     # #   disparity range: 0~self.maxdisp * self.dispScale
     # #   format: NCHW
@@ -95,12 +103,12 @@ class PSMNet(Stereo):
     # def trainOneSide(self, imgL, imgR, gt, kitti=False):
     #     self.optimizer.zero_grad()
     #     outputs = self.model.forward(imgL, imgR)
-    #     loss = self.loss(outputs=outputs.getOutput('disp'), gts=gt, kitti=kitti, outMaxDisp=self.outMaxDisp)
+    #     loss = self.loss(outputs=outputs.getImg('Disp', prefix='output'), gts=gt, kitti=kitti, outMaxDisp=self.outMaxDisp)
     #     with self.ampHandle.scale_loss(loss.getLoss('Disp'), self.optimizer) as scaledLoss:
     #         scaledLoss.backward()
     #     self.optimizer.step()
     #
-    #     outputs.addDisp(outputs.getOutput('disp')[2].detach(), self.outMaxDisp)
+    #     outputs.addImg('Disp', outputs.getImg('Disp', prefix='output')[2].detach(), range=self.outMaxDisp, prefix='output')
     #     return loss
     #
     # def train(self, batch: myUtils.Batch, kitti=False, weights=(), progress=0):

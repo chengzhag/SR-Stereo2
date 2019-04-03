@@ -160,6 +160,8 @@ class PSMNet(nn.Module):
         pred3 = disparityregression(self.maxdisp)(pred3)
 
         if self.training:
-            return pred1 * self.dispScale, pred2 * self.dispScale, pred3 * self.dispScale
+            return pred1.unsqueeze(1) * self.dispScale, \
+                   pred2.unsqueeze(1) * self.dispScale, \
+                   pred3.unsqueeze(1) * self.dispScale
         else:
-            return pred3 * self.dispScale
+            return pred3.unsqueeze(1) * self.dispScale

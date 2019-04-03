@@ -11,21 +11,24 @@ class Stereo(Model):
         self.dispScale = dispScale
         self.outMaxDisp = maxDisp * dispScale
 
+    def packOutputs(self, outputs) -> myUtils.Imgs:
+        pass
+
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
         batch.assertScales(1)
-        self.predict(batch)
+        super().predict(batch)
 
         imgL, imgR = batch.lowestResRGBs()
 
         with torch.no_grad():
-            outputs = myUtils.Output()
+            outputs = myUtils.Imgs()
             for inputL, inputR, process, do, side in zip((imgL, imgR), (imgR, imgL),
                                                          (lambda im: im, myUtils.flipLR),
                                                          mask,
                                                          ('L', 'R')):
                 if do:
-                    output = process(self.model(process(inputL), process(inputR)))
-                    outputs.update(output=output, suffix=side)
+                    output = process(self.packOutputs(self.model(process(inputL), process(inputR))))
+                    outputs.update(imgs=output, suffix=side)
 
             return outputs
 
@@ -39,19 +42,19 @@ class Stereo(Model):
         outputs = self.predict(batch, mask)
 
         for gt, side in zip(disps, ('L', 'R')):
-            dispOut = outputs.getOutput('disp')
-
-            # for kitti dataset, only consider loss of none zero disparity pixels in gt
-            if kitti:
-                mask = gt > 0
-                dispOut = dispOut[mask]
-                gt = gt[mask]
-            elif not kitti:
-                mask = gt < self.outMaxDisp
-                dispOut = dispOut[mask]
-                gt = gt[mask]
-            loss.addLoss(evalFcn.getEvalFcn(evalType)(gt, dispOut),
-                         name='Disp', prefix=evalType, side=side)
+            dispOut = outputs.getImg('Disp', prefix='output', side=side)
+            if dispOut is not None:
+                # for kitti dataset, only consider loss of none zero disparity pixels in gt
+                if kitti:
+                    mask = gt > 0
+                    dispOut = dispOut[mask]
+                    gt = gt[mask]
+                elif not kitti:
+                    mask = gt < self.outMaxDisp
+                    dispOut = dispOut[mask]
+                    gt = gt[mask]
+                loss.addLoss(evalFcn.getEvalFcn(evalType)(gt, dispOut),
+                             name='Disp', prefix=evalType, side=side)
 
         return loss, outputs
 

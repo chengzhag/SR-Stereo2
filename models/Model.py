@@ -23,7 +23,11 @@ class Model:
         self.model.eval()
 
     def load(self, chkpointDir: str) -> (int, int):
-        chkpointDir = myUtils.scanCheckpoint(chkpointDir)
+        if type(chkpointDir) is list:
+            if len(chkpointDir) > 1:
+                raise Exception('Error: One model can only load one checkpoint!')
+            else:
+                chkpointDir = chkpointDir[0]
 
         loadStateDict = torch.load(chkpointDir)
         # for EDSR and PSMNet compatibility

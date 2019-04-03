@@ -6,6 +6,9 @@ import collections
 import cv2
 import numpy as np
 import random
+import time
+import copy
+from collections.abc import Iterable
 
 
 class NameValues(collections.OrderedDict):
@@ -15,8 +18,11 @@ class NameValues(collections.OrderedDict):
             if value is not None:
                 super().__setitem__(prefix + name + suffix, value)
 
+    def clone(self):
+        return copy.deepcopy(self)
+
     def update(self, output, suffix=''):
-        assert type(output) is Output
+        assert type(output) is Imgs
         for name in output.keys():
             self[name + suffix] = output[name]
 
@@ -83,38 +89,46 @@ class AutoPad:
         return forNestingList(imgs, lambda img: img[:, (self.HPad - self.H):, (self.WPad - self.W):])
 
 
-class Output(collections.OrderedDict):
+class Imgs(collections.OrderedDict):
+    def __init__(self, imgs=None):
+        super().__init__()
+        self._range = {}
+        if imgs is not None:
+            if isinstance(imgs, Imgs):
+                self.update(imgs)
+            else:
+                raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
 
-    def update(self, output, suffix=''):
-        assert type(output) is Output
-        for name in output.keys():
-            self[name + suffix] = output[name]
+    def update(self, imgs, suffix=''):
+        assert type(imgs) is Imgs
+        for name in imgs.keys():
+            self[name + suffix] = imgs[name]
+            self._range[name + suffix] = imgs._range[name]
 
     def clone(self):
-        r = Output()
+        r = Imgs()
         for name, value in self.items():
             r[name] = value.clone()
+            r._range[name] = self._range[name]
         return r
 
-    def getOutput(self, name: str, side: str = ''):
-        return self[name + side]
+    def getImg(self, name: str, prefix: str, side: str = ''):
+        return self.get(prefix + name + side)
 
-    def addOutput(self, name: str, output, side: str = ''):
-        self[name + side] = output
-
-    def addDisp(self, disp, maxDisp, side=''):
-        disp.maxDisp = maxDisp
-        self.addOutput('disp', output=disp, side=side)
+    def addImg(self, name: str, img, prefix: str, range=1, side: str = ''):
+        if img is not None:
+            self._range[prefix + name + side] = range
+            self[prefix + name + side] = img
 
     def logPrepare(self):
         for name in self.keys():
-            if 'disp' in name:
-                self[name] /= self[name].maxDisp
-            else:
-                raise Exception(f'No rule to prepare logging for {name}')
+            self[name] /= self._range[name]
 
 
 class Loss(NameValues):
+    def __init__(self, seq=(), prefix='', suffix=''):
+        super().__init__(seq=seq, prefix=prefix, suffix=suffix)
+        self.nAccum = 1
 
     def getLoss(self, name: str, prefix: str = 'loss', side: str = ''):
         return self[prefix + name + side]
@@ -122,14 +136,104 @@ class Loss(NameValues):
     def addLoss(self, loss, name: str, prefix: str = 'loss', side: str = ''):
         self[prefix + name + side] = loss
 
+    def accumuate(self, loss):
+        for key in self.keys():
+            self[key] += loss[key]
+        self.nAccum += 1
+
+    def avg(self):
+        for key in self.keys():
+            self[key] /= self.nAccum
+        self.nAccum = 1
+
+
+class Experiment:
+    def __init__(self, model, stage, args):
+        self.args = args
+        self.model = model
+        self.epoch = 0
+        self.iteration = 0
+        self.globalStep = 0
+
+        # load from checkpoint, if success will overwrite dirs below
+        self.chkpointDir = None
+        self.chkpointFolder = None
+        self.logFolder = None
+
+        # if resume, results will be saved to where the loaded checkpoint is.
+        if args.resume:
+            if args.chkpoint is None:
+                raise Exception('Error: No checkpoint to resume!')
+            elif len(args.chkpoint) > 1:
+                raise Exception('Error: Cannot resume multi-checkpoints model!')
+            else:
+                args.chkpoint = args.chkpoint[0]
+        # if not resume, result will be saved to new folder
+        else:
+            # auto experiment naming
+            saveFolderSuffix = NameValues((
+                ('loadScale', args.loadScale),
+                ('trainCrop', args.trainCrop),
+                ('batchSize', args.batchSize),
+                ('lossWeights', args.lossWeights),
+            ))
+            startTime = time.localtime(time.time())
+            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
+                            + self.__class__.__name__ \
+                            + saveFolderSuffix.strSuffix()
+            newFolderName += '_' + args.dataset
+            if args.outputFolder is not None:
+                stage = os.path.join(args.outputFolder, stage)
+            self.chkpointFolder = os.path.join('logs', stage, newFolderName)
+            checkDir(self.chkpointFolder)
+            self.logFolder = os.path.join(self.chkpointFolder, 'logs')
+        self.load(args.chkpoint)
+        self.logger = Logger(folder=self.logFolder)
+
+    def load(self, chkpointDir):
+        if chkpointDir is not None:
+            print('Loading checkpoint from %s' % chkpointDir)
+        else:
+            print('No checkpoint specified. Will initialize weights randomly.')
+        # get checkpoint file dirs
+        chkpointDir = scanCheckpoint(chkpointDir)
+
+        # update checkpointDir
+        self.chkpointDir = chkpointDir
+        if self.args.resume:
+            self.chkpointFolder, _ = os.path.split(self.chkpointDir)
+            self.logFolder = os.path.join(self.chkpointFolder, 'logs')
+
+        epoch, _ = self.model.load(self.chkpointDir)
+        if epoch is not None:
+            self.epoch = epoch
+        if self.args.resume:
+            self.epoch += 1
+        else:
+            self.epoch = 0
+
+    def save(self, epoch, iteration, info=None):
+        # update checkpointDir
+        self.chkpointDir = os.path.join(self.chkpointFolder,
+                                        'checkpoint_epoch_%04d_it_%05d.tar' % (epoch, iteration))
+        print('Saving model to: ' + self.chkpointDir)
+        saveDict = {
+            'epoch': epoch,
+            'iteration': iteration,
+        }
+        if info is not None:
+            saveDict.update(info)
+        self.model.save(self.chkpointDir, info=saveDict)
+
 
 # Flip among W dimension. For NCHW data type.
 def flipLR(ims):
     if type(ims) in (tuple, list):
         return forNestingList(ims, flipLR)
-    elif type(ims) is Output:
+    elif type(ims) is Imgs:
         for name in ims.keys():
             ims[name] = flipLR(ims[name])
+        return ims
     else:
         return ims.flip(-1)
 
@@ -373,9 +477,14 @@ class Logger:
         self.writer = SummaryWriter(folder)
         self._folder = folder
 
+    def logImages(self, imags: Imgs, prefix, global_step=None, n=0):
+        imags.logPrepare()
+        for key, value in imags.items():
+            self.logImage(value, prefix + key, 1, global_step, n)
+
     # Log First n ims into tensorboard
     # Log All ims if n == 0
-    def log_image(self, im, name, range, global_step=None, n=0):
+    def logImage(self, im, name, range, global_step=None, n=0):
         n = min(n, im.size(0))
         if n > 0 and im.dim() > 2:
             im = im[:n]
