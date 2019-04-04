@@ -1,21 +1,19 @@
-import torch.utils.data
 import os
 from models import Stereo
-from evaluation import Stereo_eval
+from evaluation.Stereo_eval import Evaluation
 from utils import myUtils
 from train.Train import Train as Base
 
 
 class Train(Base):
-    def __init__(self, model, args, trainImgLoader):
-        stage, _ = os.path.splitext(os.path.basename(__file__))
-        super().__init__(model=model, stage=stage, args=args, trainImgLoader=trainImgLoader)
+    def __init__(self, test: Evaluation, trainImgLoader):
+        super().__init__(test=test, trainImgLoader=trainImgLoader)
 
     def _trainIt(self, batch: myUtils.Batch):
-        loss, outputs = self.model.train(batch=batch.detach(),
+        loss, outputs = self.experiment.model.train(batch=batch.detach(),
                                          kitti=self.trainImgLoader.kitti,)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
-            outputs.addImg('Disp', disp, range=self.model.outMaxDisp, prefix='gt', side=side)
+            outputs.addImg('Disp', disp, range=self.experiment.model.outMaxDisp, prefix='gt', side=side)
             outputs.addImg('Rgb', input, prefix='input', side=side)
 
         return loss, outputs
@@ -33,7 +31,7 @@ def main():
         .half().resume().itRefine().validSetSample().parse()
 
     # Dataset
-    trainImgLoader, _ = dataloader.getDataLoader(dataPath=args.dataPath,
+    trainImgLoader, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
                                                  dataset=args.dataset,
                                                  trainCrop=args.trainCrop,
                                                  batchSizes=args.batchSize,
@@ -47,7 +45,10 @@ def main():
         stereo.itRefine = args.itRefine
 
     # Train
-    train = Train(model=stereo, args=args, trainImgLoader=trainImgLoader)
+    stage, _ = os.path.splitext(os.path.basename(__file__))
+    experiment = myUtils.Experiment(model=stereo, stage=stage, args=args)
+    test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
+    train = Train(test=test, trainImgLoader=trainImgLoader)
     train()
 
 

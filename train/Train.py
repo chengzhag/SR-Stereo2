@@ -1,38 +1,41 @@
 import time
 from utils import myUtils
+from evaluation.Evaluation import Evaluation
 
 
-class Train(myUtils.Experiment):
-    def __init__(self, model, stage, args, trainImgLoader):
-        super().__init__(model=model, stage=stage, args=args)
+class Train:
+    def __init__(self, test: Evaluation, trainImgLoader):
+        self.experiment = test.experiment
+        self.test = test
         self.trainImgLoader = trainImgLoader
-        self.globalStep = (self.epoch - 1) * len(self.trainImgLoader) if self.epoch > 0 else 0
+        self.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) if self.experiment.epoch > 0 else 0
 
     def _trainIt(self, batch: myUtils.Batch) -> (myUtils.Loss, myUtils.Imgs):
         # return scores, outputs
         return None, None
 
     def __call__(self):
-        self.log(mkFile='train_results.md',
-                 info=(('data', self.trainImgLoader.datapath),
-                       ('loadScale', self.trainImgLoader.loadScale),
-                       ('trainCrop', self.trainImgLoader.trainCrop),
-                       ('epochs', self.args.epochs),
-                       ('lr', self.args.lr),
-                       ('logEvery', self.args.logEvery),
-                       ('testEvery', self.args.testEvery)))
+        self.experiment.log(mkFile='train_results.md',
+                            info=(('data', self.trainImgLoader.datapath),
+                                  ('loadScale', self.trainImgLoader.loadScale),
+                                  ('trainCrop', self.trainImgLoader.trainCrop),
+                                  ('epochs', self.experiment.args.epochs),
+                                  ('lr', self.experiment.args.lr),
+                                  ('logEvery', self.experiment.args.logEvery),
+                                  ('testEvery', self.experiment.args.testEvery)))
         timeFilter = myUtils.Filter()
         avgPeriodLoss = None
-        for self.epoch in list(range(self.epoch, self.args.epochs + 1)):
-            if self.epoch > 0:
+        for self.experiment.epoch in list(range(self.experiment.epoch, self.experiment.args.epochs + 1)):
+            if self.experiment.epoch > 0:
                 # Train
-                print('This is %d-th epoch' % (self.epoch))
-                self.lrNow = myUtils.adjustLearningRate(self.model.optimizer, self.epoch, self.args.lr)
+                print('This is %d-th epoch' % (self.experiment.epoch))
+                self.lrNow = myUtils.adjustLearningRate(
+                    self.experiment.model.optimizer, self.experiment.epoch, self.experiment.args.lr)
 
                 # iteration
                 ticETC = time.time()
                 for batchIdx, batch in enumerate(self.trainImgLoader, 1):
-                    batch = myUtils.Batch(batch, cuda=self.model.cuda, half=self.model.half)
+                    batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
                     self.globalStep += 1
 
@@ -43,37 +46,46 @@ class Train(myUtils.Experiment):
                     else:
                         avgPeriodLoss.accumuate(loss)
 
-                    if self.args.logEvery > 0 and self.globalStep % self.args.logEvery == 0:
+                    if self.experiment.args.logEvery > 0 and self.globalStep % self.experiment.args.logEvery == 0:
                         avgPeriodLoss.avg()
                         for name, value in avgPeriodLoss.items():
-                            self.logger.writer.add_scalar('trainLosses/' + name, value, self.globalStep)
+                            self.experiment.logger.writer.add_scalar('trainLosses/' + name, value, self.globalStep)
                         avgPeriodLoss = None
 
-                        self.logger.logImages(imgs, 'trainImages/', self.globalStep, self.args.nSampleLog)
+                        self.experiment.logger.logImages(imgs, 'trainImages/', self.globalStep,
+                                                         self.experiment.args.nSampleLog)
 
                     timeLeft = timeFilter((time.time() - ticETC) / 3600 * (
-                            (self.args.epochs - self.epoch + 1) * len(self.trainImgLoader) - batchIdx))
+                            (self.experiment.args.epochs - self.experiment.epoch + 1) * len(
+                        self.trainImgLoader) - batchIdx))
                     printMessage = 'globalIt %d/%d, it %d/%d, epoch %d/%d, %sleft %.2fh' % (
-                        self.globalStep, len(self.trainImgLoader) * self.args.epochs,
+                        self.globalStep, len(self.trainImgLoader) * self.experiment.args.epochs,
                         batchIdx, len(self.trainImgLoader),
-                        self.epoch, self.args.epochs,
+                        self.experiment.epoch, self.experiment.args.epochs,
                         loss.strPrint(''), timeLeft)
-                    self.logger.writer.add_text('trainPrint/iterations', printMessage,
-                                                global_step=self.globalStep)
+                    self.experiment.logger.writer.add_text('trainPrint/iterations', printMessage,
+                                                           global_step=self.globalStep)
                     print(printMessage)
                     ticETC = time.time()
 
-                printMessage = 'epoch %d done' % (self.epoch)
+                printMessage = 'epoch %d done' % (self.experiment.epoch)
                 print(printMessage)
-                self.logger.writer.add_text('trainPrint/epochs', printMessage, global_step=self.globalStep)
+                self.experiment.logger.writer.add_text('trainPrint/epochs', printMessage, global_step=self.globalStep)
 
             # save
-            if (self.args.saveEvery > 0 and self.epoch % self.args.saveEvery == 0) \
-                    or (self.args.saveEvery == 0 and self.epoch == self.args.epochs):
-                self.save(epoch=self.epoch, iteration=self.iteration)
+            if (self.experiment.args.saveEvery > 0 and self.experiment.epoch % self.experiment.args.saveEvery == 0) \
+                    or (self.experiment.args.saveEvery == 0 and self.experiment.epoch == self.experiment.args.epochs):
+                self.experiment.save(epoch=self.experiment.epoch, iteration=self.experiment.iteration)
 
             # test
-            if ((self.args.testEvery > 0 and self.epoch > 0 and self.epoch % self.args.testEvery == 0)
-                    or (self.args.testEvery == 0 and (self.epoch == 0 or self.epoch == self.args.epochs))
-                    or (self.args.testEvery < 0 and (-self.epoch) % self.args.testEvery == 0)):
-                pass
+            if (
+                    (self.experiment.args.testEvery > 0
+                     and self.experiment.epoch > 0
+                     and self.experiment.epoch % self.experiment.args.testEvery == 0)
+                    or (self.experiment.args.testEvery == 0
+                        and (self.experiment.epoch == 0 or self.experiment.epoch == self.experiment.args.epochs))
+                    or (self.experiment.args.testEvery < 0
+                        and (-self.experiment.epoch) % self.experiment.args.testEvery == 0)
+                    and self.test.testImgLoader is not None
+            ):
+                self.test.__call__()

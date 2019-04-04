@@ -5,27 +5,27 @@ from evaluation.Evaluation import Evaluation as Base
 
 
 class Evaluation(Base):
-    def __init__(self, model, args, testImgLoader):
-        stage, _ = os.path.splitext(os.path.basename(__file__))
-        super().__init__(model=model, stage=stage, args=args, testImgLoader=testImgLoader)
+    def __init__(self, experiment: myUtils.Experiment, testImgLoader):
+        super().__init__(experiment=experiment, testImgLoader=testImgLoader)
 
     def _evalIt(self, batch: myUtils.Batch):
-        loss, outputs = self.model.test(batch=batch.detach(),
-                                        evalType=self.args.evalFcn,
-                                        kitti=self.testImgLoader.kitti)
+        loss, outputs = self.experiment.model.test(batch=batch.detach(),
+                                                   evalType=self.experiment.args.evalFcn,
+                                                   kitti=self.testImgLoader.kitti)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
-            outputs.addImg('Disp', disp, range=self.model.outMaxDisp, prefix='gt', side=side)
+            outputs.addImg('Disp', disp, range=self.experiment.model.outMaxDisp, prefix='gt', side=side)
             outputs.addImg('Rgb', input, prefix='input', side=side)
 
         return loss, outputs
+
 
 def main():
     import dataloader
 
     # Arguments
-    args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net')\
-        .outputFolder().maxDisp().dispScale().model().dataPath()\
-        .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset()\
+    args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
+        .outputFolder().maxDisp().dispScale().model().dataPath() \
+        .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
         .loadScale().batchSize().half().resume().itRefine().validSetSample().parse()
 
     # Dataset
@@ -42,7 +42,9 @@ def main():
         stereo.itRefine = args.itRefine
 
     # Test
-    test = Evaluation(model=stereo, args=args, testImgLoader=testImgLoader)
+    stage, _ = os.path.splitext(os.path.basename(__file__))
+    experiment = myUtils.Experiment(model=stereo, stage=stage, args=args)
+    test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     test()
 
 

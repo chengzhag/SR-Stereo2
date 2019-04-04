@@ -247,7 +247,7 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
 
     trainImgLoader = torch.utils.data.DataLoader(
         myImageFloder(*pathsTrain,
-                      cropSize=testCrop if mode == 'testing' else trainCrop,
+                      trainCrop,
                       kitti=kitti,
                       loadScale=loadScale,
                       mode=mode,
@@ -258,7 +258,7 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
 
     testImgLoader = torch.utils.data.DataLoader(
         myImageFloder(*pathsTest,
-                      cropSize=testCrop if mode == 'testing' else trainCrop,
+                      cropSize=testCrop if mode in ('testing', 'training') else trainCrop,
                       kitti=kitti,
                       loadScale=loadScale,
                       mode='testing' if mode == 'training' else mode,

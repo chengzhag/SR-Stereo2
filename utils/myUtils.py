@@ -176,8 +176,7 @@ class Experiment:
                 ('lossWeights', args.lossWeights),
             ))
             startTime = time.localtime(time.time())
-            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
-                            + self.__class__.__name__ \
+            newFolderName = time.strftime('%y%m%d%H%M%S', startTime) \
                             + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
@@ -692,7 +691,7 @@ def getSuffix(checkpointDirOrFolder):
         checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
         checkpointFolder, _ = os.path.split(checkpointDir)
         checkpointFolder = checkpointFolder.split('/')[-1]
-        saveFolderSuffix = checkpointFolder.split('_')[2:]
+        saveFolderSuffix = checkpointFolder.split('_')[1:]
         saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
         saveFolderSuffix = ''.join(saveFolderSuffix)
     else:

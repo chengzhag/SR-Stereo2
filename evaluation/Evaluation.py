@@ -2,9 +2,9 @@ import time
 from utils import myUtils
 
 
-class Evaluation(myUtils.Experiment):
-    def __init__(self, model, stage, args, testImgLoader):
-        super().__init__(model=model, stage=stage, args=args)
+class Evaluation:
+    def __init__(self, experiment: myUtils.Experiment, testImgLoader):
+        self.experiment = experiment
         self.testImgLoader = testImgLoader
 
     def _evalIt(self, batch: myUtils.Batch) -> (myUtils.Loss, myUtils.Imgs):
@@ -18,7 +18,7 @@ class Evaluation(myUtils.Experiment):
         totalTestLoss = None
         avgTestLoss = myUtils.Loss()
         for batchIdx, batch in enumerate(self.testImgLoader, 1):
-            batch = myUtils.Batch(batch, cuda=self.model.cuda, half=self.model.half)
+            batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
             loss, imgs = self._evalIt(batch)
 
@@ -28,7 +28,8 @@ class Evaluation(myUtils.Experiment):
                 totalTestLoss.accumuate(loss)
 
             if batchIdx == 1:
-                self.logger.logImages(imgs, 'testImages/', self.globalStep, self.args.nSampleLog)
+                self.experiment.logger.logImages(imgs, 'testImages/', self.experiment.globalStep,
+                                                 self.experiment.args.nSampleLog)
 
             timeLeft = timeFilter((time.time() - ticETC) / 3600 * (len(self.testImgLoader) - batchIdx))
 
@@ -40,19 +41,19 @@ class Evaluation(myUtils.Experiment):
                 batchIdx, len(self.testImgLoader),
                 loss.strPrint(), avgTestLoss.strPrint(suffix='Avg'), timeLeft)
             print(printMessage)
-            self.logger.writer.add_text('testPrint/iterations', printMessage,
-                                        global_step=self.globalStep)
+            self.experiment.logger.writer.add_text('testPrint/iterations', printMessage,
+                                                   global_step=self.experiment.globalStep)
 
             ticETC = time.time()
 
         # Log
         for name, value in avgTestLoss.items():
-            self.logger.writer.add_scalar('testLosses/' + name, value, self.globalStep)
+            self.experiment.logger.writer.add_scalar('testLosses/' + name, value, self.experiment.globalStep)
 
         for name, value in (('data', self.testImgLoader.datapath),
                             ('loadScale', self.testImgLoader.loadScale),
                             ('trainCrop', self.testImgLoader.trainCrop)):
             avgTestLoss.addLoss(loss=value, name=name)
-        self.log(mkFile='test_results.md', info=avgTestLoss.items())
+        self.experiment.log(mkFile='test_results.md', info=avgTestLoss.items())
 
         return avgTestLoss
