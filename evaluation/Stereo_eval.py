@@ -16,7 +16,7 @@ class Evaluation(Base):
             outputs.addImg('Disp', disp, range=self.experiment.model.outMaxDisp, prefix='gt', side=side)
             outputs.addImg('Rgb', input, prefix='input', side=side)
 
-        return loss, outputs
+        return loss, outputs.cpu()
 
 
 def main():

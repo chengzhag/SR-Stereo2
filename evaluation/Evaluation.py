@@ -1,5 +1,6 @@
 import time
 from utils import myUtils
+import os
 
 
 class Evaluation:
@@ -28,8 +29,11 @@ class Evaluation:
                 totalTestLoss.accumuate(loss)
 
             if batchIdx == 1:
-                self.experiment.logger.logImages(imgs, 'testImages/', self.experiment.globalStep,
+                self.experiment.logger.logImages(imgs.clone(), 'testImages/', self.experiment.globalStep,
                                                  self.experiment.args.nSampleLog)
+                imgs.save(dir='temp', name='temp')
+                for name in imgs.keys():
+                    self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name)
 
             timeLeft = timeFilter((time.time() - ticETC) / 3600 * (len(self.testImgLoader) - batchIdx))
 

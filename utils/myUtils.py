@@ -10,6 +10,8 @@ import random
 import time
 import copy
 import sys
+import skimage.io
+
 
 class NameValues(collections.OrderedDict):
     def __init__(self, seq=(), prefix='', suffix=''):
@@ -98,6 +100,11 @@ class Imgs(collections.OrderedDict):
             else:
                 raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
 
+    def cpu(self):
+        for name in self.keys():
+            self[name] = self[name].cpu()
+        return self
+
     def update(self, imgs, suffix=''):
         assert type(imgs) is Imgs
         for name in imgs.keys():
@@ -122,6 +129,25 @@ class Imgs(collections.OrderedDict):
     def logPrepare(self):
         for name in self.keys():
             self[name] /= self._range[name]
+
+    def _savePrepare(self):
+        for name in self.keys():
+            if 'Disp' in name:
+                if self._range[name] == 192:
+                    self[name] = savePreprocessDisp(self[name])
+                elif self._range[name] == 384:
+                    self[name] = savePreprocessDisp(self[name], dispScale=170)
+            elif 'Rgb':
+                self[name] = savePreprocessRGB(self[name])
+
+    def save(self, dir, name):
+        self._savePrepare()
+        checkDir(dir)
+        for folder, value in self.items():
+            checkDir(os.path.join(dir, folder))
+            saveDir = os.path.join(dir, folder, name + '.png')
+            skimage.io.imsave(saveDir, value)
+            print('saving to: %s' % saveDir)
 
 
 class Loss(NameValues):
@@ -238,12 +264,12 @@ class Experiment:
         writeMessage += '\n\n'
 
         baseInfos = (
-                     ('checkpoint', self.chkpointDir),
-                     ('evalFcn', self.args.evalFcn),
-                     ('epoch', self.epoch),
-                     ('iteration', self.iteration),
-                     ('globalStep', self.globalStep),
-                     )
+            ('checkpoint', self.chkpointDir),
+            ('evalFcn', self.args.evalFcn),
+            ('epoch', self.epoch),
+            ('iteration', self.iteration),
+            ('globalStep', self.globalStep),
+        )
         for pairs, title in zip((baseInfos, info),
                                 ('basic info:', 'additional info:')):
             if len(pairs) > 0:
@@ -258,7 +284,6 @@ class Experiment:
 
         self.logger.writer.add_text('testPrint/epochs', writeMessage,
                                     global_step=self.globalStep)
-
 
 
 # Flip among W dimension. For NCHW data type.

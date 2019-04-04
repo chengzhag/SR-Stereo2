@@ -111,8 +111,10 @@ class PSMNet(Stereo):
             scaledLoss.backward()
         self.optimizer.step()
 
-        output.addImg('Disp', output.getImg('Disp', prefix='output')[2].detach(), range=self.outMaxDisp,
-                       prefix='output')
+        output.addImg('Disp',
+                      output.getImg('Disp', prefix='output')[2].detach(),
+                      range=self.outMaxDisp,
+                      prefix='output')
         return loss, output
 
     def train(self, batch: myUtils.Batch, kitti=False, weights=(), progress=0):
@@ -136,6 +138,5 @@ class PSMNet(Stereo):
                 )
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=process(output), suffix=side)
-
 
         return losses, outputs
