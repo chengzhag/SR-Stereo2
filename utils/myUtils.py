@@ -8,8 +8,7 @@ import numpy as np
 import random
 import time
 import copy
-from collections.abc import Iterable
-
+import sys
 
 class NameValues(collections.OrderedDict):
     def __init__(self, seq=(), prefix='', suffix=''):
@@ -21,10 +20,9 @@ class NameValues(collections.OrderedDict):
     def clone(self):
         return copy.deepcopy(self)
 
-    def update(self, output, suffix=''):
-        assert type(output) is Imgs
-        for name in output.keys():
-            self[name + suffix] = output[name]
+    def update(self, nameValues, suffix=''):
+        for name in nameValues.keys():
+            self[name + suffix] = nameValues[name]
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
@@ -205,12 +203,8 @@ class Experiment:
             self.logFolder = os.path.join(self.chkpointFolder, 'logs')
 
         epoch, _ = self.model.load(self.chkpointDir)
-        if epoch is not None:
-            self.epoch = epoch
-        if self.args.resume:
-            self.epoch += 1
-        else:
-            self.epoch = 0
+
+        self.epoch = epoch + 1 if self.args.resume and epoch is not None else 0
 
     def save(self, epoch, iteration, info=None):
         # update checkpointDir
@@ -224,6 +218,37 @@ class Experiment:
         if info is not None:
             saveDict.update(info)
         self.model.save(self.chkpointDir, info=saveDict)
+
+    def log(self, mkFile, info=None):
+        writeMessage = ''
+        writeMessage += '---------------------- %s ----------------------\n\n' % \
+                        time.asctime(time.localtime(time.time()))
+        writeMessage += 'bash param: '
+        for arg in sys.argv:
+            writeMessage += arg + ' '
+        writeMessage += '\n\n'
+
+        baseInfos = (
+                     ('checkpoint', self.chkpointDir),
+                     ('evalFcn', self.args.evalFcn),
+                     ('epoch', self.epoch),
+                     ('iteration', self.iteration),
+                     ('globalStep', self.globalStep),
+                     )
+        for pairs, title in zip((baseInfos, info),
+                                ('basic info:', 'additional info:')):
+            if len(pairs) > 0:
+                writeMessage += title + '\n\n'
+                for (name, value) in pairs:
+                    if value is not None:
+                        writeMessage += '- ' + name + ': ' + str(value) + '\n'
+                writeMessage += '\n'
+
+        with open(os.path.join(self.chkpointFolder, mkFile), "a") as log:
+            log.write(writeMessage)
+
+        self.logger.writer.add_text('testPrint/epochs', writeMessage,
+                                    global_step=self.globalStep)
 
 
 # Flip among W dimension. For NCHW data type.
@@ -335,8 +360,8 @@ class DefaultParser:
         return self
 
     # training
-    def batchsize(self):
-        self.parser.add_argument('--batchsize', type=int, default=[0], nargs='+',
+    def batchSize(self):
+        self.parser.add_argument('--batchSize', type=int, default=[0], nargs='+',
                                  help='training and testing batch size')
         return self
 

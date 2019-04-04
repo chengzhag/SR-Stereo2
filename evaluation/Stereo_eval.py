@@ -1,5 +1,3 @@
-import time
-import torch
 import os
 from models import Stereo
 from utils import myUtils
@@ -12,12 +10,12 @@ class Evaluation(Base):
         super().__init__(model=model, stage=stage, args=args, testImgLoader=testImgLoader)
 
     def _evalIt(self, batch: myUtils.Batch):
-        loss, outputs = self.model.test(batch=batch,
+        loss, outputs = self.model.test(batch=batch.detach(),
                                         evalType=self.args.evalFcn,
                                         kitti=self.testImgLoader.kitti)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
             outputs.addImg('Disp', disp, range=self.model.outMaxDisp, prefix='gt', side=side)
-            outputs.addImg('RGB', input, prefix='input', side=side)
+            outputs.addImg('Rgb', input, prefix='input', side=side)
 
         return loss, outputs
 
@@ -28,12 +26,12 @@ def main():
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net')\
         .outputFolder().maxDisp().dispScale().model().dataPath()\
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset()\
-        .loadScale().batchsize().half().resume().itRefine().validSetSample().parse()
+        .loadScale().batchSize().half().resume().itRefine().validSetSample().parse()
 
     # Dataset
     _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
                                                 dataset=args.dataset,
-                                                batchSizes=args.batchsize,
+                                                batchSizes=args.batchSize,
                                                 loadScale=args.loadScale,
                                                 mode='testing',
                                                 validSetSample=args.validSetSample)
