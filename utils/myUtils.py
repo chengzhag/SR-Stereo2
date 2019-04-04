@@ -5,20 +5,28 @@ from tensorboardX import SummaryWriter
 import collections
 import cv2
 import numpy as np
-import torchvision.transforms as transforms
 import random
-
+import time
+import copy
+import sys
 
 class NameValues(collections.OrderedDict):
-    def __init__(self, names=(), values=(), prefix='', suffix=''):
-        super(NameValues, self).__init__()
-        for name, value in zip(names, values):
+    def __init__(self, seq=(), prefix='', suffix=''):
+        super().__init__()
+        for name, value in seq:
             if value is not None:
-                super(NameValues, self).__setitem__(prefix + name + suffix, value)
+                super().__setitem__(prefix + name + suffix, value)
+
+    def clone(self):
+        return copy.deepcopy(self)
+
+    def update(self, nameValues, suffix=''):
+        for name in nameValues.keys():
+            self[name + suffix] = nameValues[name]
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
-        for name, value in super(NameValues, self).items():
+        for name, value in super().items():
             if name.find('outlier') != -1:
                 unit = '%'
             else:
@@ -40,7 +48,7 @@ class NameValues(collections.OrderedDict):
 
     def strSuffix(self, prefix='', suffix=''):
         sSuffix = ''
-        for name, value in super(NameValues, self).items():
+        for name, value in super().items():
             sSuffix += '_%s' % (prefix + name + suffix)
 
             def addValue(sAppend, values):
@@ -79,9 +87,179 @@ class AutoPad:
         return forNestingList(imgs, lambda img: img[:, (self.HPad - self.H):, (self.WPad - self.W):])
 
 
+class Imgs(collections.OrderedDict):
+    def __init__(self, imgs=None):
+        super().__init__()
+        self._range = {}
+        if imgs is not None:
+            if isinstance(imgs, Imgs):
+                self.update(imgs)
+            else:
+                raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
+
+    def update(self, imgs, suffix=''):
+        assert type(imgs) is Imgs
+        for name in imgs.keys():
+            self[name + suffix] = imgs[name]
+            self._range[name + suffix] = imgs._range[name]
+
+    def clone(self):
+        r = Imgs()
+        for name, value in self.items():
+            r[name] = value.clone()
+            r._range[name] = self._range[name]
+        return r
+
+    def getImg(self, name: str, prefix: str, side: str = ''):
+        return self.get(prefix + name + side)
+
+    def addImg(self, name: str, img, prefix: str, range=1, side: str = ''):
+        if img is not None:
+            self._range[prefix + name + side] = range
+            self[prefix + name + side] = img
+
+    def logPrepare(self):
+        for name in self.keys():
+            self[name] /= self._range[name]
+
+
+class Loss(NameValues):
+    def __init__(self, seq=(), prefix='', suffix=''):
+        super().__init__(seq=seq, prefix=prefix, suffix=suffix)
+        self.nAccum = 1
+
+    def getLoss(self, name: str, prefix: str = 'loss', side: str = ''):
+        return self[prefix + name + side]
+
+    def addLoss(self, loss, name: str, prefix: str = 'loss', side: str = ''):
+        self[prefix + name + side] = loss
+
+    def accumuate(self, loss):
+        for key in self.keys():
+            self[key] += loss[key]
+        self.nAccum += 1
+
+    def avg(self):
+        for key in self.keys():
+            self[key] /= self.nAccum
+        self.nAccum = 1
+
+
+class Experiment:
+    def __init__(self, model, stage, args):
+        self.args = args
+        self.model = model
+        self.epoch = 0
+        self.iteration = 0
+        self.globalStep = 0
+
+        # load from checkpoint, if success will overwrite dirs below
+        self.chkpointDir = None
+        self.chkpointFolder = None
+        self.logFolder = None
+
+        # if resume, results will be saved to where the loaded checkpoint is.
+        if args.resume:
+            if args.chkpoint is None:
+                raise Exception('Error: No checkpoint to resume!')
+            elif len(args.chkpoint) > 1:
+                raise Exception('Error: Cannot resume multi-checkpoints model!')
+            else:
+                args.chkpoint = args.chkpoint[0]
+        # if not resume, result will be saved to new folder
+        else:
+            # auto experiment naming
+            saveFolderSuffix = NameValues((
+                ('loadScale', args.loadScale),
+                ('trainCrop', args.trainCrop),
+                ('batchSize', args.batchSize),
+                ('lossWeights', args.lossWeights),
+            ))
+            startTime = time.localtime(time.time())
+            newFolderName = time.strftime('%y%m%d%H%M%S', startTime) \
+                            + saveFolderSuffix.strSuffix()
+            newFolderName += '_' + args.dataset
+            if args.outputFolder is not None:
+                stage = os.path.join(args.outputFolder, stage)
+            self.chkpointFolder = os.path.join('logs', stage, newFolderName)
+            checkDir(self.chkpointFolder)
+            self.logFolder = os.path.join(self.chkpointFolder, 'logs')
+        self.load(args.chkpoint)
+        self.logger = Logger(folder=self.logFolder)
+
+    def load(self, chkpointDir):
+        if chkpointDir is not None:
+            print('Loading checkpoint from %s' % chkpointDir)
+        else:
+            print('No checkpoint specified. Will initialize weights randomly.')
+        # get checkpoint file dirs
+        chkpointDir = scanCheckpoint(chkpointDir)
+
+        # update checkpointDir
+        self.chkpointDir = chkpointDir
+        if self.args.resume:
+            self.chkpointFolder, _ = os.path.split(self.chkpointDir)
+            self.logFolder = os.path.join(self.chkpointFolder, 'logs')
+
+        epoch, _ = self.model.load(self.chkpointDir)
+
+        self.epoch = epoch + 1 if self.args.resume and epoch is not None else 0
+
+    def save(self, epoch, iteration, info=None):
+        # update checkpointDir
+        self.chkpointDir = os.path.join(self.chkpointFolder,
+                                        'checkpoint_epoch_%04d_it_%05d.tar' % (epoch, iteration))
+        print('Saving model to: ' + self.chkpointDir)
+        saveDict = {
+            'epoch': epoch,
+            'iteration': iteration,
+        }
+        if info is not None:
+            saveDict.update(info)
+        self.model.save(self.chkpointDir, info=saveDict)
+
+    def log(self, mkFile, info=None):
+        writeMessage = ''
+        writeMessage += '---------------------- %s ----------------------\n\n' % \
+                        time.asctime(time.localtime(time.time()))
+        writeMessage += 'bash param: '
+        for arg in sys.argv:
+            writeMessage += arg + ' '
+        writeMessage += '\n\n'
+
+        baseInfos = (
+                     ('checkpoint', self.chkpointDir),
+                     ('evalFcn', self.args.evalFcn),
+                     ('epoch', self.epoch),
+                     ('iteration', self.iteration),
+                     ('globalStep', self.globalStep),
+                     )
+        for pairs, title in zip((baseInfos, info),
+                                ('basic info:', 'additional info:')):
+            if len(pairs) > 0:
+                writeMessage += title + '\n\n'
+                for (name, value) in pairs:
+                    if value is not None:
+                        writeMessage += '- ' + name + ': ' + str(value) + '\n'
+                writeMessage += '\n'
+
+        with open(os.path.join(self.chkpointFolder, mkFile), "a") as log:
+            log.write(writeMessage)
+
+        self.logger.writer.add_text('testPrint/epochs', writeMessage,
+                                    global_step=self.globalStep)
+
+
 # Flip among W dimension. For NCHW data type.
 def flipLR(ims):
-    return forNestingList(ims, lambda im: im.flip(-1) if im is not None else None)
+    if type(ims) in (tuple, list):
+        return forNestingList(ims, flipLR)
+    elif type(ims) is Imgs:
+        for name in ims.keys():
+            ims[name] = flipLR(ims[name])
+        return ims
+    else:
+        return ims.flip(-1)
 
 
 def assertDisp(dispL=None, dispR=None):
@@ -181,8 +359,8 @@ class DefaultParser:
         return self
 
     # training
-    def batchsize(self):
-        self.parser.add_argument('--batchsize', type=int, default=[0], nargs='+',
+    def batchSize(self):
+        self.parser.add_argument('--batchSize', type=int, default=[0], nargs='+',
                                  help='training and testing batch size')
         return self
 
@@ -300,16 +478,6 @@ def adjustLearningRate(optimizer, epoch, lr):
     return lr
 
 
-def assertBatchLen(batch, length):
-    if type(batch) is not Batch:
-        raise Exception('Error: batch must be class Batch!')
-    if type(length) in (list, tuple):
-        if len(batch) not in length:
-            raise Exception(f'Error: input batch with length {len(batch)} doesnot match required {length}!')
-    elif len(batch) != length:
-        raise Exception(f'Error: input batch with length {len(batch)} doesnot match required {length}!')
-
-
 def quantize(img, rgb_range):
     pixel_range = 255 / rgb_range
     return img.mul(pixel_range).clamp(0, 255).round().div(pixel_range)
@@ -333,18 +501,22 @@ class Logger:
         self.writer = SummaryWriter(folder)
         self._folder = folder
 
+    def logImages(self, imags: Imgs, prefix, global_step=None, n=0):
+        imags.logPrepare()
+        for key, value in imags.items():
+            self.logImage(value, prefix + key, 1, global_step, n)
+
     # Log First n ims into tensorboard
     # Log All ims if n == 0
-    def log_image(self, im, name, range, global_step=None, n=0):
-        if im is not None:
-            n = min(n, im.size(0))
-            if n > 0 and im.dim() > 2:
-                im = im[:n]
-            if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
-                im = im / range
-                im = im.clamp(0, 1)
-                im = gray2rgb(im.cpu())
-            self.writer.add_images(name, im, global_step=global_step)
+    def logImage(self, im, name, range, global_step=None, n=0):
+        n = min(n, im.size(0))
+        if n > 0 and im.dim() > 2:
+            im = im[:n]
+        if im.dim() == 3 or im.dim() == 2 or (im.dim() == 4 and im.size(1) == 1):
+            im = im / range
+            im = im.clamp(0, 1)
+            im = gray2rgb(im.cpu())
+        self.writer.add_images(name, im, global_step=global_step)
 
 
 class Batch:
@@ -391,8 +563,21 @@ class Batch:
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
-        if len % 4 != 0:
-            raise Exception(f'Error: input batch with length {len} doesnot match required 4n!')
+        assert len % 4 == 0
+
+    def assertLen(self, length):
+        if type(length) in (list, tuple):
+            for l in length:
+                self.assertLen(l)
+        else:
+            assert len(self) == length
+
+    def assertScales(self, nScales):
+        if type(nScales) in (list, tuple):
+            for nScale in nScales:
+                self.assertScales(nScale)
+        else:
+            self.assertLen(nScales * 4)
 
     def __len__(self):
         return len(self.batch)
@@ -466,13 +651,6 @@ def forNestingList(l, fcn):
         return fcn(l)
 
 
-def getLastNotList(l):
-    if type(l) in (list, tuple):
-        return getLastNotList(l[-1])
-    else:
-        return l
-
-
 def scanCheckpoint(checkpointDirs):
     if type(checkpointDirs) in (list, tuple):
         checkpointDirs = [scanCheckpoint(dir) for dir in checkpointDirs]
@@ -508,17 +686,12 @@ def scanCheckpoint(checkpointDirs):
 
 
 def getSuffix(checkpointDirOrFolder):
-    # saveFolderSuffix = myUtils.NameValues(('loadScale', 'trainCrop', 'batchSize', 'lossWeights'),
-    #                                       (trainImgLoader.loadScale,
-    #                                        trainImgLoader.trainCrop,
-    #                                        args.batchsize_train,
-    #                                        args.lossWeights))
     if type(checkpointDirOrFolder) is str or \
             (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
         checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
         checkpointFolder, _ = os.path.split(checkpointDir)
         checkpointFolder = checkpointFolder.split('/')[-1]
-        saveFolderSuffix = checkpointFolder.split('_')[2:]
+        saveFolderSuffix = checkpointFolder.split('_')[1:]
         saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
         saveFolderSuffix = ''.join(saveFolderSuffix)
     else:
