@@ -1,6 +1,6 @@
+from utils import myUtils
 import os
 from models import Stereo
-from utils import myUtils
 from evaluation.Evaluation import Evaluation as Base
 
 

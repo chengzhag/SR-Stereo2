@@ -1,7 +1,7 @@
+from utils import myUtils
 import os
 from models import Stereo
 from evaluation.Stereo_eval import Evaluation
-from utils import myUtils
 from train.Train import Train as Base
 
 

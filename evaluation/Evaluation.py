@@ -48,8 +48,8 @@ class Evaluation:
 
         # Log
         for name, value in avgTestLoss.items():
-            self.experiment.logger.writer.add_scalar('testLosses/' + name, value, self.experiment.globalStep)
-
+            self.experiment.logger.writer.add_scalar('testLosses/' + name, value, self.experiment.epoch)
+        self.experiment.cometExp.log_metrics(avgTestLoss, prefix='testLosses', step=self.experiment.epoch)
         for name, value in (('data', self.testImgLoader.datapath),
                             ('loadScale', self.testImgLoader.loadScale),
                             ('trainCrop', self.testImgLoader.trainCrop)):

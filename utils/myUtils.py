@@ -1,3 +1,4 @@
+from comet_ml import Experiment as CometExp
 import torch
 import os
 import argparse
@@ -147,6 +148,15 @@ class Loss(NameValues):
 
 class Experiment:
     def __init__(self, model, stage, args):
+        # cometExpDisable = args.outputFolder in ('pycharmruns')
+        cometExpDisable = False
+        self.cometExp = CometExp(project_name='srstereo',
+                                 auto_metric_logging=False,
+                                 auto_output_logging=False,
+                                 auto_param_logging=False,
+                                 log_code=False,
+                                 disabled=cometExpDisable)
+        self.cometExp.log_parameters(dic=struct2dict(args), prefix='args')
         self.args = args
         self.model = model
         self.epoch = 0
@@ -248,6 +258,7 @@ class Experiment:
 
         self.logger.writer.add_text('testPrint/epochs', writeMessage,
                                     global_step=self.globalStep)
+
 
 
 # Flip among W dimension. For NCHW data type.
@@ -455,7 +466,7 @@ class DefaultParser:
 
 def struct2dict(struct):
     argsDict = dict((name, getattr(struct, name)) for name in dir(struct)
-                    if not name.startswith('__') and not callable(getattr(struct, name)))
+                    if not name.startswith('_') and not callable(getattr(struct, name)))
     return argsDict
 
 
