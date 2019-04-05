@@ -29,11 +29,12 @@ class Evaluation:
                 totalTestLoss.accumuate(loss)
 
             if batchIdx == 1:
-                self.experiment.logger.logImages(imgs.clone(), 'testImages/', self.experiment.globalStep,
+                self.experiment.logger.logImages(imgs.clone(), 'test/', self.experiment.globalStep,
                                                  self.experiment.args.nSampleLog)
                 imgs.save(dir='temp', name='temp')
                 for name in imgs.keys():
-                    self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name)
+                    self.experiment.cometExp.set_step(self.experiment.epoch)
+                    self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name, overwrite=True)
 
             timeLeft = timeFilter((time.time() - ticETC) / 3600 * (len(self.testImgLoader) - batchIdx))
 
@@ -45,15 +46,15 @@ class Evaluation:
                 batchIdx, len(self.testImgLoader),
                 loss.strPrint(), avgTestLoss.strPrint(suffix='Avg'), timeLeft)
             print(printMessage)
-            self.experiment.logger.writer.add_text('testPrint/iterations', printMessage,
+            self.experiment.logger.writer.add_text('test/iterations', printMessage,
                                                    global_step=self.experiment.globalStep)
 
             ticETC = time.time()
 
         # Log
         for name, value in avgTestLoss.items():
-            self.experiment.logger.writer.add_scalar('testLosses/' + name, value, self.experiment.epoch)
-        self.experiment.cometExp.log_metrics(avgTestLoss, prefix='testLosses', step=self.experiment.epoch)
+            self.experiment.logger.writer.add_scalar('test/' + name, value, self.experiment.epoch)
+        self.experiment.cometExp.log_metrics(avgTestLoss, prefix='test', step=self.experiment.epoch)
         for name, value in (('data', self.testImgLoader.datapath),
                             ('loadScale', self.testImgLoader.loadScale),
                             ('trainCrop', self.testImgLoader.trainCrop)):

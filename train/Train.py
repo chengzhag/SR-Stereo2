@@ -1,6 +1,7 @@
 import time
 from utils import myUtils
 from evaluation.Evaluation import Evaluation
+import torch
 
 
 class Train:
@@ -8,14 +9,15 @@ class Train:
         self.experiment = test.experiment
         self.test = test
         self.trainImgLoader = trainImgLoader
-        self.experiment.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) if self.experiment.epoch > 0 else 0
+        self.experiment.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) \
+            if self.experiment.epoch > 0 else 0
 
     def _trainIt(self, batch: myUtils.Batch) -> (myUtils.Loss, myUtils.Imgs):
         # return scores, outputs
         return None, None
 
     def __call__(self):
-        self.experiment.log(mkFile='train_results.md',
+        self.experiment.log(mkFile='train_info.md',
                             info=(('data', self.trainImgLoader.datapath),
                                   ('loadScale', self.trainImgLoader.loadScale),
                                   ('trainCrop', self.trainImgLoader.trainCrop),
@@ -30,7 +32,7 @@ class Train:
             if self.experiment.epoch > 0:
                 # Train
                 print('This is %d-th epoch' % (self.experiment.epoch))
-                self.lrNow = myUtils.adjustLearningRate(
+                lrNow = myUtils.adjustLearningRate(
                     self.experiment.model.optimizer, self.experiment.epoch, self.experiment.args.lr)
 
                 # iteration
@@ -52,12 +54,14 @@ class Train:
                             and self.experiment.globalStep % self.experiment.args.logEvery == 0:
                         avgPeriodLoss.avg()
                         for name, value in avgPeriodLoss.items():
-                            self.experiment.logger.writer.add_scalar('trainLosses/' + name, value, self.experiment.globalStep)
-                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='trainLosses',
+                            self.experiment.logger.writer.add_scalar(
+                                'train/' + name, value, self.experiment.globalStep)
+                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='train',
                                                              step=self.experiment.globalStep)
+                        self.experiment.cometExp.log_metric(name='lr', value=lrNow, step=self.experiment.globalStep)
                         avgPeriodLoss = None
 
-                        self.experiment.logger.logImages(imgs, 'trainImages/', self.experiment.globalStep,
+                        self.experiment.logger.logImages(imgs, 'train/', self.experiment.globalStep,
                                                          self.experiment.args.nSampleLog)
 
                     # print
@@ -65,11 +69,16 @@ class Train:
                             (self.experiment.args.epochs - self.experiment.epoch + 1) * len(
                         self.trainImgLoader) - batchIdx))
                     printMessage = 'globalIt %d/%d, it %d/%d, epoch %d/%d, %sleft %.2fh' % (
-                        self.experiment.globalStep, len(self.trainImgLoader) * self.experiment.args.epochs,
-                        batchIdx, len(self.trainImgLoader),
-                        self.experiment.epoch, self.experiment.args.epochs,
-                        loss.strPrint(''), timeLeft)
-                    self.experiment.logger.writer.add_text('trainPrint/iterations', printMessage,
+                        self.experiment.globalStep,
+                        len(self.trainImgLoader) * self.experiment.args.epochs,
+                        batchIdx,
+                        len(self.trainImgLoader),
+                        self.experiment.epoch,
+                        self.experiment.args.epochs,
+                        loss.strPrint(''),
+                        timeLeft)
+                    self.experiment.logger.writer.add_text('train/iterations',
+                                                           printMessage,
                                                            global_step=self.experiment.globalStep)
                     print(printMessage)
                     ticETC = time.time()
@@ -77,7 +86,7 @@ class Train:
                 printMessage = 'epoch %d done' % (self.experiment.epoch)
                 print(printMessage)
                 self.experiment.logger.writer.add_text(
-                    'trainPrint/epochs', printMessage, global_step=self.experiment.globalStep)
+                    'train/epochs', printMessage, global_step=self.experiment.globalStep)
 
             # save
             if (self.experiment.args.saveEvery > 0 and self.experiment.epoch % self.experiment.args.saveEvery == 0) \
@@ -95,7 +104,9 @@ class Train:
                         and (-self.experiment.epoch) % self.experiment.args.testEvery == 0)
                     and self.test.testImgLoader is not None
             ):
+                torch.cuda.empty_cache()
                 self.test.__call__()
+                torch.cuda.empty_cache()
 
             self.experiment.cometExp.log_epoch_end(
-                epoch_cnt=self.experiment.args.epochs, step=self.experiment.globalStep)
+                epoch_cnt=self.experiment.args.epochs, step=self.experiment.epoch)

@@ -132,6 +132,7 @@ class Imgs(collections.OrderedDict):
 
     def _savePrepare(self):
         for name in self.keys():
+            self[name] = self[name][0]
             if 'Disp' in name:
                 if self._range[name] == 192:
                     self[name] = savePreprocessDisp(self[name])
@@ -212,7 +213,8 @@ class Experiment:
                 ('lossWeights', args.lossWeights),
             ))
             startTime = time.localtime(time.time())
-            newFolderName = time.strftime('%y%m%d%H%M%S', startTime) \
+            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
+                            + model.__class__.__name__ \
                             + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
