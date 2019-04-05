@@ -80,7 +80,7 @@ class PSMNet(Stereo):
             imgs = myUtils.Imgs()
         for key, value in outputs.items():
             if key == 'outputDisp':
-                imgs.addImg(key, value, '', self.outMaxDisp)
+                imgs.addImg(name=key, img=value, range=self.outMaxDisp)
         return imgs
 
     # input disparity maps:
@@ -91,29 +91,27 @@ class PSMNet(Stereo):
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
         mask = (gts > 0).detach() if kitti else (gts < outMaxDisp).detach()
-        loss = myUtils.Loss()
-        loss.addLoss(
-            0.5 * F.smooth_l1_loss(output[0][mask], gts[mask], reduction='mean')
-            + 0.7 * F.smooth_l1_loss(output[1][mask], gts[mask], reduction='mean')
-            + F.smooth_l1_loss(output[2][mask], gts[mask], reduction='mean'),
-            name='Disp')
+        loss = myUtils.NameValues()
+        loss['lossDisp'] = \
+            0.5 * F.smooth_l1_loss(output[0][mask], gts[mask], reduction='mean') \
+            + 0.7 * F.smooth_l1_loss(output[1][mask], gts[mask], reduction='mean') \
+            + F.smooth_l1_loss(output[2][mask], gts[mask], reduction='mean')
 
         return loss
 
     def trainOneSide(self, imgL, imgR, gt, kitti=False):
         self.optimizer.zero_grad()
         output = self.packOutputs(self.model.forward(imgL, imgR))
-        loss = self.loss(output=output.getImg('Disp', prefix='output'),
+        loss = self.loss(output=output['outputDisp'],
                          gts=gt,
                          kitti=kitti,
                          outMaxDisp=self.outMaxDisp)
-        with self.ampHandle.scale_loss(loss.getLoss('Disp'), self.optimizer) as scaledLoss:
+        with self.ampHandle.scale_loss(loss['lossDisp'], self.optimizer) as scaledLoss:
             scaledLoss.backward()
         self.optimizer.step()
 
-        output.addImg('Disp', output.getImg('Disp', prefix='output')[2].detach(), range=self.outMaxDisp,
-                       prefix='output')
-        return loss, output
+        output.addImg(name='outputDisp', img=output['outputDisp'][2].detach(), range=self.outMaxDisp)
+        return loss.dataItem(), output
 
     def train(self, batch: myUtils.Batch, kitti=False, weights=(), progress=0):
         batch.assertScales(1)
@@ -121,7 +119,7 @@ class PSMNet(Stereo):
 
         imgL, imgR = batch.highResRGBs()
 
-        losses = myUtils.Loss()
+        losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for inputL, inputR, gt, process, side in zip(
                 (imgL, imgR), (imgR, imgL),
@@ -136,6 +134,5 @@ class PSMNet(Stereo):
                 )
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=process(output), suffix=side)
-
 
         return losses, outputs

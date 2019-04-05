@@ -1,6 +1,6 @@
+from utils import myUtils
 import os
 from models import Stereo
-from utils import myUtils
 from evaluation.Evaluation import Evaluation as Base
 
 
@@ -13,10 +13,10 @@ class Evaluation(Base):
                                                    evalType=self.experiment.args.evalFcn,
                                                    kitti=self.testImgLoader.kitti)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
-            outputs.addImg('Disp', disp, range=self.experiment.model.outMaxDisp, prefix='gt', side=side)
-            outputs.addImg('Rgb', input, prefix='input', side=side)
+            outputs.addImg(name='gtDisp' + side, img=disp, range=self.experiment.model.outMaxDisp)
+            outputs.addImg(name='inputRgb' + side, img=input)
 
-        return loss, outputs
+        return loss, outputs.cpu()
 
 
 def main():

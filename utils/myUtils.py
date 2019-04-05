@@ -1,3 +1,4 @@
+from comet_ml import Experiment as CometExp
 import torch
 import os
 import argparse
@@ -9,6 +10,8 @@ import random
 import time
 import copy
 import sys
+import skimage.io
+
 
 class NameValues(collections.OrderedDict):
     def __init__(self, seq=(), prefix='', suffix=''):
@@ -16,13 +19,29 @@ class NameValues(collections.OrderedDict):
         for name, value in seq:
             if value is not None:
                 super().__setitem__(prefix + name + suffix, value)
+        self.nAccum = 1
 
     def clone(self):
         return copy.deepcopy(self)
 
+    def dataItem(self):
+        for key in self.keys():
+            self[key] = self[key].data.item()
+        return self
+
     def update(self, nameValues, suffix=''):
         for name in nameValues.keys():
             self[name + suffix] = nameValues[name]
+
+    def accumuate(self, nameValues):
+        for key in self.keys():
+            self[key] += nameValues[key]
+        self.nAccum += 1
+
+    def avg(self):
+        for key in self.keys():
+            self[key] /= self.nAccum
+        self.nAccum = 1
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
@@ -97,6 +116,11 @@ class Imgs(collections.OrderedDict):
             else:
                 raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
 
+    def cpu(self):
+        for name in self.keys():
+            self[name] = self[name].cpu()
+        return self
+
     def update(self, imgs, suffix=''):
         assert type(imgs) is Imgs
         for name in imgs.keys():
@@ -110,43 +134,46 @@ class Imgs(collections.OrderedDict):
             r._range[name] = self._range[name]
         return r
 
-    def getImg(self, name: str, prefix: str, side: str = ''):
-        return self.get(prefix + name + side)
-
-    def addImg(self, name: str, img, prefix: str, range=1, side: str = ''):
+    def addImg(self, name: str, img, range=1):
         if img is not None:
-            self._range[prefix + name + side] = range
-            self[prefix + name + side] = img
+            self._range[name] = range
+            self[name] = img
 
     def logPrepare(self):
         for name in self.keys():
             self[name] /= self._range[name]
 
+    def _savePrepare(self):
+        for name in self.keys():
+            self[name] = self[name][0]
+            if 'Disp' in name:
+                if self._range[name] == 192:
+                    self[name] = savePreprocessDisp(self[name])
+                elif self._range[name] == 384:
+                    self[name] = savePreprocessDisp(self[name], dispScale=170)
+            elif 'Rgb':
+                self[name] = savePreprocessRGB(self[name])
 
-class Loss(NameValues):
-    def __init__(self, seq=(), prefix='', suffix=''):
-        super().__init__(seq=seq, prefix=prefix, suffix=suffix)
-        self.nAccum = 1
-
-    def getLoss(self, name: str, prefix: str = 'loss', side: str = ''):
-        return self[prefix + name + side]
-
-    def addLoss(self, loss, name: str, prefix: str = 'loss', side: str = ''):
-        self[prefix + name + side] = loss
-
-    def accumuate(self, loss):
-        for key in self.keys():
-            self[key] += loss[key]
-        self.nAccum += 1
-
-    def avg(self):
-        for key in self.keys():
-            self[key] /= self.nAccum
-        self.nAccum = 1
+    def save(self, dir, name):
+        self._savePrepare()
+        checkDir(dir)
+        for folder, value in self.items():
+            checkDir(os.path.join(dir, folder))
+            saveDir = os.path.join(dir, folder, name + '.png')
+            skimage.io.imsave(saveDir, value)
+            print('saving to: %s' % saveDir)
 
 
 class Experiment:
     def __init__(self, model, stage, args):
+        # cometExpDisable = args.outputFolder in ('pycharmruns')
+        cometExpDisable = False
+        self.cometExp = CometExp(project_name='srstereo',
+                                 auto_metric_logging=False,
+                                 auto_param_logging=False,
+                                 log_code=False,
+                                 disabled=cometExpDisable)
+        self.cometExp.log_parameters(dic=struct2dict(args), prefix='args')
         self.args = args
         self.model = model
         self.epoch = 0
@@ -176,7 +203,8 @@ class Experiment:
                 ('lossWeights', args.lossWeights),
             ))
             startTime = time.localtime(time.time())
-            newFolderName = time.strftime('%y%m%d%H%M%S', startTime) \
+            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
+                            + model.__class__.__name__ \
                             + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
@@ -228,12 +256,12 @@ class Experiment:
         writeMessage += '\n\n'
 
         baseInfos = (
-                     ('checkpoint', self.chkpointDir),
-                     ('evalFcn', self.args.evalFcn),
-                     ('epoch', self.epoch),
-                     ('iteration', self.iteration),
-                     ('globalStep', self.globalStep),
-                     )
+            ('checkpoint', self.chkpointDir),
+            ('evalFcn', self.args.evalFcn),
+            ('epoch', self.epoch),
+            ('iteration', self.iteration),
+            ('globalStep', self.globalStep),
+        )
         for pairs, title in zip((baseInfos, info),
                                 ('basic info:', 'additional info:')):
             if len(pairs) > 0:
@@ -455,7 +483,7 @@ class DefaultParser:
 
 def struct2dict(struct):
     argsDict = dict((name, getattr(struct, name)) for name in dir(struct)
-                    if not name.startswith('__') and not callable(getattr(struct, name)))
+                    if not name.startswith('_') and not callable(getattr(struct, name)))
     return argsDict
 
 

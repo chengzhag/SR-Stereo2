@@ -37,12 +37,12 @@ class Stereo(Model):
         disps = batch.lowestResDisps()
         myUtils.assertDisp(*disps)
 
-        loss = myUtils.Loss()
+        loss = myUtils.NameValues()
         mask = [disp is not None for disp in disps]
         outputs = self.predict(batch, mask)
 
         for gt, side in zip(disps, ('L', 'R')):
-            dispOut = outputs.getImg('Disp', prefix='output', side=side)
+            dispOut = outputs.get('outputDisp' + side)
             if dispOut is not None:
                 # for kitti dataset, only consider loss of none zero disparity pixels in gt
                 if kitti:
@@ -53,8 +53,7 @@ class Stereo(Model):
                     mask = gt < self.outMaxDisp
                     dispOut = dispOut[mask]
                     gt = gt[mask]
-                loss.addLoss(evalFcn.getEvalFcn(evalType)(gt, dispOut),
-                             name='Disp', prefix=evalType, side=side)
+                loss[evalType + 'Disp' + side] = evalFcn.getEvalFcn(evalType)(gt, dispOut)
 
         return loss, outputs
 
