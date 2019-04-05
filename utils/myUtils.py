@@ -19,13 +19,29 @@ class NameValues(collections.OrderedDict):
         for name, value in seq:
             if value is not None:
                 super().__setitem__(prefix + name + suffix, value)
+        self.nAccum = 1
 
     def clone(self):
         return copy.deepcopy(self)
 
+    def dataItem(self):
+        for key in self.keys():
+            self[key] = self[key].data.item()
+        return self
+
     def update(self, nameValues, suffix=''):
         for name in nameValues.keys():
             self[name + suffix] = nameValues[name]
+
+    def accumuate(self, nameValues):
+        for key in self.keys():
+            self[key] += nameValues[key]
+        self.nAccum += 1
+
+    def avg(self):
+        for key in self.keys():
+            self[key] /= self.nAccum
+        self.nAccum = 1
 
     def strPrint(self, prefix='', suffix=''):
         strReturn = ''
@@ -118,13 +134,10 @@ class Imgs(collections.OrderedDict):
             r._range[name] = self._range[name]
         return r
 
-    def getImg(self, name: str, prefix: str, side: str = ''):
-        return self.get(prefix + name + side)
-
-    def addImg(self, name: str, img, prefix: str, range=1, side: str = ''):
+    def addImg(self, name: str, img, range=1):
         if img is not None:
-            self._range[prefix + name + side] = range
-            self[prefix + name + side] = img
+            self._range[name] = range
+            self[name] = img
 
     def logPrepare(self):
         for name in self.keys():
@@ -151,35 +164,12 @@ class Imgs(collections.OrderedDict):
             print('saving to: %s' % saveDir)
 
 
-class Loss(NameValues):
-    def __init__(self, seq=(), prefix='', suffix=''):
-        super().__init__(seq=seq, prefix=prefix, suffix=suffix)
-        self.nAccum = 1
-
-    def getLoss(self, name: str, prefix: str = 'loss', side: str = ''):
-        return self[prefix + name + side]
-
-    def addLoss(self, loss, name: str, prefix: str = 'loss', side: str = ''):
-        self[prefix + name + side] = loss
-
-    def accumuate(self, loss):
-        for key in self.keys():
-            self[key] += loss[key]
-        self.nAccum += 1
-
-    def avg(self):
-        for key in self.keys():
-            self[key] /= self.nAccum
-        self.nAccum = 1
-
-
 class Experiment:
     def __init__(self, model, stage, args):
         # cometExpDisable = args.outputFolder in ('pycharmruns')
         cometExpDisable = False
         self.cometExp = CometExp(project_name='srstereo',
                                  auto_metric_logging=False,
-                                 auto_output_logging=False,
                                  auto_param_logging=False,
                                  log_code=False,
                                  disabled=cometExpDisable)

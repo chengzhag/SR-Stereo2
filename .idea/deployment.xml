@@ -5,14 +5,14 @@
       <paths name="kc110_server_135">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
       <paths name="kc110_server_162">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

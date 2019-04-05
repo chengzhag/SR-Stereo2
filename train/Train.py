@@ -12,7 +12,7 @@ class Train:
         self.experiment.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) \
             if self.experiment.epoch > 0 else 0
 
-    def _trainIt(self, batch: myUtils.Batch) -> (myUtils.Loss, myUtils.Imgs):
+    def _trainIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
         # return scores, outputs
         return None, None
 
@@ -45,7 +45,7 @@ class Train:
                     loss, imgs = self._trainIt(batch)
 
                     if avgPeriodLoss is None:
-                        avgPeriodLoss = loss
+                        avgPeriodLoss = loss.clone()
                     else:
                         avgPeriodLoss.accumuate(loss)
 
@@ -53,12 +53,12 @@ class Train:
                     if self.experiment.args.logEvery > 0 \
                             and self.experiment.globalStep % self.experiment.args.logEvery == 0:
                         avgPeriodLoss.avg()
+                        avgPeriodLoss['lr'] = lrNow
+                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='train',
+                                                             step=self.experiment.globalStep)
                         for name, value in avgPeriodLoss.items():
                             self.experiment.logger.writer.add_scalar(
                                 'train/' + name, value, self.experiment.globalStep)
-                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='train',
-                                                             step=self.experiment.globalStep)
-                        self.experiment.cometExp.log_metric(name='lr', value=lrNow, step=self.experiment.globalStep)
                         avgPeriodLoss = None
 
                         self.experiment.logger.logImages(imgs, 'train/', self.experiment.globalStep,

@@ -13,8 +13,8 @@ class Train(Base):
         loss, outputs = self.experiment.model.train(batch=batch.detach(),
                                          kitti=self.trainImgLoader.kitti,)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
-            outputs.addImg('Disp', disp, range=self.experiment.model.outMaxDisp, prefix='gt', side=side)
-            outputs.addImg('Rgb', input, prefix='input', side=side)
+            outputs.addImg(name='gtDisp' + side, img=disp, range=self.experiment.model.outMaxDisp)
+            outputs.addImg(name='inputRgb' + side, img=input)
 
         return loss, outputs.cpu()
 

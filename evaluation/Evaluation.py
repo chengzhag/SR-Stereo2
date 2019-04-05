@@ -8,7 +8,7 @@ class Evaluation:
         self.experiment = experiment
         self.testImgLoader = testImgLoader
 
-    def _evalIt(self, batch: myUtils.Batch) -> (myUtils.Loss, myUtils.Imgs):
+    def _evalIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
         # return scores, outputs
         return None, None
 
@@ -17,7 +17,7 @@ class Evaluation:
         ticETC = time.time()
         timeFilter = myUtils.Filter()
         totalTestLoss = None
-        avgTestLoss = myUtils.Loss()
+        avgTestLoss = myUtils.NameValues()
         for batchIdx, batch in enumerate(self.testImgLoader, 1):
             batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
@@ -58,7 +58,7 @@ class Evaluation:
         for name, value in (('data', self.testImgLoader.datapath),
                             ('loadScale', self.testImgLoader.loadScale),
                             ('trainCrop', self.testImgLoader.trainCrop)):
-            avgTestLoss.addLoss(loss=value, name=name)
+            avgTestLoss[name] = value
         self.experiment.log(mkFile='test_results.md', info=avgTestLoss.items())
 
         return avgTestLoss
