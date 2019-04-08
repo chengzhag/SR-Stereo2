@@ -19,7 +19,7 @@ class Model:
             imgs = myUtils.Imgs()
         return imgs
 
-    def loss(self, outputs, gts):
+    def loss(self, output, gt):
         pass
 
     def train(self, batch: myUtils.Batch):

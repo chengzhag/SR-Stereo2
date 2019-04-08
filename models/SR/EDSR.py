@@ -1,5 +1,6 @@
 import torch.optim as optim
 import torch.nn as nn
+import torch.nn.functional as F
 from utils import myUtils
 from .RawEDSR import edsr
 from .SR import SR
@@ -51,6 +52,47 @@ class EDSR(SR):
             if key == 'outputSr':
                 imgs.addImg(name=key, img=value)
         return imgs
+
+    # outputs, gts: RGB value range 0~1
+    def loss(self, output, gt):
+        loss = myUtils.NameValues()
+        # To get same loss with orignal EDSR, input range should scale to 0~self.args.rgb_range
+        loss['lossSr'] = F.smooth_l1_loss(
+            output['outputSr'] * self.model.args.rgb_range,
+            gt * self.model.args.rgb_range,
+            reduction='mean')
+        loss['loss'] = loss['lossSr']
+        return loss
+
+    def trainOneSide(self, input, gt):
+        self.model.train()
+        self.optimizer.zero_grad()
+        output = self.packOutputs(self.model.forward(input))
+        loss = self.loss(output=output, gt=gt)
+        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
+            scaledLoss.backward()
+        self.optimizer.step()
+
+        return loss.dataItem(), output
+
+    def trainBothSides(self, inputs, gts, kitti=False):
+        losses = myUtils.NameValues()
+        outputs = myUtils.Imgs()
+        for input, gt, process, side in zip(
+                inputs, gts,
+                ('L', 'R')
+        ):
+            if gt is not None:
+                loss, output = self.trainOneSide(input, gt)
+                losses.update(nameValues=loss, suffix=side)
+                outputs.update(imgs=process(output), suffix=side)
+
+        return losses, outputs
+
+    def train(self, batch: myUtils.Batch):
+        batch.assertScales(2)
+        return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
+
 
 
 
