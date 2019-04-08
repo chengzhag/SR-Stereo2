@@ -26,7 +26,7 @@ def main():
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
-        .loadScale().batchSize().half().resume().itRefine().validSetSample().parse()
+        .loadScale().batchSize().half().resume().itRefine().validSetSample().noComet().parse()
 
     # Dataset
     _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,

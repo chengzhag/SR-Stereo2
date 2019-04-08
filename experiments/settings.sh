@@ -26,3 +26,9 @@ pretrained_EDSR_DIV2K=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_baseline_x2.p
 # python scripts
 stereo_train=train/Stereo_train.py
 stereo_eval=train/Stereo_eval.py
+
+# checkpoints: pretrain_Stereo_StereoDown
+pretrained_PSMNetDown_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
+pretrained_PSMNet_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
+
+

@@ -166,13 +166,11 @@ class Imgs(collections.OrderedDict):
 
 class Experiment:
     def __init__(self, model, stage, args):
-        # cometExpDisable = args.outputFolder in ('pycharmruns')
-        cometExpDisable = False
         self.cometExp = CometExp(project_name='srstereo',
                                  auto_metric_logging=False,
                                  auto_param_logging=False,
                                  log_code=False,
-                                 disabled=cometExpDisable)
+                                 disabled=args.noComet)
         self.cometExp.log_parameters(dic=struct2dict(args), prefix='args')
         self.args = args
         self.model = model
@@ -464,6 +462,11 @@ class DefaultParser:
     def itRefine(self):
         self.parser.add_argument('--itRefine', type=int, default=1,
                                  help='iterations of refining process')
+        return self
+
+    def noComet(self):
+        self.parser.add_argument('--noComet', action='store_true', default=False,
+                                 help='disable comet logging')
         return self
 
     def parse(self):
