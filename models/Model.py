@@ -14,6 +14,11 @@ class Model:
         self.optimizer = None
         self.lossWeights = None
 
+    def packOutputs(self, outputs, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+        if imgs is None:
+            imgs = myUtils.Imgs()
+        return imgs
+
     def loss(self, outputs, gts):
         pass
 
