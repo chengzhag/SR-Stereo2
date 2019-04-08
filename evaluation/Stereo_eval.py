@@ -26,14 +26,14 @@ def main():
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
-        .loadScale().batchSize().half().resume().itRefine().validSetSample().noComet().parse()
+        .loadScale().batchSize().half().resume().itRefine().validSetSample().noComet().subType().parse()
 
     # Dataset
     _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
                                                 dataset=args.dataset,
                                                 batchSizes=args.batchSize,
                                                 loadScale=args.loadScale,
-                                                mode='testing',
+                                                mode='testing' if args.subType is None else args.subType,
                                                 validSetSample=args.validSetSample)
 
     stereo = getattr(Stereo, args.model)(
