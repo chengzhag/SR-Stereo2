@@ -22,14 +22,15 @@ class RawEDSR(edsr.EDSR):
     # input: RGB value range 0~1
     # output: RGB value range 0~1 without quantize
     def forward(self, imgL):
-        rawOutput = super(RawEDSR, self).forward(imgL * self.rgb_range) / self.rgb_range
+        rawOutput = super(RawEDSR, self).forward(imgL * self.args.rgb_range) / self.args.rgb_range
         if not self.training:
             rawOutput = myUtils.quantize(rawOutput, 1)
         output = {'outputSr': rawOutput}
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        myUtils.loadStateDict(model=self, stateDict=state_dict, strict=str)
+        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=str)
+        super().load_state_dict(state_dict, strict=False)
 
 
 class EDSR(SR):

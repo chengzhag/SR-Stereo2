@@ -39,7 +39,8 @@ class RawPSMNetScale(rawPSMNet):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        myUtils.loadStateDict(model=self, stateDict=state_dict, strict=str)
+        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=str)
+        super().load_state_dict(state_dict, strict=False)
 
 
 class PSMNet(Stereo):

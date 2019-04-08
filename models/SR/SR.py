@@ -24,7 +24,7 @@ class SR(Model):
 
         loss = myUtils.NameValues()
         mask = [gt is not None for gt in batch.highResRGBs()]
-        outputs = self.predict(batch, mask)
+        outputs = self.predict(batch.lastScaleBatch(), mask)
 
         for gt, side in zip(batch.highResRGBs(), ('L', 'R')):
             output = outputs.get('outputSr' + side)

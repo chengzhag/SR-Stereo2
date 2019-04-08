@@ -766,7 +766,7 @@ def shuffleLists(lists):
     lists = list(zip(*c))
     return lists
 
-def loadStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
+def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
     writeModelDict = model.state_dict()
     selectModelDict = {}
     for name, value in stateDict.items():
@@ -788,4 +788,4 @@ def loadStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
             else:
                 print(message)
     writeModelDict.update(selectModelDict)
-    model.load_state_dict(writeModelDict, strict=False)
+    return writeModelDict
