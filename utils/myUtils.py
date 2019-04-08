@@ -103,18 +103,18 @@ class AutoPad:
         return forNestingList(imgs, _pad)
 
     def unpad(self, imgs):
-        return forNestingList(imgs, lambda img: img[:, (self.HPad - self.H):, (self.WPad - self.W):])
+        return forNestingList(imgs, lambda img: img[:, :, (self.HPad - self.H):, (self.WPad - self.W):])
 
 
 class Imgs(collections.OrderedDict):
     def __init__(self, imgs=None):
-        super().__init__()
+        if type(imgs) in (list, tuple):
+            super().__init__(imgs)
+        else:
+            super().__init__()
+        if isinstance(imgs, Imgs):
+            self.update(imgs)
         self._range = {}
-        if imgs is not None:
-            if isinstance(imgs, Imgs):
-                self.update(imgs)
-            else:
-                raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
 
     def cpu(self):
         for name in self.keys():
@@ -202,10 +202,9 @@ class Experiment:
                 ('batchSize', args.batchSize),
                 ('lossWeights', args.lossWeights),
             ))
-            startTime = time.localtime(time.time())
-            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
-                            + model.__class__.__name__ \
-                            + saveFolderSuffix.strSuffix()
+            startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
+            self.cometExp.log_parameter(name='startTime', value=startTime)
+            newFolderName =  startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
                 stage = os.path.join(args.outputFolder, stage)
@@ -427,7 +426,7 @@ class DefaultParser:
         return self
 
     def lossWeights(self):
-        self.parser.add_argument('--lossWeights', type=float, default=[1], nargs='+',
+        self.parser.add_argument('--lossWeights', type=float, default=1, nargs='+',
                                  help='weights of losses if model have multiple losses')
         return self
 

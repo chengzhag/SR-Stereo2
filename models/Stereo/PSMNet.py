@@ -9,7 +9,7 @@ import torch.optim as optim
 
 class RawPSMNetScale(rawPSMNet):
     def __init__(self, maxDisp, dispScale):
-        super(RawPSMNetScale, self).__init__(maxDisp, dispScale)
+        super().__init__(maxDisp, dispScale)
         self.multiple = 16
         self.__imagenet_stats = {'mean': [0.485, 0.456, 0.406],
                                  'std': [0.229, 0.224, 0.225]}
@@ -76,8 +76,7 @@ class PSMNet(Stereo):
         self.model = RawPSMNetScale(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
-        if imgs is None:
-            imgs = myUtils.Imgs()
+        imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key == 'outputDisp':
                 imgs.addImg(name=key, img=value, range=self.outMaxDisp)
@@ -86,53 +85,56 @@ class PSMNet(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: tuple, gts: torch.Tensor, outMaxDisp=None, kitti=False):
+    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None, kitti=False, weights=1):
         if outMaxDisp is None:
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
-        mask = (gts > 0).detach() if kitti else (gts < outMaxDisp).detach()
+        mask = (gt > 0).detach() if kitti else (gt < outMaxDisp).detach()
         loss = myUtils.NameValues()
         loss['lossDisp'] = \
-            0.5 * F.smooth_l1_loss(output[0][mask], gts[mask], reduction='mean') \
-            + 0.7 * F.smooth_l1_loss(output[1][mask], gts[mask], reduction='mean') \
-            + F.smooth_l1_loss(output[2][mask], gts[mask], reduction='mean')
+            0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
+            + 0.7 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
+            + F.smooth_l1_loss(output['outputDisp'][2][mask], gt[mask], reduction='mean') \
+            * weights
+        loss['loss'] = loss['lossDisp']
 
         return loss
 
-    def trainOneSide(self, imgL, imgR, gt, kitti=False):
+    def trainOneSide(self, input, gt, kitti=False):
+        self.model.train()
         self.optimizer.zero_grad()
-        output = self.packOutputs(self.model.forward(imgL, imgR))
-        loss = self.loss(output=output['outputDisp'],
-                         gts=gt,
+        output = self.packOutputs(self.model.forward(*input))
+        loss = self.loss(output=output,
+                         gt=gt,
                          kitti=kitti,
-                         outMaxDisp=self.outMaxDisp)
-        with self.ampHandle.scale_loss(loss['lossDisp'], self.optimizer) as scaledLoss:
+                         weights=self.lossWeights)
+        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
             scaledLoss.backward()
         self.optimizer.step()
 
         output.addImg(name='outputDisp', img=output['outputDisp'][2].detach(), range=self.outMaxDisp)
         return loss.dataItem(), output
 
-    def train(self, batch: myUtils.Batch, kitti=False, weights=(), progress=0):
-        batch.assertScales(1)
-        super().train(batch=batch)
-
-        imgL, imgR = batch.highResRGBs()
-
+    def trainBothSides(self, inputs, gts, kitti=False):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
-        for inputL, inputR, gt, process, side in zip(
-                (imgL, imgR), (imgR, imgL),
-                batch.highResDisps(),
+        for input, gt, process, side in zip(
+                inputs, gts,
                 (lambda im: im, myUtils.flipLR),
                 ('L', 'R')
         ):
             if gt is not None:
                 loss, output = self.trainOneSide(
-                    *process([inputL, inputR, gt]),
+                    *process([input, gt]),
                     kitti=kitti
                 )
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=process(output), suffix=side)
 
         return losses, outputs
+
+    def train(self, batch: myUtils.Batch, kitti=False, progress=0):
+        batch.assertScales(1)
+        imgL, imgR = batch.highResRGBs()
+
+        return self.trainBothSides(((imgL, imgR), (imgR, imgL)), batch.highResDisps(), kitti=kitti)
