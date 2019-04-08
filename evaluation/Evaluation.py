@@ -28,10 +28,15 @@ class Evaluation:
             else:
                 totalTestLoss.accumuate(loss)
 
+            if self.experiment.args.subType is not None and self.experiment.args.subType.startswith('sub'):
+                name = self.testImgLoader.dataset.name(batchIdx - 1)
+                name, extension = os.path.splitext(name)
+                imgs.clone().save(dir=os.path.join(self.experiment.chkpointFolder, 'submission'), name=name)
+
             if batchIdx == 1:
                 self.experiment.logger.logImages(imgs.clone(), 'test/', self.experiment.globalStep,
                                                  self.experiment.args.nSampleLog)
-                imgs.save(dir='temp', name='temp')
+                imgs.clone().save(dir='temp', name='temp')
                 for name in imgs.keys():
                     self.experiment.cometExp.set_step(self.experiment.epoch)
                     self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name, overwrite=True)
