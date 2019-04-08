@@ -103,18 +103,18 @@ class AutoPad:
         return forNestingList(imgs, _pad)
 
     def unpad(self, imgs):
-        return forNestingList(imgs, lambda img: img[:, (self.HPad - self.H):, (self.WPad - self.W):])
+        return forNestingList(imgs, lambda img: img[:, :, (self.HPad - self.H):, (self.WPad - self.W):])
 
 
 class Imgs(collections.OrderedDict):
     def __init__(self, imgs=None):
-        super().__init__()
+        if type(imgs) in (list, tuple):
+            super().__init__(imgs)
+        else:
+            super().__init__()
+        if isinstance(imgs, Imgs):
+            self.update(imgs)
         self._range = {}
-        if imgs is not None:
-            if isinstance(imgs, Imgs):
-                self.update(imgs)
-            else:
-                raise Exception(f'Error: No rule to initialize Imgs with type {type(imgs)}')
 
     def cpu(self):
         for name in self.keys():
@@ -166,13 +166,11 @@ class Imgs(collections.OrderedDict):
 
 class Experiment:
     def __init__(self, model, stage, args):
-        # cometExpDisable = args.outputFolder in ('pycharmruns')
-        cometExpDisable = False
         self.cometExp = CometExp(project_name='srstereo',
                                  auto_metric_logging=False,
                                  auto_param_logging=False,
                                  log_code=False,
-                                 disabled=cometExpDisable)
+                                 disabled=args.noComet)
         self.cometExp.log_parameters(dic=struct2dict(args), prefix='args')
         self.args = args
         self.model = model
@@ -202,10 +200,9 @@ class Experiment:
                 ('batchSize', args.batchSize),
                 ('lossWeights', args.lossWeights),
             ))
-            startTime = time.localtime(time.time())
-            newFolderName = time.strftime('%y%m%d%H%M%S_', startTime) \
-                            + model.__class__.__name__ \
-                            + saveFolderSuffix.strSuffix()
+            startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
+            self.cometExp.log_parameter(name='startTime', value=startTime)
+            newFolderName =  startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
                 stage = os.path.join(args.outputFolder, stage)
@@ -427,7 +424,7 @@ class DefaultParser:
         return self
 
     def lossWeights(self):
-        self.parser.add_argument('--lossWeights', type=float, default=[1], nargs='+',
+        self.parser.add_argument('--lossWeights', type=float, default=1, nargs='+',
                                  help='weights of losses if model have multiple losses')
         return self
 
@@ -465,6 +462,11 @@ class DefaultParser:
     def itRefine(self):
         self.parser.add_argument('--itRefine', type=int, default=1,
                                  help='iterations of refining process')
+        return self
+
+    def noComet(self):
+        self.parser.add_argument('--noComet', action='store_true', default=False,
+                                 help='disable comet logging')
         return self
 
     def parse(self):

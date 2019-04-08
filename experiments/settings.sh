@@ -3,9 +3,9 @@
 cd ../
 
 # datasets
-carla_kitti_dataset=../datasets/carla_kitti/carla_kitti_sr_lowquality/
-carla_kitti_dataset_moduletest=../datasets/carla_kitti/carla_kitti_sr_lowquality_moduletest
-carla_kitti_dataset_overfit=../datasets/carla_kitti/carla_kitti_sr_lowquality_overfit
+carla_dataset=../datasets/carla/carla_sr_lowquality/
+carla_dataset_moduletest=../datasets/carla/carla_sr_lowquality_moduletest
+carla_dataset_overfit=../datasets/carla/carla_sr_lowquality_overfit
 sceneflow_dataset=../datasets/sceneflow/
 kitti2015_dataset=../datasets/kitti/data_scene_flow/training/
 kitti2015_sr_dataset=../datasets/kitti/data_scene_flow_sr/training/
@@ -26,3 +26,9 @@ pretrained_EDSR_DIV2K=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_baseline_x2.p
 # python scripts
 stereo_train=train/Stereo_train.py
 stereo_eval=train/Stereo_eval.py
+
+# checkpoints: pretrain_Stereo_StereoDown
+pretrained_PSMNetDown_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
+pretrained_PSMNet_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
+
+

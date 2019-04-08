@@ -28,7 +28,7 @@ def main():
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
         .loadScale().batchSize().trainCrop().logEvery().testEvery() \
         .saveEvery().epochs().lr().lossWeights().subType() \
-        .half().resume().itRefine().validSetSample().parse()
+        .half().resume().itRefine().validSetSample().noComet().parse()
 
     # Dataset
     trainImgLoader, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,

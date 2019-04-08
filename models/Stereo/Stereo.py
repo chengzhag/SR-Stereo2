@@ -11,12 +11,14 @@ class Stereo(Model):
         self.dispScale = dispScale
         self.outMaxDisp = maxDisp * dispScale
 
-    def packOutputs(self, outputs) -> myUtils.Imgs:
-        pass
+    def packOutputs(self, outputs, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+        if imgs is None:
+            imgs = myUtils.Imgs()
+        return imgs
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
         batch.assertScales(1)
-        super().predict(batch)
+        self.model.eval()
 
         imgL, imgR = batch.lowestResRGBs()
 

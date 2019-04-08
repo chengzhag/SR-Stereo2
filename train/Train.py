@@ -11,6 +11,7 @@ class Train:
         self.trainImgLoader = trainImgLoader
         self.experiment.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) \
             if self.experiment.epoch > 0 else 0
+        self.experiment.model.lossWeights = self.experiment.args.lossWeights
 
     def _trainIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
         # return scores, outputs
@@ -37,7 +38,7 @@ class Train:
 
                 # iteration
                 ticETC = time.time()
-                for batchIdx, batch in enumerate(self.trainImgLoader, 1):
+                for self.experiment.iteration, batch in enumerate(self.trainImgLoader, 1):
                     batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
                     self.experiment.globalStep += 1
@@ -67,11 +68,11 @@ class Train:
                     # print
                     timeLeft = timeFilter((time.time() - ticETC) / 3600 * (
                             (self.experiment.args.epochs - self.experiment.epoch + 1) * len(
-                        self.trainImgLoader) - batchIdx))
+                        self.trainImgLoader) - self.experiment.iteration))
                     printMessage = 'globalIt %d/%d, it %d/%d, epoch %d/%d, %sleft %.2fh' % (
                         self.experiment.globalStep,
                         len(self.trainImgLoader) * self.experiment.args.epochs,
-                        batchIdx,
+                        self.experiment.iteration,
                         len(self.trainImgLoader),
                         self.experiment.epoch,
                         self.experiment.args.epochs,

@@ -12,15 +12,16 @@ class Model:
 
         self.model = None
         self.optimizer = None
+        self.lossWeights = None
 
     def loss(self, outputs, gts):
         pass
 
     def train(self, batch: myUtils.Batch):
-        self.model.train()
+        pass
 
     def predict(self, batch: myUtils.Batch):
-        self.model.eval()
+        pass
 
     def load(self, chkpointDir: str) -> (int, int):
         if type(chkpointDir) is list:
