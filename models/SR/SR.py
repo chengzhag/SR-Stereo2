@@ -1,13 +1,7 @@
-import torch.optim as optim
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from evaluation import evalFcn
 from utils import myUtils
-from .RawEDSR import edsr
 from ..Model import Model
-import torch.nn.parallel as P
-import collections
 
 
 class SR(Model):

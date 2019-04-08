@@ -508,9 +508,8 @@ def adjustLearningRate(optimizer, epoch, lr):
     return lr
 
 
-def quantize(img, rgb_range):
-    pixel_range = 255 / rgb_range
-    return img.mul(pixel_range).clamp(0, 255).round().div(pixel_range)
+def quantize(img, range):
+    return img.clamp(0, range) / (range)
 
 
 class Logger:
@@ -766,3 +765,27 @@ def shuffleLists(lists):
     random.shuffle(c)
     lists = list(zip(*c))
     return lists
+
+def loadStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
+    writeModelDict = model.state_dict()
+    selectModelDict = {}
+    for name, value in stateDict.items():
+        possiblePrefix = 'stereo.module.'
+        if name.startswith(possiblePrefix):
+            name = name[len(possiblePrefix):]
+        if name in writeModelDict and writeModelDict[name].size() == value.size():
+            selectModelDict[name] = value
+        else:
+            message = 'Warning! While copying the parameter named {}, ' \
+                      'whose dimensions in the model are {} and ' \
+                      'whose dimensions in the checkpoint are {}.' \
+                .format(
+                name, writeModelDict[name].size() if name in writeModelDict else '(Not found)',
+                value.size()
+            )
+            if strict:
+                raise Exception(message)
+            else:
+                print(message)
+    writeModelDict.update(selectModelDict)
+    model.load_state_dict(writeModelDict, strict=False)
