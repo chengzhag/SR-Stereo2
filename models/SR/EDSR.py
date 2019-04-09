@@ -30,7 +30,7 @@ class RawEDSR(edsr.EDSR):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=str)
+        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=strict)
         super().load_state_dict(state_dict, strict=False)
 
 

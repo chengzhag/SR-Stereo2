@@ -1,4 +1,5 @@
 from .EDSR import EDSR
+from .EDSRdisp import EDSRdisp
 
 def getMask(model):
     if model in ('EDSR',):

@@ -5,7 +5,7 @@ import numpy as np
 import gc
 
 
-def warpAndCat(batch, doCatMask):
+def warpAndCat(batch, doCatMask=False):
     inputL, inputR, dispL, dispR = batch
     with torch.no_grad():
         warpToL, warpToR, maskL, maskR = warp(*batch)
