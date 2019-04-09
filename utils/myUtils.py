@@ -164,6 +164,13 @@ class Imgs(collections.OrderedDict):
             print('saving to: %s' % saveDir)
 
 
+def getattrNE(object, name, default=None):
+    try:
+        return getattr(object, name, default)
+    finally:
+        return None
+
+
 class Experiment:
     def __init__(self, model, stage, args):
         self.cometExp = CometExp(project_name='srstereo',
@@ -195,10 +202,10 @@ class Experiment:
         else:
             # auto experiment naming
             saveFolderSuffix = NameValues((
-                ('loadScale', args.loadScale),
-                ('trainCrop', args.trainCrop),
-                ('batchSize', args.batchSize),
-                ('lossWeights', args.lossWeights),
+                ('loadScale', getattrNE(args, 'loadScale')),
+                ('trainCrop', getattrNE(args, 'trainCrop')),
+                ('batchSize', getattrNE(args, 'batchSize')),
+                ('lossWeights', getattrNE(args, 'lossWeights')),
             ))
             startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
             self.cometExp.log_parameter(name='startTime', value=startTime)
@@ -348,7 +355,7 @@ class DefaultParser:
         return self
 
     def model(self):
-        self.parser.add_argument('--model', default='PSMNet',
+        self.parser.add_argument('--model', type=str, default=None, nargs='+',
                                  help='select model')
         return self
 

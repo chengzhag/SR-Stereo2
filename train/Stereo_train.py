@@ -37,8 +37,8 @@ def main():
                                                  validSetSample=args.validSetSample)
 
     # Model
-    stereo = getattr(Stereo, args.model)(
-        maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
+    stereo = Stereo.getModel(
+        args.model, maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
     if hasattr(stereo, 'itRefine'):
         stereo.itRefine = args.itRefine
 
