@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/models/SR/EDSR.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/SR/EDSR.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/SR/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/SR/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/warp.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/warp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -62,8 +60,8 @@
             <file pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/models/SR/EDSR.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="127">
-                    <caret line="32" column="91" selection-start-line="32" selection-start-column="91" selection-end-line="32" selection-end-column="91" />
+                  <state relative-caret-position="298">
+                    <caret line="86" column="30" lean-forward="true" selection-start-line="86" selection-start-column="15" selection-end-line="86" selection-end-column="30" />
                     <folding>
                       <element signature="e#0#27#0" expanded="true" />
                     </folding>
@@ -123,14 +121,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/SR/EDSRdisp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="14" column="54" lean-forward="true" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
+            <state relative-caret-position="266">
+              <caret line="14" column="45" selection-start-line="14" selection-start-column="45" selection-end-line="14" selection-end-column="45" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="228">
+              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
             </state>
           </provider>
         </entry>
@@ -232,6 +239,7 @@
         <option value="$PROJECT_DIR$/models/SR/__init__.py" />
         <option value="$PROJECT_DIR$/models/SR/EDSR.py" />
         <option value="$PROJECT_DIR$/models/SR/EDSRdisp.py" />
+        <option value="$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh" />
       </list>
     </option>
   </component>
@@ -687,12 +695,12 @@
       <option name="presentableId" value="Default" />
       <updated>1553684901388</updated>
       <workItem from="1553684918673" duration="22449000" />
-      <workItem from="1554464022706" duration="50045000" />
+      <workItem from="1554464022706" duration="50550000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="175102000" />
+    <option name="totallyTimeSpent" value="175607000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1119,13 +1127,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="10" column="34" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/experiments/compare_carla_Stereo_StereoDown.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
@@ -1216,8 +1217,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/SR/EDSR.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="127">
-          <caret line="32" column="91" selection-start-line="32" selection-start-column="91" selection-end-line="32" selection-end-column="91" />
+        <state relative-caret-position="298">
+          <caret line="86" column="30" lean-forward="true" selection-start-line="86" selection-start-column="15" selection-end-line="86" selection-end-column="30" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
           </folding>
@@ -1226,11 +1227,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/SR/EDSRdisp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="14" column="54" lean-forward="true" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
+        <state relative-caret-position="266">
+          <caret line="14" column="45" selection-start-line="14" selection-start-column="45" selection-end-line="14" selection-end-column="45" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/compare_carla_SR_SRdisp.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
         </state>
       </provider>
     </entry>
