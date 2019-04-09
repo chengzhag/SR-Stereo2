@@ -2,6 +2,7 @@ from utils import myUtils
 import os
 from models import Stereo
 from evaluation.Evaluation import Evaluation as Base
+import dataloader
 
 
 class Evaluation(Base):
@@ -18,8 +19,6 @@ class Evaluation(Base):
 
 
 def main():
-    import dataloader
-
     # Arguments
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \

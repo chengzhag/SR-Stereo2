@@ -58,8 +58,8 @@ class EDSR(SR):
         loss = myUtils.NameValues()
         # To get same loss with orignal EDSR, input range should scale to 0~self.args.rgb_range
         loss['lossSr'] = F.smooth_l1_loss(
-            output['outputSr'] * self.model.args.rgb_range,
-            gt * self.model.args.rgb_range,
+            output['outputSr'] * self.model.module.args.rgb_range,
+            gt * self.model.module.args.rgb_range,
             reduction='mean')
         loss['loss'] = loss['lossSr']
         return loss
@@ -78,20 +78,23 @@ class EDSR(SR):
     def trainBothSides(self, inputs, gts, kitti=False):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
-        for input, gt, process, side in zip(
-                inputs, gts,
-                ('L', 'R')
-        ):
+        for input, gt, side in zip(inputs, gts, ('L', 'R')):
             if gt is not None:
                 loss, output = self.trainOneSide(input, gt)
                 losses.update(nameValues=loss, suffix=side)
-                outputs.update(imgs=process(output), suffix=side)
+                outputs.update(imgs=output, suffix=side)
 
         return losses, outputs
 
     def train(self, batch: myUtils.Batch):
         batch.assertScales(2)
         return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
+    
+    def test(self, batch: myUtils.Batch, evalType: str):
+        loss, outputs = super().test(batch=batch, evalType=evalType)
+        for name in loss.keys():
+            loss[name] *= self.model.module.args.rgb_range
+        return loss, outputs
 
 
 

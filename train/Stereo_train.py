@@ -3,11 +3,10 @@ import os
 from models import Stereo
 from evaluation.Stereo_eval import Evaluation
 from train.Train import Train as Base
+import dataloader
 
 
 class Train(Base):
-    def __init__(self, test: Evaluation, trainImgLoader):
-        super().__init__(test=test, trainImgLoader=trainImgLoader)
 
     def _trainIt(self, batch: myUtils.Batch):
         loss, outputs = self.experiment.model.train(batch=batch.detach(),
@@ -20,8 +19,6 @@ class Train(Base):
 
 
 def main():
-    import dataloader
-
     # Arguments
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \
@@ -39,6 +36,7 @@ def main():
                                                  mode='training' if args.subType is None else args.subType,
                                                  validSetSample=args.validSetSample)
 
+    # Model
     stereo = getattr(Stereo, args.model)(
         maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
     if hasattr(stereo, 'itRefine'):
