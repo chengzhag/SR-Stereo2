@@ -2,11 +2,10 @@ from utils import myUtils
 import os
 from models import Stereo
 from evaluation.Evaluation import Evaluation as Base
+import dataloader
 
 
 class Evaluation(Base):
-    def __init__(self, experiment: myUtils.Experiment, testImgLoader):
-        super().__init__(experiment=experiment, testImgLoader=testImgLoader)
 
     def _evalIt(self, batch: myUtils.Batch):
         loss, outputs = self.experiment.model.test(batch=batch.detach(),
@@ -20,13 +19,12 @@ class Evaluation(Base):
 
 
 def main():
-    import dataloader
-
     # Arguments
     args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
-        .loadScale().batchSize().half().resume().itRefine().validSetSample().noComet().subType().parse()
+        .loadScale().batchSize().half().resume().itRefine() \
+        .validSetSample().noComet().subType().parse()
 
     # Dataset
     _, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
@@ -36,6 +34,7 @@ def main():
                                                 mode='testing' if args.subType is None else args.subType,
                                                 validSetSample=args.validSetSample)
 
+    # Model
     stereo = getattr(Stereo, args.model)(
         maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
     if hasattr(stereo, 'itRefine'):

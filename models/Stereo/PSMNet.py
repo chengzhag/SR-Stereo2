@@ -39,28 +39,8 @@ class RawPSMNetScale(rawPSMNet):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        writeModelDict = self.state_dict()
-        selectModelDict = {}
-        for name, value in state_dict.items():
-            possiblePrefix = 'stereo.module.'
-            if name.startswith(possiblePrefix):
-                name = name[len(possiblePrefix):]
-            if name in writeModelDict and writeModelDict[name].size() == value.size():
-                selectModelDict[name] = value
-            else:
-                message = 'Warning! While copying the parameter named {}, ' \
-                          'whose dimensions in the model are {} and ' \
-                          'whose dimensions in the checkpoint are {}.' \
-                    .format(
-                    name, writeModelDict[name].size() if name in writeModelDict else '(Not found)',
-                    value.size()
-                )
-                if strict:
-                    raise Exception(message)
-                else:
-                    print(message)
-        writeModelDict.update(selectModelDict)
-        super(RawPSMNetScale, self).load_state_dict(writeModelDict, strict=False)
+        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=str)
+        super().load_state_dict(state_dict, strict=False)
 
 
 class PSMNet(Stereo):

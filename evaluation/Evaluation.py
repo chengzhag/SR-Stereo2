@@ -36,7 +36,8 @@ class Evaluation:
             if batchIdx == 1:
                 self.experiment.logger.logImages(imgs.clone(), 'test/', self.experiment.globalStep,
                                                  self.experiment.args.nSampleLog)
-                imgs.clone().save(dir='temp', name='temp')
+                if not self.experiment.cometExp.disabled:
+                    imgs.clone().save(dir='temp', name='temp')
                 for name in imgs.keys():
                     self.experiment.cometExp.set_step(self.experiment.epoch)
                     self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name, overwrite=True)

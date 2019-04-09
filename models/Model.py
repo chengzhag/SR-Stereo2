@@ -14,7 +14,12 @@ class Model:
         self.optimizer = None
         self.lossWeights = None
 
-    def loss(self, outputs, gts):
+    def packOutputs(self, outputs, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+        if imgs is None:
+            imgs = myUtils.Imgs()
+        return imgs
+
+    def loss(self, output, gt):
         pass
 
     def train(self, batch: myUtils.Batch):
