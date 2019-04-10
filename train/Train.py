@@ -11,7 +11,7 @@ class Train:
         self.trainImgLoader = trainImgLoader
         self.experiment.globalStep = (self.experiment.epoch - 1) * len(self.trainImgLoader) \
             if self.experiment.epoch > 0 else 0
-        self.experiment.model.lossWeights = self.experiment.args.lossWeights
+        self.experiment.model.setLossWeights(self.experiment.args.lossWeights)
 
     def _trainIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
         # return scores, outputs

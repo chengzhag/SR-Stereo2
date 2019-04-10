@@ -58,14 +58,14 @@ class PSMNet(Stereo):
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
-            if key == 'outputDisp':
+            if key.startswith('outputDisp'):
                 imgs.addImg(name=key, img=value, range=self.outMaxDisp)
         return imgs
 
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None, kitti=False, weights=1):
+    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None, kitti=False):
         if outMaxDisp is None:
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
@@ -74,9 +74,8 @@ class PSMNet(Stereo):
         loss['lossDisp'] = \
             0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
             + 0.7 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
-            + F.smooth_l1_loss(output['outputDisp'][2][mask], gt[mask], reduction='mean') \
-            * weights
-        loss['loss'] = loss['lossDisp']
+            + F.smooth_l1_loss(output['outputDisp'][2][mask], gt[mask], reduction='mean')
+        loss['loss'] = loss['lossDisp'] * self.lossWeights
 
         return loss
 
@@ -84,10 +83,7 @@ class PSMNet(Stereo):
         self.model.train()
         self.optimizer.zero_grad()
         output = self.packOutputs(self.model.forward(*input))
-        loss = self.loss(output=output,
-                         gt=gt,
-                         kitti=kitti,
-                         weights=self.lossWeights)
+        loss = self.loss(output=output, gt=gt, kitti=kitti)
         with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
             scaledLoss.backward()
         self.optimizer.step()
@@ -99,11 +95,12 @@ class PSMNet(Stereo):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for input, gt, process, side in zip(
-                inputs, gts,
+                (inputs, inputs[::-1]), gts,
                 (lambda im: im, myUtils.flipLR),
                 ('L', 'R')
         ):
-            if gt is not None:
+            if (type(gt) not in (tuple, list) and gt is not None) \
+                    or not all([g is None for g in gt]):
                 loss, output = self.trainOneSide(
                     *process([input, gt]),
                     kitti=kitti
@@ -115,6 +112,4 @@ class PSMNet(Stereo):
 
     def train(self, batch: myUtils.Batch, kitti=False, progress=0):
         batch.assertScales(1)
-        imgL, imgR = batch.highResRGBs()
-
-        return self.trainBothSides(((imgL, imgR), (imgR, imgL)), batch.highResDisps(), kitti=kitti)
+        return self.trainBothSides(batch.highResRGBs(), batch.highResDisps(), kitti=kitti)

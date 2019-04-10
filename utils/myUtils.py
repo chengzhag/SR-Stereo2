@@ -33,9 +33,21 @@ class NameValues(collections.OrderedDict):
         for name in nameValues.keys():
             self[name + suffix] = nameValues[name]
 
-    def accumuate(self, nameValues):
+    def add(self, other):
+        for key in other.keys():
+            if key in self.keys():
+                self[key] += other[key]
+            else:
+                self[key] = other[key]
+        return self
+
+    def div(self, other):
         for key in self.keys():
-            self[key] += nameValues[key]
+            self[key] /= other
+        return self
+
+    def accumuate(self, nameValues):
+        self.add(nameValues)
         self.nAccum += 1
 
     def avg(self):
@@ -481,6 +493,9 @@ class DefaultParser:
 
         if hasattr(args, 'noCuda'):
             args.cuda = not args.noCuda and torch.cuda.is_available()
+
+        if hasattr(args, 'model') and args.model is not None and len(args.model) == 1:
+            args.model = args.model[0]
 
         if hasattr(args, 'seed'):
             torch.manual_seed(args.seed)

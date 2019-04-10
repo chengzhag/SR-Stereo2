@@ -4,8 +4,9 @@ from .EDSRdisp import EDSRdisp
 
 
 def getMask(model):
-    assert len(model) == 1
-    model = model[0]
+    if type(model) in (list, tuple):
+        assert len(model) == 1
+        model = model[0]
     if model in ('EDSR',):
         mask = (1, 1, 0, 0)
     elif model in ('EDSRdisp',):

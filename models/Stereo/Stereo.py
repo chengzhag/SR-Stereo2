@@ -11,6 +11,9 @@ class Stereo(Model):
         self.dispScale = dispScale
         self.outMaxDisp = maxDisp * dispScale
 
+    def loss(self, output, gt, kitti=False):
+        pass
+
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
         batch.assertScales(1)
         self.model.eval()

@@ -27,14 +27,14 @@ class PSMNetDown(PSMNet):
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         imgs = super().packOutputs(outputs=outputs, imgs=imgs)
         for key, value in outputs.items():
-            if key == 'outputDispHigh':
+            if key.startswith('outputDispHigh'):
                 imgs.addImg(name=key, img=value, range=self.outMaxDisp * 2)
         return imgs
 
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: tuple, outMaxDisp=None, kitti=False, weights=(1, 0)):
+    def loss(self, output: myUtils.Imgs, gt: tuple, outMaxDisp=None, kitti=False):
         if outMaxDisp is not None:
             raise Exception('Error: outputMaxDisp of PSMNetDown has no use!')
         loss = myUtils.NameValues()
@@ -43,7 +43,7 @@ class PSMNetDown(PSMNet):
                 ('DispHigh', 'Disp'),
                 gt,
                 (self.outMaxDisp * 2, self.maxDisp),
-                weights
+                self.lossWeights
         ):
             if g is not None:
                 loss['loss' + name] = super().loss(
@@ -62,10 +62,8 @@ class PSMNetDown(PSMNet):
 
     def train(self, batch: myUtils.Batch, kitti=False, progress=0):
         batch.assertScales(2)
-        imgL, imgR = batch.highResRGBs()
-
         return self.trainBothSides(
-            ((imgL, imgR), (imgR, imgL)),
+            batch.highResRGBs(),
             list(zip(batch.highResDisps(), batch.lowResDisps())),
             kitti=kitti)
 

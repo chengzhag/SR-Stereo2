@@ -49,7 +49,7 @@ class EDSR(SR):
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
-            if key == 'outputSr':
+            if key.startswith('outputSr'):
                 imgs.addImg(name=key, img=value)
         return imgs
 
@@ -61,7 +61,7 @@ class EDSR(SR):
             output['outputSr'] * self.model.module.args.rgb_range,
             gt * self.model.module.args.rgb_range,
             reduction='mean')
-        loss['loss'] = loss['lossSr']
+        loss['loss'] = loss['lossSr'] * self.lossWeights
         return loss
 
     def trainOneSide(self, input, gt):

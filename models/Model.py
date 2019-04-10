@@ -19,6 +19,9 @@ class Model:
             imgs = myUtils.Imgs()
         return imgs
 
+    def setLossWeights(self, lossWeights):
+        self.lossWeights = lossWeights
+
     def loss(self, output, gt):
         pass
 
