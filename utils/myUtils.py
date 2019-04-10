@@ -126,7 +126,7 @@ class Imgs(collections.OrderedDict):
             super().__init__()
         if isinstance(imgs, Imgs):
             self.update(imgs)
-        self._range = {}
+        self.range = {}
 
     def cpu(self):
         for name in self.keys():
@@ -137,31 +137,31 @@ class Imgs(collections.OrderedDict):
         assert type(imgs) is Imgs
         for name in imgs.keys():
             self[name + suffix] = imgs[name]
-            self._range[name + suffix] = imgs._range[name]
+            self.range[name + suffix] = imgs.range[name]
 
     def clone(self):
         r = Imgs()
         for name, value in self.items():
             r[name] = value.clone()
-            r._range[name] = self._range[name]
+            r.range[name] = self.range[name]
         return r
 
     def addImg(self, name: str, img, range=1):
         if img is not None:
-            self._range[name] = range
+            self.range[name] = range
             self[name] = img
 
     def logPrepare(self):
         for name in self.keys():
-            self[name] /= self._range[name]
+            self[name] /= self.range[name]
 
     def _savePrepare(self):
         for name in self.keys():
             self[name] = self[name][0]
             if 'Disp' in name:
-                if self._range[name] == 192:
+                if self.range[name] == 192:
                     self[name] = savePreprocessDisp(self[name])
-                elif self._range[name] == 384:
+                elif self.range[name] == 384:
                     self[name] = savePreprocessDisp(self[name], dispScale=170)
             elif 'Rgb':
                 self[name] = savePreprocessRGB(self[name])
@@ -788,13 +788,13 @@ def shuffleLists(lists):
     lists = list(zip(*c))
     return lists
 
-def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
+def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possiblePrefix = None):
     writeModelDict = model.state_dict()
     selectModelDict = {}
     for name, value in stateDict.items():
-        possiblePrefix = 'stereo.module.'
-        if name.startswith(possiblePrefix):
-            name = name[len(possiblePrefix):]
+        if possiblePrefix is not None:
+            if name.startswith(possiblePrefix):
+                name = name[len(possiblePrefix):]
         if name in writeModelDict and writeModelDict[name].size() == value.size():
             selectModelDict[name] = value
         else:
@@ -811,3 +811,10 @@ def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
                 print(message)
     writeModelDict.update(selectModelDict)
     return writeModelDict
+
+
+def getNNmoduleFromModel(model):
+    model = model.model
+    if hasattr(model, 'module'):
+        model = model.module
+    return model

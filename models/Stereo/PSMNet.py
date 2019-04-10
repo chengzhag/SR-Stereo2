@@ -39,7 +39,8 @@ class RawPSMNetScale(rawPSMNet):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=str)
+        state_dict = myUtils.checkStateDict(
+            model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
         super().load_state_dict(state_dict, strict=False)
 
 
@@ -59,6 +60,8 @@ class PSMNet(Stereo):
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputDisp'):
+                if type(value) in (list, tuple):
+                    value = value[2].detach()
                 imgs.addImg(name=key, img=value, range=self.outMaxDisp)
         return imgs
 
@@ -78,37 +81,6 @@ class PSMNet(Stereo):
         loss['loss'] = loss['lossDisp'] * self.lossWeights
 
         return loss
-
-    def trainOneSide(self, input, gt, kitti=False):
-        self.model.train()
-        self.optimizer.zero_grad()
-        output = self.packOutputs(self.model.forward(*input))
-        loss = self.loss(output=output, gt=gt, kitti=kitti)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-
-        output.addImg(name='outputDisp', img=output['outputDisp'][2].detach(), range=self.outMaxDisp)
-        return loss.dataItem(), output
-
-    def trainBothSides(self, inputs, gts, kitti=False):
-        losses = myUtils.NameValues()
-        outputs = myUtils.Imgs()
-        for input, gt, process, side in zip(
-                (inputs, inputs[::-1]), gts,
-                (lambda im: im, myUtils.flipLR),
-                ('L', 'R')
-        ):
-            if (type(gt) not in (tuple, list) and gt is not None) \
-                    or not all([g is None for g in gt]):
-                loss, output = self.trainOneSide(
-                    *process([input, gt]),
-                    kitti=kitti
-                )
-                losses.update(nameValues=loss, suffix=side)
-                outputs.update(imgs=process(output), suffix=side)
-
-        return losses, outputs
 
     def train(self, batch: myUtils.Batch, kitti=False, progress=0):
         batch.assertScales(1)

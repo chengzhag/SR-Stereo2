@@ -2,28 +2,19 @@ import torch.optim as optim
 import torch
 import torch.nn as nn
 from utils import myUtils
-import collections
 from .Stereo import Stereo
 from .. import SR
-from evaluation import evalFcn
-from utils.warp import warpAndCat
 
 
 class RawSRStereo(nn.Module):
     def __init__(self, sr: SR.SR, stereo: Stereo):
         super().__init__()
+        self.sr = myUtils.getNNmoduleFromModel(sr)
+        self.stereo = myUtils.getNNmoduleFromModel(stereo)
+        self.updateSR = True
 
-        def getModel(model):
-            model = model.model
-            if hasattr(model, 'module'):
-                model = model.module
-            return model
-
-        self.sr = getModel(sr)
-        self.stereo = getModel(stereo)
-
-    def forward(self, left, right, updateSR=True):
-        with torch.no_grad() if updateSR else None:
+    def forward(self, left, right):
+        with torch.no_grad() if self.updateSR else None:
             outputSrL = self.sr.forward(left)['outputSr']
             outputSrR = self.sr.forward(right)['outputSr']
 
@@ -55,9 +46,13 @@ class SRStereo(Stereo):
         super().setLossWeights(lossWeights)
         self.stereo.setLossWeights(lossWeights[1:])
         self.sr.setLossWeights(lossWeights[0])
+        self.model.module.updateSR = lossWeights[0] >= 0
 
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
+
+    def packOutputs(self, outputs, imgs: myUtils.Imgs = None):
+        return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))
 
     def loss(self, output: myUtils.Imgs, gt: tuple, kitti=False):
         gtSrs, dispHigh, dispLow = gt
@@ -74,38 +69,8 @@ class SRStereo(Stereo):
 
         return loss
 
-    def trainOneSide(self, input, gt, kitti=False):
-        self.model.train()
-        self.optimizer.zero_grad()
-        rawOutputs = self.model.forward(*input, updateSR=self.lossWeights[0] >= 0)
-        output = self.stereo.packOutputs(rawOutputs, self.sr.packOutputs(rawOutputs))
-        loss = self.loss(output=output, gt=gt, kitti=kitti)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-
-        output.addImg(name='outputDisp', img=output['outputDisp'][2].detach(), range=self.outMaxDisp)
-        return loss.dataItem(), output
-
-    def trainBothSides(self, inputs, gts, kitti=False):
-        losses = myUtils.NameValues()
-        outputs = myUtils.Imgs()
-        for input, gt, process, side in zip(
-                (inputs, inputs[::-1]), gts,
-                (lambda im: im, myUtils.flipLR),
-                ('L', 'R')
-        ):
-            if not all([g is None for g in gt]):
-                loss, output = self.trainOneSide(
-                    *process([input, gt]),
-                    kitti=kitti
-                )
-                losses.update(nameValues=loss, suffix=side)
-                outputs.update(imgs=process(output), suffix=side)
-
     def train(self, batch: myUtils.Batch, kitti=False, progress=0):
         batch.assertScales(2)
-
         return self.trainBothSides(
             batch.lowestResRGBs(),
             list(zip([batch.highResRGBs(), ] * 2, batch.highResDisps(), batch.lowResDisps())),
@@ -123,13 +88,13 @@ class SRStereo(Stereo):
         if checkpointDir is None:
             return None, None
 
-        if type(checkpointDir) in (list, tuple) and len(checkpointDir) == 2:
-            # Load pretrained SR and Stereo weights
-            self.sr.load(checkpointDir[0])
-            self.stereo.load(checkpointDir[1])
-            return None, None
+        if type(checkpointDir) in (list, tuple):
+            if len(checkpointDir) == 2:
+                self.sr.load(checkpointDir[0])
+                self.stereo.load(checkpointDir[1])
+                return None, None
+            elif len(checkpointDir) == 1:
+                return super().load(checkpointDir)
         elif type(checkpointDir) is str:
-            # Load fintuned SRStereo weights
-            return super(SRStereo, self).load(checkpointDir)
-        else:
-            raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')
+            return super().load(checkpointDir)
+        raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')
