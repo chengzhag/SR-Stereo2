@@ -32,6 +32,8 @@ class Model:
         pass
 
     def load(self, chkpointDir: str) -> (int, int):
+        if chkpointDir is None:
+            return None, None
         if type(chkpointDir) is list:
             if len(chkpointDir) > 1:
                 raise Exception('Error: One model can only load one checkpoint!')
