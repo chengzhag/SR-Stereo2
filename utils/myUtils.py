@@ -179,7 +179,7 @@ class Imgs(collections.OrderedDict):
 def getattrNE(object, name, default=None):
     try:
         return getattr(object, name, default)
-    finally:
+    except:
         return None
 
 

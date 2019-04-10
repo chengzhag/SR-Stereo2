@@ -98,7 +98,7 @@ class StereoDown(Stereo):
             try:
                 # Complete load StereoDown from checkpoint
                 return super().load(checkpointDir)
-            finally:
+            except:
                 # Only load stereo from checkpoint
                 self.stereo.load(checkpointDir)
                 return None, None
