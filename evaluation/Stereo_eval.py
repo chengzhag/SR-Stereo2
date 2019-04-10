@@ -9,8 +9,7 @@ class Evaluation(Base):
 
     def _evalIt(self, batch: myUtils.Batch):
         loss, outputs = self.experiment.model.test(batch=batch.detach(),
-                                                   evalType=self.experiment.args.evalFcn,
-                                                   kitti=self.testImgLoader.kitti)
+                                                   evalType=self.experiment.args.evalFcn)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
             outputs.addImg(name='gtDisp' + side, img=disp, range=self.experiment.model.outMaxDisp)
             outputs.addImg(name='inputRgb' + side, img=input)
@@ -36,7 +35,12 @@ def main():
 
     # Model
     stereo = Stereo.getModel(
-        args.model, maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
+        args.model,
+        kitti=testImgLoader.kitti,
+        maxDisp=args.maxDisp,
+        dispScale=args.dispScale,
+        cuda=args.cuda,
+        half=args.half)
     if hasattr(stereo, 'itRefine'):
         stereo.itRefine = args.itRefine
 

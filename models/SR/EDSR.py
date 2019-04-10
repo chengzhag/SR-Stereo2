@@ -76,7 +76,7 @@ class EDSR(SR):
         output = self.packOutputs(rawOutputs)
         return loss.dataItem(), output
 
-    def trainBothSides(self, inputs, gts, kitti=False):
+    def trainBothSides(self, inputs, gts):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for input, gt, side in zip(inputs, gts, ('L', 'R')):

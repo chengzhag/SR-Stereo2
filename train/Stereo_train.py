@@ -9,8 +9,7 @@ import dataloader
 class Train(Base):
 
     def _trainIt(self, batch: myUtils.Batch):
-        loss, outputs = self.experiment.model.train(batch=batch.detach(),
-                                         kitti=self.trainImgLoader.kitti,)
+        loss, outputs = self.experiment.model.train(batch=batch.detach())
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
             outputs.addImg(name='gtDisp' + side, img=disp, range=self.experiment.model.outMaxDisp)
             outputs.addImg(name='inputRgb' + side, img=input)
@@ -38,7 +37,12 @@ def main():
 
     # Model
     stereo = Stereo.getModel(
-        args.model, maxDisp=args.maxDisp, dispScale=args.dispScale, cuda=args.cuda, half=args.half)
+        args.model,
+        kitti=trainImgLoader.kitti,
+        maxDisp=args.maxDisp,
+        dispScale=args.dispScale,
+        cuda=args.cuda,
+        half=args.half)
     if hasattr(stereo, 'itRefine'):
         stereo.itRefine = args.itRefine
 

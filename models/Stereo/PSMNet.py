@@ -45,8 +45,8 @@ class RawPSMNetScale(rawPSMNet):
 
 
 class PSMNet(Stereo):
-    def __init__(self, maxDisp=192, dispScale=1, cuda=True, half=False):
-        super().__init__(maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
+    def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False):
+        super().__init__(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
@@ -68,11 +68,11 @@ class PSMNet(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None, kitti=False):
+    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None):
         if outMaxDisp is None:
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
-        mask = (gt > 0).detach() if kitti else (gt < outMaxDisp).detach()
+        mask = (gt > 0).detach() if self.kitti else (gt < outMaxDisp).detach()
         loss = myUtils.NameValues()
         loss['lossDisp'] = \
             0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
@@ -82,6 +82,6 @@ class PSMNet(Stereo):
 
         return loss
 
-    def train(self, batch: myUtils.Batch, kitti=False, progress=0):
+    def train(self, batch: myUtils.Batch, progress=0):
         batch.assertScales(1)
-        return self.trainBothSides(batch.highResRGBs(), batch.highResDisps(), kitti=kitti)
+        return self.trainBothSides(batch.highResRGBs(), batch.highResDisps())

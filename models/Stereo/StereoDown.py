@@ -25,7 +25,7 @@ class StereoDown(Stereo):
 
     def __init__(self, stereo):
         super().__init__(
-            maxDisp=stereo.maxDisp, dispScale=stereo.dispScale, cuda=stereo.cuda, half=stereo.half)
+            kitti=stereo.kitti, maxDisp=stereo.maxDisp, dispScale=stereo.dispScale, cuda=stereo.cuda, half=stereo.half)
         stereo.optimizer = None
         self.stereo = stereo
         self.initModel()
@@ -55,7 +55,7 @@ class StereoDown(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: tuple, outMaxDisp=None, kitti=False):
+    def loss(self, output: myUtils.Imgs, gt: tuple, outMaxDisp=None):
         if outMaxDisp is not None:
             raise Exception('Error: outputMaxDisp of PSMNetDown has no use!')
         loss = myUtils.NameValues()
@@ -71,23 +71,22 @@ class StereoDown(Stereo):
                     myUtils.Imgs(
                         (('outputDisp', output['output' + name]),)
                     ),
-                    g, kitti=kitti, outMaxDisp=outMaxDisp
+                    g, outMaxDisp=outMaxDisp
                 )['lossDisp']
                 loss['loss'] += weight * loss['loss' + name]
         return loss
 
-    def train(self, batch: myUtils.Batch, kitti=False, progress=0):
+    def train(self, batch: myUtils.Batch, progress=0):
         batch.assertScales(2)
         return self.trainBothSides(
             batch.highResRGBs(),
-            list(zip(batch.highResDisps(), batch.lowResDisps())),
-            kitti=kitti)
+            list(zip(batch.highResDisps(), batch.lowResDisps())))
 
-    def test(self, batch: myUtils.Batch, evalType: str, kitti=False):
+    def test(self, batch: myUtils.Batch, evalType: str):
         batch.assertScales(2)
         batch = myUtils.Batch(batch.highResRGBs() + batch.lowestResDisps(), cuda=batch.cuda, half=batch.half)
 
-        return super(StereoDown, self).test(batch=batch, evalType=evalType, kitti=kitti)
+        return super(StereoDown, self).test(batch=batch, evalType=evalType)
 
     def load(self, checkpointDir):
         if checkpointDir is None:

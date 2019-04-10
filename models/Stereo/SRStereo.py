@@ -54,7 +54,7 @@ class SRStereo(Stereo):
     def packOutputs(self, outputs, imgs: myUtils.Imgs = None):
         return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))
 
-    def loss(self, output: myUtils.Imgs, gt: tuple, kitti=False):
+    def loss(self, output: myUtils.Imgs, gt: tuple):
         gtSrs, dispHigh, dispLow = gt
         loss = myUtils.NameValues()
         if all([img is not None for img in gtSrs]):
@@ -65,16 +65,15 @@ class SRStereo(Stereo):
             loss.update(lossSr)
 
         if not all([disp is None for disp in (dispHigh, dispLow)]):
-            loss.add(self.stereo.loss(output=output, gt=(dispHigh, dispLow), kitti=kitti))
+            loss.add(self.stereo.loss(output=output, gt=(dispHigh, dispLow)))
 
         return loss
 
-    def train(self, batch: myUtils.Batch, kitti=False, progress=0):
+    def train(self, batch: myUtils.Batch, progress=0):
         batch.assertScales(2)
         return self.trainBothSides(
             batch.lowestResRGBs(),
-            list(zip([batch.highResRGBs(), ] * 2, batch.highResDisps(), batch.lowResDisps())),
-            kitti=kitti
+            list(zip([batch.highResRGBs(), ] * 2, batch.highResDisps(), batch.lowResDisps()))
         )
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
