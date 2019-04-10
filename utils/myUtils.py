@@ -33,9 +33,21 @@ class NameValues(collections.OrderedDict):
         for name in nameValues.keys():
             self[name + suffix] = nameValues[name]
 
-    def accumuate(self, nameValues):
+    def add(self, other):
+        for key in other.keys():
+            if key in self.keys():
+                self[key] += other[key]
+            else:
+                self[key] = other[key]
+        return self
+
+    def div(self, other):
         for key in self.keys():
-            self[key] += nameValues[key]
+            self[key] /= other
+        return self
+
+    def accumuate(self, nameValues):
+        self.add(nameValues)
         self.nAccum += 1
 
     def avg(self):
@@ -114,7 +126,7 @@ class Imgs(collections.OrderedDict):
             super().__init__()
         if isinstance(imgs, Imgs):
             self.update(imgs)
-        self._range = {}
+        self.range = {}
 
     def cpu(self):
         for name in self.keys():
@@ -125,31 +137,31 @@ class Imgs(collections.OrderedDict):
         assert type(imgs) is Imgs
         for name in imgs.keys():
             self[name + suffix] = imgs[name]
-            self._range[name + suffix] = imgs._range[name]
+            self.range[name + suffix] = imgs.range[name]
 
     def clone(self):
         r = Imgs()
         for name, value in self.items():
             r[name] = value.clone()
-            r._range[name] = self._range[name]
+            r.range[name] = self.range[name]
         return r
 
     def addImg(self, name: str, img, range=1):
         if img is not None:
-            self._range[name] = range
+            self.range[name] = range
             self[name] = img
 
     def logPrepare(self):
         for name in self.keys():
-            self[name] /= self._range[name]
+            self[name] /= self.range[name]
 
     def _savePrepare(self):
         for name in self.keys():
             self[name] = self[name][0]
             if 'Disp' in name:
-                if self._range[name] == 192:
+                if self.range[name] == 192:
                     self[name] = savePreprocessDisp(self[name])
-                elif self._range[name] == 384:
+                elif self.range[name] == 384:
                     self[name] = savePreprocessDisp(self[name], dispScale=170)
             elif 'Rgb':
                 self[name] = savePreprocessRGB(self[name])
@@ -162,6 +174,13 @@ class Imgs(collections.OrderedDict):
             saveDir = os.path.join(dir, folder, name + '.png')
             skimage.io.imsave(saveDir, value)
             print('saving to: %s' % saveDir)
+
+
+def getattrNE(object, name, default=None):
+    try:
+        return getattr(object, name, default)
+    finally:
+        return None
 
 
 class Experiment:
@@ -195,10 +214,10 @@ class Experiment:
         else:
             # auto experiment naming
             saveFolderSuffix = NameValues((
-                ('loadScale', args.loadScale),
-                ('trainCrop', args.trainCrop),
-                ('batchSize', args.batchSize),
-                ('lossWeights', args.lossWeights),
+                ('loadScale', getattrNE(args, 'loadScale')),
+                ('trainCrop', getattrNE(args, 'trainCrop')),
+                ('batchSize', getattrNE(args, 'batchSize')),
+                ('lossWeights', getattrNE(args, 'lossWeights')),
             ))
             startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
             self.cometExp.log_parameter(name='startTime', value=startTime)
@@ -348,7 +367,7 @@ class DefaultParser:
         return self
 
     def model(self):
-        self.parser.add_argument('--model', default='PSMNet',
+        self.parser.add_argument('--model', type=str, default=None, nargs='+',
                                  help='select model')
         return self
 
@@ -474,6 +493,9 @@ class DefaultParser:
 
         if hasattr(args, 'noCuda'):
             args.cuda = not args.noCuda and torch.cuda.is_available()
+
+        if hasattr(args, 'model') and args.model is not None and len(args.model) == 1:
+            args.model = args.model[0]
 
         if hasattr(args, 'seed'):
             torch.manual_seed(args.seed)
@@ -766,13 +788,13 @@ def shuffleLists(lists):
     lists = list(zip(*c))
     return lists
 
-def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
+def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possiblePrefix = None):
     writeModelDict = model.state_dict()
     selectModelDict = {}
     for name, value in stateDict.items():
-        possiblePrefix = 'stereo.module.'
-        if name.startswith(possiblePrefix):
-            name = name[len(possiblePrefix):]
+        if possiblePrefix is not None:
+            if name.startswith(possiblePrefix):
+                name = name[len(possiblePrefix):]
         if name in writeModelDict and writeModelDict[name].size() == value.size():
             selectModelDict[name] = value
         else:
@@ -789,3 +811,10 @@ def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False):
                 print(message)
     writeModelDict.update(selectModelDict)
     return writeModelDict
+
+
+def getNNmoduleFromModel(model):
+    model = model.model
+    if hasattr(model, 'module'):
+        model = model.module
+    return model

@@ -28,7 +28,7 @@ stereo_train=train/Stereo_train.py
 stereo_eval=train/Stereo_eval.py
 
 # checkpoints: pretrain_Stereo_StereoDown
-pretrained_PSMNetDown_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
-pretrained_PSMNet_carla=${experiment_dir}/pretrain_Stereo_StereoDown/Stereo_train/
+pretrained_PSMNetDown_carla=${experiment_dir}/pretrain_carla_Stereo_StereoDown/Stereo_train/190409094503_PSMNetDown_loadScale_1.0_0.5_trainCrop_128_1024_batchSize_12_4_lossWeights_0.8_0.2_carla
+pretrained_PSMNet_carla=${experiment_dir}/pretrain_carla_Stereo_StereoDown/Stereo_train/190409192918_PSMNet_loadScale_0.5_trainCrop_128_1024_batchSize_12_4_lossWeights_1_carla
 
 

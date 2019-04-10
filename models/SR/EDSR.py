@@ -30,7 +30,8 @@ class RawEDSR(edsr.EDSR):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(model=self, stateDict=state_dict, strict=strict)
+        state_dict = myUtils.checkStateDict(
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module')
         super().load_state_dict(state_dict, strict=False)
 
 
@@ -49,7 +50,7 @@ class EDSR(SR):
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
-            if key == 'outputSr':
+            if key.startswith('outputSr'):
                 imgs.addImg(name=key, img=value)
         return imgs
 
@@ -61,18 +62,18 @@ class EDSR(SR):
             output['outputSr'] * self.model.module.args.rgb_range,
             gt * self.model.module.args.rgb_range,
             reduction='mean')
-        loss['loss'] = loss['lossSr']
+        loss['loss'] = loss['lossSr'] * self.lossWeights
         return loss
 
     def trainOneSide(self, input, gt):
         self.model.train()
         self.optimizer.zero_grad()
-        output = self.packOutputs(self.model.forward(input))
-        loss = self.loss(output=output, gt=gt)
+        rawOutputs = self.model.forward(input)
+        loss = self.loss(output=rawOutputs, gt=gt)
         with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
             scaledLoss.backward()
         self.optimizer.step()
-
+        output = self.packOutputs(rawOutputs)
         return loss.dataItem(), output
 
     def trainBothSides(self, inputs, gts, kitti=False):

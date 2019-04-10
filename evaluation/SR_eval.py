@@ -36,7 +36,7 @@ def main():
                                                 mask=mask)
 
     # Model
-    sr = getattr(SR, args.model)(cuda=args.cuda, half=args.half)
+    sr = SR.getModel(args.model, cuda=args.cuda, half=args.half)
 
     # Test
     stage, _ = os.path.splitext(os.path.basename(__file__))
