@@ -5,13 +5,14 @@ from ..Model import Model
 
 
 class Stereo(Model):
-    def __init__(self, maxDisp=192, dispScale=1, cuda=True, half=False):
+    def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False):
         super().__init__(cuda=cuda, half=half)
+        self.kitti = kitti
         self.maxDisp = maxDisp
         self.dispScale = dispScale
         self.outMaxDisp = maxDisp * dispScale
 
-    def loss(self, output, gt, kitti=False):
+    def loss(self, output, gt):
         pass
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
@@ -32,7 +33,7 @@ class Stereo(Model):
 
             return outputs
 
-    def test(self, batch: myUtils.Batch, evalType: str, kitti=False):
+    def test(self, batch: myUtils.Batch, evalType: str):
         batch.assertScales(1)
         disps = batch.lowestResDisps()
         myUtils.assertDisp(*disps)
@@ -45,11 +46,11 @@ class Stereo(Model):
             dispOut = outputs.get('outputDisp' + side)
             if dispOut is not None:
                 # for kitti dataset, only consider loss of none zero disparity pixels in gt
-                if kitti:
+                if self.kitti:
                     mask = gt > 0
                     dispOut = dispOut[mask]
                     gt = gt[mask]
-                elif not kitti:
+                elif not self.kitti:
                     mask = gt < self.outMaxDisp
                     dispOut = dispOut[mask]
                     gt = gt[mask]
@@ -57,18 +58,7 @@ class Stereo(Model):
 
         return loss, outputs
 
-    def trainOneSide(self, input, gt, kitti=False):
-        self.model.train()
-        self.optimizer.zero_grad()
-        rawOutput = self.model.forward(*input)
-        loss = self.loss(output=rawOutput, gt=gt, kitti=kitti)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-        output = self.packOutputs(rawOutput)
-        return loss.dataItem(), output
-
-    def trainBothSides(self, inputs, gts, kitti=False):
+    def trainBothSides(self, inputs, gts):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for input, gt, process, side in zip(
@@ -77,10 +67,9 @@ class Stereo(Model):
                 ('L', 'R')
         ):
             if (type(gt) not in (tuple, list) and gt is not None) \
-                    or not all([g is None for g in gt]):
+                    or (gt is not None and not all([g is None for g in gt])):
                 loss, output = self.trainOneSide(
-                    *process([input, gt]),
-                    kitti=kitti
+                    *process([input, gt])
                 )
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=process(output), suffix=side)

@@ -24,8 +24,6 @@ class RawEDSR(edsr.EDSR):
     # output: RGB value range 0~1 without quantize
     def forward(self, imgL):
         rawOutput = super(RawEDSR, self).forward(imgL * self.args.rgb_range) / self.args.rgb_range
-        if not self.training:
-            rawOutput = myUtils.quantize(rawOutput, 1)
         output = {'outputSr': rawOutput}
         return output
 
@@ -36,8 +34,8 @@ class RawEDSR(edsr.EDSR):
 
 
 class EDSR(SR):
-    def __init__(self, cuda=True, half=False):
-        super().__init__(cuda=cuda, half=half)
+    def __init__(self, cInput=3, cuda=True, half=False):
+        super().__init__(cInput=cInput, cuda=cuda, half=half)
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:
@@ -45,13 +43,13 @@ class EDSR(SR):
             self.model.cuda()
 
     def initModel(self):
-        self.model = RawEDSR(cInput=3)
+        self.model = RawEDSR(cInput=self.cInput)
 
     def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputSr'):
-                imgs.addImg(name=key, img=value)
+                imgs.addImg(name=key, img=myUtils.quantize(value, 1))
         return imgs
 
     # outputs, gts: RGB value range 0~1
@@ -65,23 +63,12 @@ class EDSR(SR):
         loss['loss'] = loss['lossSr'] * self.lossWeights
         return loss
 
-    def trainOneSide(self, input, gt):
-        self.model.train()
-        self.optimizer.zero_grad()
-        rawOutputs = self.model.forward(input)
-        loss = self.loss(output=rawOutputs, gt=gt)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-        output = self.packOutputs(rawOutputs)
-        return loss.dataItem(), output
-
-    def trainBothSides(self, inputs, gts, kitti=False):
+    def trainBothSides(self, inputs, gts):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for input, gt, side in zip(inputs, gts, ('L', 'R')):
             if gt is not None:
-                loss, output = self.trainOneSide(input, gt)
+                loss, output = self.trainOneSide((input, ), gt)
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=output, suffix=side)
 

@@ -179,7 +179,7 @@ class Imgs(collections.OrderedDict):
 def getattrNE(object, name, default=None):
     try:
         return getattr(object, name, default)
-    finally:
+    except:
         return None
 
 
@@ -400,6 +400,11 @@ class DefaultParser:
     def loadScale(self):
         self.parser.add_argument('--loadScale', type=float, default=[1], nargs='+',
                                  help='scaling applied to data during loading')
+        return self
+
+    def mask(self):
+        self.parser.add_argument('--mask', type=int, default=None, nargs='+',
+                                 help='mask for dataloader')
         return self
 
     # training
@@ -703,6 +708,8 @@ def forNestingList(l, fcn):
 
 
 def scanCheckpoint(checkpointDirs):
+    if checkpointDirs is None:
+        return None
     if type(checkpointDirs) in (list, tuple):
         checkpointDirs = [scanCheckpoint(dir) for dir in checkpointDirs]
     else:
