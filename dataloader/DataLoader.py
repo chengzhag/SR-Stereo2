@@ -181,7 +181,10 @@ class myImageFloder(data.Dataset):
 # cropScale: Defaultly set to loadScale to remain ratio between loaded image and cropped image.
 # loadScale: A list of scale to load. Will return 4 * len(loadScale) images. Should be decreasing values.
 def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSizes=(0, 0),
-                  loadScale=(1,), mode='normal', mask=(1, 1, 1, 1), validSetSample=1):
+                  loadScale=(1,), mode='normal', mask=None, validSetSample=1):
+    if mask is None:
+        mask = (1, 1, 1, 1)
+
     # import listing file fcn according to param dataset
     if dataset == 'sceneflow':
         from dataloader import listSceneFlowFiles as listFile

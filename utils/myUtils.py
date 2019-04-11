@@ -402,6 +402,11 @@ class DefaultParser:
                                  help='scaling applied to data during loading')
         return self
 
+    def mask(self):
+        self.parser.add_argument('--mask', type=int, default=None, nargs='+',
+                                 help='mask for dataloader')
+        return self
+
     # training
     def batchSize(self):
         self.parser.add_argument('--batchSize', type=int, default=[0], nargs='+',

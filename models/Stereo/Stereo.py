@@ -78,7 +78,7 @@ class Stereo(Model):
                 ('L', 'R')
         ):
             if (type(gt) not in (tuple, list) and gt is not None) \
-                    or not all([g is None for g in gt]):
+                    or (gt is not None and not all([g is None for g in gt])):
                 loss, output = self.trainOneSide(
                     *process([input, gt])
                 )
