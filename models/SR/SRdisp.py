@@ -3,7 +3,6 @@ from .EDSR import *
 
 
 class SRdisp(SR):
-
     def __init__(self, sr: SR):
         super().__init__(cuda=sr.cuda, half=sr.half)
         self.sr = sr
@@ -19,16 +18,14 @@ class SRdisp(SR):
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         batch.lowestResRGBs(cated)
         outputs = self.sr.predict(batch, mask)
-        for warpTo, side in zip(warpTos, ('L', 'R')):
-            outputs.addImg(name='warpTo' + side, img=warpTo)
+        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
         return outputs
 
     def train(self, batch: myUtils.Batch):
         batch.assertScales(2)
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         losses, outputs = self.sr.trainBothSides(cated, batch.highResRGBs())
-        for warpTo, side in zip(warpTos, ('L', 'R')):
-            outputs.addImg(name='warpTo' + side, img=warpTo)
+        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
         return losses, outputs
 
 

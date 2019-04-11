@@ -221,7 +221,7 @@ class Experiment:
             ))
             startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
             self.cometExp.log_parameter(name='startTime', value=startTime)
-            newFolderName =  startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
+            newFolderName = startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
                 stage = os.path.join(args.outputFolder, stage)
@@ -795,7 +795,8 @@ def shuffleLists(lists):
     lists = list(zip(*c))
     return lists
 
-def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possiblePrefix = None):
+
+def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possiblePrefix=None):
     writeModelDict = model.state_dict()
     selectModelDict = {}
     for name, value in stateDict.items():
@@ -825,3 +826,7 @@ def getNNmoduleFromModel(model):
     if hasattr(model, 'module'):
         model = model.module
     return model
+
+def packWarpTo(warpTos, outputs: Imgs):
+    for warpTo, side in zip(warpTos, ('L', 'R')):
+        outputs.addImg(name='warpTo' + side, img=warpTo)

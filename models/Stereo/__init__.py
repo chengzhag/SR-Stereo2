@@ -1,7 +1,7 @@
 from .PSMNet import PSMNet
 from .StereoDown import StereoDown
 from .SRStereo import SRStereo
-# from .SRdispStereo import SRdispStereo
+from .SRdispStereo import SRdispStereo
 # from .SRdispStereoRefine import SRdispStereoRefine
 from .. import SR
 
@@ -16,6 +16,12 @@ def getModel(model, kitti, maxDisp, dispScale, cuda, half):
             stereo = getModel(
                 ('StereoDown', model[2]), kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
             return globals()[model[0]](sr, stereo)
+        elif model[0] in ('SRdispStereo',):
+            sr = SR.getModel(
+                ('SRdisp', model[1]), cuda=cuda, half=half)
+            stereo = getModel(
+                ('StereoDown', model[2]), kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
+            return globals()[model[0]](sr.sr, stereo)
         if len(model) == 1:
             model = model[0]
     return globals()[model](kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
