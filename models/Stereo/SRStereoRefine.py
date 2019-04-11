@@ -22,7 +22,6 @@ class SRStereoRefine(SRdispStereo):
     def predict(self, batch, mask=(1,1), itRefine=None):
         if itRefine is None:
             itRefine = self.itRefine
-        batch.assertScales(1)
 
         # initialize SR output from low res input
         outputs = myUtils.Imgs()
@@ -36,9 +35,9 @@ class SRStereoRefine(SRdispStereo):
             for outSr, side in zip(outSRs, ('L', 'R')):
                 outputs.addImg('outputSr' + side + '_0', outSr)
             for it in range(1, itRefine + 1):
-                batch.lowestResRGBs(outputs.getImgPair('outputDisp', suffix=('_%d', it - 1)))
+                batch.lowestResDisps(outputs.getImgPair('outputDisp', suffix=('_%d' % (it - 1))))
                 itOutputs = super().predict(batch.detach())
-                outputs.update(itOutputs, suffix=('_%d', it))
+                outputs.update(itOutputs, suffix=('_%d' % it))
                 if it == itRefine:
                     outputs.update(itOutputs)
 

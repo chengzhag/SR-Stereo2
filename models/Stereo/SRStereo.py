@@ -73,7 +73,7 @@ class SRStereo(Stereo):
         batch.assertScales(2)
         return self.trainBothSides(
             batch.lowestResRGBs(),
-            list(zip([batch.highResRGBs(), ] * 2, batch.highResDisps(), batch.lowResDisps()))
+            list(zip([batch.highResRGBs(), batch.highResRGBs()[::-1]], batch.highResDisps(), batch.lowResDisps()))
         )
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
@@ -86,7 +86,7 @@ class SRStereo(Stereo):
     def test(self, batch: myUtils.Batch, evalType: str):
         loss, outputs = super().test(batch=batch, evalType=evalType)
         if len(batch) == 8:
-            loss.update(self.sr.testSr(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
+            loss.update(self.sr.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
         return loss, outputs
 
     def load(self, checkpointDir):

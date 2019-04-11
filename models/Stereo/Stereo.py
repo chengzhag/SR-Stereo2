@@ -32,7 +32,7 @@ class Stereo(Model):
 
             return outputs
 
-    def testDisp(self, outputs: myUtils.Imgs, gt, evalType: str):
+    def testOutput(self, outputs: myUtils.Imgs, gt, evalType: str):
         loss = myUtils.NameValues()
         for disp, side in zip(gt, ('L', 'R')):
             dispOut = outputs.get('outputDisp' + side)
@@ -56,7 +56,7 @@ class Stereo(Model):
 
         mask = [disp is not None for disp in disps]
         outputs = self.predict(batch, mask)
-        loss = self.testDisp(outputs=outputs, gt=disps, evalType=evalType)
+        loss = self.testOutput(outputs=outputs, gt=disps, evalType=evalType)
 
         return loss, outputs
 

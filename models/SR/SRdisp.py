@@ -14,7 +14,6 @@ class SRdisp(SR):
         self.sr.setLossWeights(lossWeights)
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
-        batch.assertScales(1)
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         batch.lowestResRGBs(cated)
         outputs = self.sr.predict(batch, mask)
