@@ -22,7 +22,6 @@ class RawStereoDown(nn.Module):
 
 
 class StereoDown(Stereo):
-
     def __init__(self, stereo):
         super().__init__(
             kitti=stereo.kitti, maxDisp=stereo.maxDisp, dispScale=stereo.dispScale, cuda=stereo.cuda, half=stereo.half)

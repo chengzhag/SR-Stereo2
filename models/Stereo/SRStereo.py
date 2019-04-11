@@ -25,10 +25,9 @@ class RawSRStereo(nn.Module):
 
 
 class SRStereo(Stereo):
-
     def __init__(self, sr: SR.SR, stereo: Stereo):
         super().__init__(
-            maxDisp=stereo.maxDisp, dispScale=stereo.dispScale, cuda=stereo.cuda, half=stereo.half)
+            kitti=stereo.kitti, maxDisp=stereo.maxDisp, dispScale=stereo.dispScale, cuda=stereo.cuda, half=stereo.half)
         stereo.optimizer = None
         sr.optimizer = None
         self.stereo = stereo
