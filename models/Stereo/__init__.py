@@ -19,5 +19,3 @@ def getModel(model, kitti, maxDisp, dispScale, cuda, half):
         if len(model) == 1:
             model = model[0]
     return globals()[model](kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
-
-

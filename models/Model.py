@@ -39,6 +39,9 @@ class Model:
         output = self.packOutputs(rawOutput)
         return loss.dataItem(), output
 
+    def trainBothSides(self, inputs, gts):
+        pass
+
     def train(self, batch: myUtils.Batch):
         pass
 

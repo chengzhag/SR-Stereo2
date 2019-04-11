@@ -5,6 +5,9 @@ from ..Model import Model
 
 
 class SR(Model):
+    def __init__(self, cInput=3, cuda=True, half=False):
+        super().__init__(cuda=cuda, half=half)
+        self.cInput = cInput
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
         batch.assertScales(1)
