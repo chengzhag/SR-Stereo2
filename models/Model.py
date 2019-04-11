@@ -14,6 +14,9 @@ class Model:
         self.optimizer = None
         self.lossWeights = None
 
+    def initModel(self):
+        pass
+
     def packOutputs(self, outputs, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
         if imgs is None:
             imgs = myUtils.Imgs()
@@ -24,6 +27,17 @@ class Model:
 
     def loss(self, output, gt):
         pass
+
+    def trainOneSide(self, input, gt):
+        self.model.train()
+        self.optimizer.zero_grad()
+        rawOutput = self.model.forward(*input)
+        loss = self.loss(output=rawOutput, gt=gt)
+        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
+            scaledLoss.backward()
+        self.optimizer.step()
+        output = self.packOutputs(rawOutput)
+        return loss.dataItem(), output
 
     def train(self, batch: myUtils.Batch):
         pass

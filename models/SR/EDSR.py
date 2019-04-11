@@ -65,23 +65,12 @@ class EDSR(SR):
         loss['loss'] = loss['lossSr'] * self.lossWeights
         return loss
 
-    def trainOneSide(self, input, gt):
-        self.model.train()
-        self.optimizer.zero_grad()
-        rawOutputs = self.model.forward(input)
-        loss = self.loss(output=rawOutputs, gt=gt)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-        output = self.packOutputs(rawOutputs)
-        return loss.dataItem(), output
-
     def trainBothSides(self, inputs, gts):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
         for input, gt, side in zip(inputs, gts, ('L', 'R')):
             if gt is not None:
-                loss, output = self.trainOneSide(input, gt)
+                loss, output = self.trainOneSide((input, ), gt)
                 losses.update(nameValues=loss, suffix=side)
                 outputs.update(imgs=output, suffix=side)
 

@@ -58,17 +58,6 @@ class Stereo(Model):
 
         return loss, outputs
 
-    def trainOneSide(self, input, gt):
-        self.model.train()
-        self.optimizer.zero_grad()
-        rawOutput = self.model.forward(*input)
-        loss = self.loss(output=rawOutput, gt=gt)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
-            scaledLoss.backward()
-        self.optimizer.step()
-        output = self.packOutputs(rawOutput)
-        return loss.dataItem(), output
-
     def trainBothSides(self, inputs, gts):
         losses = myUtils.NameValues()
         outputs = myUtils.Imgs()
