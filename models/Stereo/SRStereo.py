@@ -31,6 +31,7 @@ class SRStereo(Stereo):
         stereo.optimizer = None
         sr.optimizer = None
         self.stereo = stereo
+        self.outMaxDisp = stereo.outMaxDisp
         self.sr = sr
         self.initModel()
         self.optimizer = optim.Adam(
@@ -76,11 +77,17 @@ class SRStereo(Stereo):
         )
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
-        batch.assertScales(1)
-        outputs = self.sr.predict(batch=batch)
+        outputs = self.sr.predict(batch=batch.lastScaleBatch())
+        batch = batch.detach()
         batch.lowestResRGBs((outputs['outputSrL'], outputs['outputSrR']))
         outputs.update(self.stereo.predict(batch=batch, mask=mask))
         return outputs
+
+    def test(self, batch: myUtils.Batch, evalType: str):
+        loss, outputs = super().test(batch=batch, evalType=evalType)
+        if len(batch) == 8:
+            loss.update(self.sr.testSr(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
+        return loss, outputs
 
     def load(self, checkpointDir):
         if checkpointDir is None:

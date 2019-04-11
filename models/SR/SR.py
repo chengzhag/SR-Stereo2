@@ -22,17 +22,21 @@ class SR(Model):
 
         return outputs
 
+    def testSr(self, outputs: myUtils.Imgs, gt, evalType: str):
+        loss = myUtils.NameValues()
+        for g, side in zip(gt, ('L', 'R')):
+            output = outputs.get('outputSr' + side)
+            if output is not None:
+                loss[evalType + 'Sr' + side] = evalFcn.getEvalFcn(evalType)(g, output)
+
+        return loss
+
     def test(self, batch: myUtils.Batch, evalType: str):
         batch.assertScales(2)
 
-        loss = myUtils.NameValues()
         mask = [gt is not None for gt in batch.highResRGBs()]
         outputs = self.predict(batch.lastScaleBatch(), mask)
-
-        for gt, side in zip(batch.highResRGBs(), ('L', 'R')):
-            output = outputs.get('outputSr' + side)
-            if output is not None:
-                loss[evalType + 'Sr' + side] = evalFcn.getEvalFcn(evalType)(gt, output)
+        loss = self.testSr(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType)
 
         return loss, outputs
 

@@ -77,13 +77,10 @@ class EDSR(SR):
     def train(self, batch: myUtils.Batch):
         batch.assertScales(2)
         return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
-    
-    def test(self, batch: myUtils.Batch, evalType: str):
-        loss, outputs = super().test(batch=batch, evalType=evalType)
+
+    def testSr(self, outputs: myUtils.Imgs, gt, evalType: str):
+        loss = super().testSr(outputs=outputs, gt=gt, evalType=evalType)
         for name in loss.keys():
             loss[name] *= self.model.module.args.rgb_range
-        return loss, outputs
-
-
-
+        return loss
 

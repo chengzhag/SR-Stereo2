@@ -151,6 +151,9 @@ class Imgs(collections.OrderedDict):
             self.range[name] = range
             self[name] = img
 
+    def getImgPair(self, name: str, suffix=''):
+        return (self[name + 'L' + suffix], self[name + 'R' + suffix])
+
     def logPrepare(self):
         for name in self.keys():
             self[name] /= self.range[name]
@@ -623,15 +626,13 @@ class Batch:
 
     def assertLen(self, length):
         if type(length) in (list, tuple):
-            for l in length:
-                self.assertLen(l)
+            assert len(self) in length
         else:
             assert len(self) == length
 
     def assertScales(self, nScales):
         if type(nScales) in (list, tuple):
-            for nScale in nScales:
-                self.assertScales(nScale)
+            self.assertLen([nScale * 4 for nScale in nScales])
         else:
             self.assertLen(nScales * 4)
 
@@ -668,13 +669,21 @@ class Batch:
 
     def lowResRGBs(self, set=None):
         if set is not None:
+            self.assertScales(2)
             self.batch[4:6] = set
-        return self.batch[4:6]
+        if len(self) == 8:
+            return self.batch[4:6]
+        else:
+            return None, None
 
     def lowResDisps(self, set=None):
         if set is not None:
+            self.assertScales(2)
             self.batch[6:8] = set
-        return self.batch[6:8]
+        if len(self) == 8:
+            return self.batch[6:8]
+        else:
+            return None, None
 
     def lowestResRGBs(self, set=None):
         if set is not None:
