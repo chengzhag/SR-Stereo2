@@ -24,8 +24,6 @@ class RawEDSR(edsr.EDSR):
     # output: RGB value range 0~1 without quantize
     def forward(self, imgL):
         rawOutput = super(RawEDSR, self).forward(imgL * self.args.rgb_range) / self.args.rgb_range
-        if not self.training:
-            rawOutput = myUtils.quantize(rawOutput, 1)
         output = {'outputSr': rawOutput}
         return output
 
@@ -51,7 +49,7 @@ class EDSR(SR):
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputSr'):
-                imgs.addImg(name=key, img=value)
+                imgs.addImg(name=key, img=myUtils.quantize(value, 1))
         return imgs
 
     # outputs, gts: RGB value range 0~1
