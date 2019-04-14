@@ -43,7 +43,31 @@ class SRStereoRefine(SRdispStereo):
 
         return outputs
 
+    def test(self, batch: myUtils.Batch, evalType: str):
+        disps = batch.lowestResDisps()
+        myUtils.assertDisp(*disps)
 
+        mask = [disp is not None for disp in disps]
+        outputs = self.predict(batch, mask)
+
+        def getIt(it: int):
+            output = myUtils.Imgs()
+            for key in outputs.keys():
+                if key.endswith('_%d' % it):
+                    output[key[:key.find('_')]] = outputs[key]
+            return output
+
+        loss = myUtils.NameValues()
+        for it in range(self.itRefine + 1):
+            output = getIt(it)
+            lossIt = self.testOutput(outputs=output, gt=disps, evalType=evalType)
+            if len(batch) == 8:
+                lossIt.update(self.sr.testOutput(outputs=output, gt=batch.highResRGBs(), evalType=evalType))
+            loss.update(lossIt, '_%d' % it)
+            if it == self.itRefine:
+                loss.update(lossIt)
+
+        return loss, outputs
 
 
 
