@@ -109,3 +109,6 @@ logs/
 # comet
 .comet.config
 temp/
+
+# task queue
+experiments/queue
