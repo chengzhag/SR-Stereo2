@@ -14,7 +14,7 @@ class RawSRStereo(nn.Module):
         self.updateSR = True
 
     def forward(self, left, right):
-        with torch.no_grad() if self.updateSR else None:
+        with torch.set_grad_enabled(self.updateSR):
             outputSrL = self.sr.forward(left)['outputSr']
             outputSrR = self.sr.forward(right)['outputSr']
 
@@ -59,10 +59,9 @@ class SRStereo(Stereo):
         loss = myUtils.NameValues()
         if all([img is not None for img in gtSrs]):
             # average lossSrL/R
-            lossSr = self.sr.loss(output={'outputSr': output['outputSrL']}, gt=gtSrs[0]) \
-                .add(self.sr.loss(output={'outputSr': output['outputSrR']}, gt=gtSrs[1])) \
-                .div(2)
-            loss.update(lossSr)
+            lossSr = (self.sr.loss(output={'outputSr': output['outputSrL']}, gt=gtSrs[0])
+                + (self.sr.loss(output={'outputSr': output['outputSrR']}, gt=gtSrs[1]))) / 2
+            loss.add(lossSr)
 
         if not all([disp is None for disp in (dispHigh, dispLow)]):
             loss.add(self.stereo.loss(output=output, gt=(dispHigh, dispLow)))

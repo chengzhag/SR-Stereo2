@@ -46,6 +46,18 @@ class NameValues(collections.OrderedDict):
             self[key] /= other
         return self
 
+    def __add__(self, other):
+        output = NameValues()
+        for key in set(self.keys()) | set(other.keys()):
+            output[key] = self.get(key, 0) + other.get(key, 0)
+        return output
+
+    def __truediv__(self, other):
+        output = NameValues()
+        for key in self.keys():
+            output[key] = self.get(key, 0) / other
+        return output
+
     def accumuate(self, nameValues):
         self.add(nameValues)
         self.nAccum += 1

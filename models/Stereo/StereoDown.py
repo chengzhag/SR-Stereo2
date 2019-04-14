@@ -2,7 +2,7 @@ from .PSMNet import *
 
 
 class RawStereoDown(nn.Module):
-    def __init__(self, stereo):
+    def __init__(self, stereo: Stereo):
         super().__init__()
         self.stereo = myUtils.getNNmoduleFromModel(stereo)
         self.pool = nn.AvgPool2d((2, 2))
