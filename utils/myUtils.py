@@ -99,6 +99,8 @@ class NameValues(collections.OrderedDict):
                     return sAppend + '_' + str(values)
                 elif type(values) == float:
                     return sAppend + '_%.1f' % values
+                elif type(values) == str:
+                    return sAppend + '_' + values
                 elif type(values) in (list, tuple):
                     for v in values:
                         sAppend = addValue(sAppend, v)
@@ -229,6 +231,7 @@ class Experiment:
         else:
             # auto experiment naming
             saveFolderSuffix = NameValues((
+                ('model', args.model),
                 ('loadScale', getattrNE(args, 'loadScale')),
                 ('trainCrop', getattrNE(args, 'trainCrop')),
                 ('batchSize', getattrNE(args, 'batchSize')),
@@ -236,7 +239,7 @@ class Experiment:
             ))
             startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
             self.cometExp.log_parameter(name='startTime', value=startTime)
-            newFolderName = startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
+            newFolderName = startTime + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
                 stage = os.path.join(args.outputFolder, stage)
@@ -764,18 +767,19 @@ def scanCheckpoint(checkpointDirs):
     return checkpointDirs
 
 
-def getSuffix(checkpointDirOrFolder):
-    if type(checkpointDirOrFolder) is str or \
-            (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
-        checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
-        checkpointFolder, _ = os.path.split(checkpointDir)
-        checkpointFolder = checkpointFolder.split('/')[-1]
-        saveFolderSuffix = checkpointFolder.split('_')[1:]
-        saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
-        saveFolderSuffix = ''.join(saveFolderSuffix)
-    else:
-        saveFolderSuffix = ''
-    return saveFolderSuffix
+# Abandoned
+# def getSuffix(checkpointDirOrFolder):
+#     if type(checkpointDirOrFolder) is str or \
+#             (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
+#         checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
+#         checkpointFolder, _ = os.path.split(checkpointDir)
+#         checkpointFolder = checkpointFolder.split('/')[-1]
+#         saveFolderSuffix = checkpointFolder.split('_')[1:]
+#         saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
+#         saveFolderSuffix = ''.join(saveFolderSuffix)
+#     else:
+#         saveFolderSuffix = ''
+#     return saveFolderSuffix
 
 
 def depth(l):
