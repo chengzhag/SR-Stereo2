@@ -232,8 +232,6 @@ class Experiment:
                 raise Exception('Error: No checkpoint to resume!')
             elif len(args.chkpoint) > 1:
                 raise Exception('Error: Cannot resume multi-checkpoints model!')
-            else:
-                args.chkpoint = args.chkpoint[0]
         # if not resume, result will be saved to new folder
         else:
             # auto experiment naming
@@ -267,7 +265,7 @@ class Experiment:
         # update checkpointDir
         self.chkpointDir = chkpointDir
         if self.args.resume:
-            self.chkpointFolder, _ = os.path.split(self.chkpointDir)
+            self.chkpointFolder, _ = os.path.split(self.chkpointDir[0])
             self.logFolder = os.path.join(self.chkpointFolder, 'logs')
 
         epoch, _ = self.model.load(self.chkpointDir)
@@ -681,7 +679,7 @@ class Batch:
         return Batch(self.batch[scale * 4: (scale + 1) * 4], cuda=self.cuda, half=self.half)
 
     def lastScaleBatch(self):
-        return self.scaleBatch(1)
+        return Batch(self.batch[-4:], cuda=self.cuda, half=self.half)
 
     def firstScaleBatch(self):
         return self.scaleBatch(0)

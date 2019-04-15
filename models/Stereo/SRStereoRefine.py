@@ -9,6 +9,7 @@ from .. import SR
 import torch.nn.functional as F
 from evaluation import evalFcn
 import random
+from utils.warp import warpAndCat
 
 
 class SRStereoRefine(SRdispStereo):
@@ -31,12 +32,15 @@ class SRStereoRefine(SRdispStereo):
             ) for lowResInput in batch.lowestResRGBs()]
             initialBatch = myUtils.Batch(4, cuda=batch.cuda, half=batch.half)
             initialBatch.lowestResRGBs(outSRs)
-            outputs.update(self.stereo.predict(initialBatch), suffix='_0')
+            itOutputs = self.stereo.predict(initialBatch)
+            outputs.update(itOutputs, suffix='_0')
+            if itRefine == 0:
+                outputs.update(itOutputs)
             for outSr, side in zip(outSRs, ('L', 'R')):
                 outputs.addImg('outputSr' + side + '_0', outSr)
             for it in range(1, itRefine + 1):
                 batch.lowestResDisps(outputs.getImgPair('outputDisp', suffix=('_%d' % (it - 1))))
-                itOutputs = super().predict(batch.detach())
+                itOutputs = super().predict(batch.detach(), mask=mask if it == itRefine else (1, 1))
                 outputs.update(itOutputs, suffix=('_%d' % it))
                 if it == itRefine:
                     outputs.update(itOutputs)
@@ -67,9 +71,28 @@ class SRStereoRefine(SRdispStereo):
     #   SR disparity map losses (lossDispHigh),
     #   normal sized disparity map losses (lossDispLow)
     def train(self, batch: myUtils.Batch, progress=0):
-        # TODO: Implement random iteration training with super().train()
-        pass
+        # probability of training with dispsOut as input:
+        # progress = [0, 1]: p = [0, 1]
+        if random.random() < progress or self.kitti:
+            if random.random() > progress:
+                itRefine = random.randint(1, 2)
+            else:
+                itRefine = random.randint(0, 1)
+            dispChoice = itRefine
+            outputs = self.predict(batch.lastScaleBatch(), itRefine=itRefine)
+            warpBatch = myUtils.Batch(batch.lowestResRGBs() + [outputs['outputDispL'], outputs['outputDispR']],
+                                      cuda=batch.cuda, half=batch.half)
+        else:
+            warpBatch = batch.lastScaleBatch()
+            dispChoice = -1
 
+        cated, warpTos = warpAndCat(warpBatch)
+        batch = batch.detach()
+        batch.lowestResRGBs(cated)
+        losses, outputs = super(SRdispStereo, self).train(batch=batch, progress=progress)
+        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
+        losses['dispChoice'] = dispChoice
 
+        return losses, outputs
 
 

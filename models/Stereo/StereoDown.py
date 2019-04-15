@@ -89,7 +89,7 @@ class StereoDown(Stereo):
             return None, None
 
         if (type(checkpointDir) in (list, tuple) and len(checkpointDir) == 1):
-            return self.stereo.load(checkpointDir[0])
+            return self.load(checkpointDir[0])
         elif type(checkpointDir) is str:
             try:
                 # Complete load StereoDown from checkpoint
