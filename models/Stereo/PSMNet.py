@@ -80,5 +80,4 @@ class PSMNet(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(1)
-        return self.trainBothSides(batch.highResRGBs(), batch.highResDisps())
+        return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())

@@ -75,7 +75,6 @@ class EDSR(SR):
         return losses, outputs
 
     def train(self, batch: myUtils.Batch):
-        batch.assertScales(2)
         return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
 
     def testOutput(self, outputs: myUtils.Imgs, gt, evalType: str):

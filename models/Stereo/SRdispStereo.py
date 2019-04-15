@@ -15,7 +15,7 @@ class SRdispStereo(SRStereo):
         return outputs
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(2)
+        batch.assertScales(2) # TODO: Added support for one scale input
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         batch = batch.detach()
         batch.lowestResRGBs(cated)

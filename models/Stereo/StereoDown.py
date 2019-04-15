@@ -76,15 +76,12 @@ class StereoDown(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(2)
         return self.trainBothSides(
-            batch.highResRGBs(),
+            batch.highestResRGBs(),
             list(zip(batch.highResDisps(), batch.lowResDisps())))
 
     def test(self, batch: myUtils.Batch, evalType: str):
-        batch.assertScales(2)
-        batch = myUtils.Batch(batch.highResRGBs() + batch.lowestResDisps(), cuda=batch.cuda, half=batch.half)
-
+        batch = myUtils.Batch(batch.highResRGBs() + batch.lowResDisps(), cuda=batch.cuda, half=batch.half)
         return super(StereoDown, self).test(batch=batch, evalType=evalType)
 
     def load(self, checkpointDir):

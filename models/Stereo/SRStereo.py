@@ -69,7 +69,6 @@ class SRStereo(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(2)
         return self.trainBothSides(
             batch.lowestResRGBs(),
             list(zip([batch.highResRGBs(), batch.highResRGBs()[::-1]], batch.highResDisps(), batch.lowResDisps()))

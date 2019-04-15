@@ -168,6 +168,13 @@ class Imgs(collections.OrderedDict):
     def getImgPair(self, name: str, suffix=''):
         return (self[name + 'L' + suffix], self[name + 'R' + suffix])
 
+    def getIt(self, it: int):
+        output = Imgs()
+        for key in self.keys():
+            if key.endswith('_%d' % it):
+                output[key[:key.find('_')]] = self[key]
+        return output
+
     def logPrepare(self):
         for name in self.keys():
             self[name] /= self.range[name]
@@ -607,8 +614,8 @@ class Batch:
                 half = batch.half
         elif type(batch) is int:
             self._assertLen(batch)
-            if batch % 4 != 0:
-                raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n!')
+            if batch % 4 != 0 or batch > 8:
+                raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n <= 8!')
             self.batch = [None] * batch
         else:
             raise Exception('Error: batch must be class list, tuple, Batch or int!')
@@ -637,7 +644,7 @@ class Batch:
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
-        assert len % 4 == 0
+        assert len % 4 == 0 and len <= 8
 
     def assertLen(self, length):
         if type(length) in (list, tuple):
@@ -645,11 +652,18 @@ class Batch:
         else:
             assert len(self) == length
 
-    def assertScales(self, nScales):
-        if type(nScales) in (list, tuple):
-            self.assertLen([nScale * 4 for nScale in nScales])
-        else:
-            self.assertLen(nScales * 4)
+    def assertScales(self, nScales, strict=True):
+        try:
+            if type(nScales) in (list, tuple):
+                self.assertLen([nScale * 4 for nScale in nScales])
+            else:
+                self.assertLen(nScales * 4)
+        except:
+            if strict:
+                raise
+            else:
+                return False
+        return True
 
     def __len__(self):
         return len(self.batch)
@@ -667,38 +681,48 @@ class Batch:
         return Batch(self.batch[scale * 4: (scale + 1) * 4], cuda=self.cuda, half=self.half)
 
     def lastScaleBatch(self):
-        return Batch(self.batch[-4:], cuda=self.cuda, half=self.half)
+        return self.scaleBatch(1)
 
     def firstScaleBatch(self):
-        return Batch(self.batch[:4], cuda=self.cuda, half=self.half)
+        return self.scaleBatch(0)
 
-    def highResRGBs(self, set=None):
+    def oneResRGBs(self, set=None):
+        self.assertScales(1)
+        return self.highestResRGBs(set)
+
+    def oneResDisps(self, set=None):
+        self.assertScales(1)
+        return self.highestResDisps(set)
+
+    def highResRGBs(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.highestResRGBs(set)
+
+    def highResDisps(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.highestResDisps(set)
+
+    def lowResRGBs(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.lowestResRGBs(set)
+
+    def lowResDisps(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.lowestResDisps(set)
+
+    def highestResRGBs(self, set=None):
         if set is not None:
             self.batch[0:2] = set
         return self.batch[0:2]
 
-    def highResDisps(self, set=None):
+    def highestResDisps(self, set=None):
         if set is not None:
             self.batch[2:4] = set
         return self.batch[2:4]
-
-    def lowResRGBs(self, set=None):
-        if set is not None:
-            self.assertScales(2)
-            self.batch[4:6] = set
-        if len(self) == 8:
-            return self.batch[4:6]
-        else:
-            return None, None
-
-    def lowResDisps(self, set=None):
-        if set is not None:
-            self.assertScales(2)
-            self.batch[6:8] = set
-        if len(self) == 8:
-            return self.batch[6:8]
-        else:
-            return None, None
 
     def lowestResRGBs(self, set=None):
         if set is not None:

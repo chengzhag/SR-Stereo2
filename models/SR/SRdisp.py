@@ -21,7 +21,6 @@ class SRdisp(SR):
         return outputs
 
     def train(self, batch: myUtils.Batch):
-        batch.assertScales(2)
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         losses, outputs = self.sr.trainBothSides(cated, batch.highResRGBs())
         myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)

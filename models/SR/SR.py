@@ -31,8 +31,6 @@ class SR(Model):
         return loss
 
     def test(self, batch: myUtils.Batch, evalType: str):
-        batch.assertScales(2)
-
         mask = [gt is not None for gt in batch.highResRGBs()]
         outputs = self.predict(batch.lastScaleBatch(), mask)
         loss = self.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType)
