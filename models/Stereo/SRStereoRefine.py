@@ -74,10 +74,7 @@ class SRStereoRefine(SRdispStereo):
         # probability of training with dispsOut as input:
         # progress = [0, 1]: p = [0, 1]
         if random.random() < progress or self.kitti:
-            if random.random() > progress:
-                itRefine = random.randint(1, 2)
-            else:
-                itRefine = random.randint(0, 1)
+            itRefine = random.randint(0, 1, 2)
             dispChoice = itRefine
             outputs = self.predict(batch.lastScaleBatch(), itRefine=itRefine)
             warpBatch = myUtils.Batch(batch.lowestResRGBs() + [outputs['outputDispL'], outputs['outputDispR']],

@@ -77,7 +77,7 @@ class StereoDown(Stereo):
 
     def train(self, batch: myUtils.Batch, progress=0):
         return self.trainBothSides(
-            batch.highestResRGBs(),
+            batch.highResRGBs(),
             list(zip(batch.highResDisps(), batch.lowResDisps())))
 
     def test(self, batch: myUtils.Batch, evalType: str):
