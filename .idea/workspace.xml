@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/compare_carla_Stereo_StereoDown.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/compare_carla_Stereo_StereoDown.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/pretrain_carla_Stereo_StereoDown.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/pretrain_carla_Stereo_StereoDown.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/queue/199.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/queue/199.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/Stereo/RawPSMNet/stackhourglass.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/Stereo/RawPSMNet/stackhourglass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/evaluation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation/Evaluation.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -55,11 +50,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/experiments/queue/199.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="57">
-              <caret line="3" column="40" selection-start-line="3" selection-start-column="40" selection-end-line="3" selection-end-column="40" />
+              <caret line="3" column="40" lean-forward="true" selection-start-line="3" selection-start-column="40" selection-end-line="3" selection-end-column="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="532">
+              <caret line="55" column="84" selection-start-line="55" selection-start-column="84" selection-end-line="55" selection-end-column="84" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -137,8 +144,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>exper</find>
-      <find>lossWeights</find>
       <find>carla_kitti</find>
       <find>subType</find>
       <find>args</find>
@@ -167,6 +172,8 @@
       <find>kitti</find>
       <find>resume</find>
       <find>Exp</find>
+      <find>global</find>
+      <find>globalS</find>
     </findStrings>
     <replaceStrings>
       <replace>) for</replace>
@@ -200,7 +207,6 @@
         <option value="$PROJECT_DIR$/experiments/SRStereo_Stereo1_compare_kitti.sh" />
         <option value="$PROJECT_DIR$/experiments/pretrain_PSMNet_PSMNetDown.sh" />
         <option value="$PROJECT_DIR$/experiments/SRStereo_Stereo_compare_kitti.sh" />
-        <option value="$PROJECT_DIR$/evaluation/Evaluation.py" />
         <option value="$PROJECT_DIR$/experiments/pretrain_Stereo_StereoDown.sh" />
         <option value="$PROJECT_DIR$/experiments/SR_SRdisp_compare_carla.sh" />
         <option value="$PROJECT_DIR$/experiments/compare_SRStereo_Stereo_kitti.sh" />
@@ -242,6 +248,7 @@
         <option value="$PROJECT_DIR$/experiments/queue/95.sh" />
         <option value="$PROJECT_DIR$/experiments/pretrain_carla_Stereo_StereoDown.sh" />
         <option value="$PROJECT_DIR$/experiments/queue/199.sh" />
+        <option value="$PROJECT_DIR$/evaluation/Evaluation.py" />
       </list>
     </option>
   </component>
@@ -854,12 +861,12 @@
       <workItem from="1554970302843" duration="25417000" />
       <workItem from="1555207170161" duration="26468000" />
       <workItem from="1555296622807" duration="2454000" />
-      <workItem from="1555299440094" duration="18803000" />
+      <workItem from="1555299440094" duration="19797000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="286396000" />
+    <option name="totallyTimeSpent" value="287390000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -876,10 +883,10 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.25382933" />
+      <window_info content_ui="combo" id="Project" order="2" weight="0.25382933" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3274918" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2694414" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.2694414" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49562362" weight="0.29682365" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -905,8 +912,8 @@
       <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.25382933" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3274918" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.2694414" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49562362" visible="true" weight="0.29682365" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2694414" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49562362" weight="0.29682365" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32968238" />
@@ -1115,16 +1122,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
           <caret line="109" selection-start-line="109" selection-end-line="109" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1486,7 +1483,17 @@
     <entry file="file://$PROJECT_DIR$/experiments/queue/199.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
-          <caret line="3" column="40" selection-start-line="3" selection-start-column="40" selection-end-line="3" selection-end-column="40" />
+          <caret line="3" column="40" lean-forward="true" selection-start-line="3" selection-start-column="40" selection-end-line="3" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="532">
+          <caret line="55" column="84" selection-start-line="55" selection-start-column="84" selection-end-line="55" selection-end-column="84" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

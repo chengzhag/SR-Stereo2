@@ -34,7 +34,7 @@ class Evaluation:
                 imgs.clone().save(dir=os.path.join(self.experiment.chkpointFolder, 'submission'), name=name)
 
             if batchIdx == 1:
-                self.experiment.logger.logImages(imgs.clone(), 'test/', self.experiment.globalStep,
+                self.experiment.logger.logImages(imgs.clone(), 'test/', self.experiment.epoch,
                                                  self.experiment.args.nSampleLog)
                 if not self.experiment.cometExp.disabled:
                     imgs.clone().save(dir='temp', name='temp')
@@ -53,7 +53,7 @@ class Evaluation:
                 loss.strPrint(), avgTestLoss.strPrint(suffix='Avg'), timeLeft)
             print(printMessage)
             self.experiment.logger.writer.add_text('test/iterations', printMessage,
-                                                   global_step=self.experiment.globalStep)
+                                                   global_step=self.experiment.epoch)
 
             ticETC = time.time()
 
