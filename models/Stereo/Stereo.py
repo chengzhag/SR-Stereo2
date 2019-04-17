@@ -16,7 +16,6 @@ class Stereo(Model):
         pass
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
-        batch.assertScales(1)
         self.model.eval()
 
         imgL, imgR = batch.lowestResRGBs()
@@ -33,28 +32,31 @@ class Stereo(Model):
 
             return outputs
 
+    def testOutput(self, outputs: myUtils.Imgs, gt, evalType: str):
+        loss = myUtils.NameValues()
+        for disp, side in zip(gt, ('L', 'R')):
+            dispOut = outputs.get('outputDisp' + side)
+            if dispOut is not None and disp is not None:
+                # for kitti dataset, only consider loss of none zero disparity pixels in gt
+                if self.kitti:
+                    mask = disp > 0
+                    dispOut = dispOut[mask]
+                    disp = disp[mask]
+                elif not self.kitti:
+                    mask = disp < self.outMaxDisp
+                    dispOut = dispOut[mask]
+                    disp = disp[mask]
+                loss[evalType + 'Disp' + side] = evalFcn.getEvalFcn(evalType)(disp, dispOut)
+
+        return loss
+
     def test(self, batch: myUtils.Batch, evalType: str):
-        batch.assertScales(1)
         disps = batch.lowestResDisps()
         myUtils.assertDisp(*disps)
 
-        loss = myUtils.NameValues()
         mask = [disp is not None for disp in disps]
         outputs = self.predict(batch, mask)
-
-        for gt, side in zip(disps, ('L', 'R')):
-            dispOut = outputs.get('outputDisp' + side)
-            if dispOut is not None:
-                # for kitti dataset, only consider loss of none zero disparity pixels in gt
-                if self.kitti:
-                    mask = gt > 0
-                    dispOut = dispOut[mask]
-                    gt = gt[mask]
-                elif not self.kitti:
-                    mask = gt < self.outMaxDisp
-                    dispOut = dispOut[mask]
-                    gt = gt[mask]
-                loss[evalType + 'Disp' + side] = evalFcn.getEvalFcn(evalType)(gt, dispOut)
+        loss = self.testOutput(outputs=outputs, gt=disps, evalType=evalType)
 
         return loss, outputs
 

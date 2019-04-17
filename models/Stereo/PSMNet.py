@@ -17,12 +17,9 @@ class RawPSMNetScale(rawPSMNet):
     # input: RGB value range 0~1
     # outputs: disparity range 0~self.maxdisp * self.dispScale
     def forward(self, left, right):
-        def normalize(nTensor):
-            nTensorClone = nTensor.clone()
-            for tensor in nTensorClone:
-                for t, m, s in zip(tensor, self.__imagenet_stats['mean'], self.__imagenet_stats['std']):
-                    t.sub_(m).div_(s)
-            return nTensorClone
+        def normalize(inputRgbs):
+            return (inputRgbs - torch.Tensor(self.__imagenet_stats['mean']).type_as(inputRgbs).view(1, 3, 1, 1)) \
+                           / torch.Tensor(self.__imagenet_stats['std']).type_as(inputRgbs).view(1, 3, 1, 1)
 
         left, right = normalize(left), normalize(right)
 
@@ -83,5 +80,4 @@ class PSMNet(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(1)
-        return self.trainBothSides(batch.highResRGBs(), batch.highResDisps())
+        return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())

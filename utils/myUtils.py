@@ -46,6 +46,18 @@ class NameValues(collections.OrderedDict):
             self[key] /= other
         return self
 
+    def __add__(self, other):
+        output = NameValues()
+        for key in set(self.keys()) | set(other.keys()):
+            output[key] = self.get(key, 0) + other.get(key, 0)
+        return output
+
+    def __truediv__(self, other):
+        output = NameValues()
+        for key in self.keys():
+            output[key] = self.get(key, 0) / other
+        return output
+
     def accumuate(self, nameValues):
         self.add(nameValues)
         self.nAccum += 1
@@ -87,6 +99,8 @@ class NameValues(collections.OrderedDict):
                     return sAppend + '_' + str(values)
                 elif type(values) == float:
                     return sAppend + '_%.1f' % values
+                elif type(values) == str:
+                    return sAppend + '_' + values
                 elif type(values) in (list, tuple):
                     for v in values:
                         sAppend = addValue(sAppend, v)
@@ -151,6 +165,16 @@ class Imgs(collections.OrderedDict):
             self.range[name] = range
             self[name] = img
 
+    def getImgPair(self, name: str, suffix=''):
+        return (self[name + 'L' + suffix], self[name + 'R' + suffix])
+
+    def getIt(self, it: int):
+        output = Imgs()
+        for key in self.keys():
+            if key.endswith('_%d' % it):
+                output[key[:key.find('_')]] = self[key]
+        return output
+
     def logPrepare(self):
         for name in self.keys():
             self[name] /= self.range[name]
@@ -208,12 +232,11 @@ class Experiment:
                 raise Exception('Error: No checkpoint to resume!')
             elif len(args.chkpoint) > 1:
                 raise Exception('Error: Cannot resume multi-checkpoints model!')
-            else:
-                args.chkpoint = args.chkpoint[0]
         # if not resume, result will be saved to new folder
         else:
             # auto experiment naming
             saveFolderSuffix = NameValues((
+                ('model', args.model),
                 ('loadScale', getattrNE(args, 'loadScale')),
                 ('trainCrop', getattrNE(args, 'trainCrop')),
                 ('batchSize', getattrNE(args, 'batchSize')),
@@ -221,7 +244,7 @@ class Experiment:
             ))
             startTime = time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
             self.cometExp.log_parameter(name='startTime', value=startTime)
-            newFolderName = startTime + '_' + model.__class__.__name__ + saveFolderSuffix.strSuffix()
+            newFolderName = startTime + saveFolderSuffix.strSuffix()
             newFolderName += '_' + args.dataset
             if args.outputFolder is not None:
                 stage = os.path.join(args.outputFolder, stage)
@@ -242,7 +265,7 @@ class Experiment:
         # update checkpointDir
         self.chkpointDir = chkpointDir
         if self.args.resume:
-            self.chkpointFolder, _ = os.path.split(self.chkpointDir)
+            self.chkpointFolder, _ = os.path.split(self.chkpointDir[0])
             self.logFolder = os.path.join(self.chkpointFolder, 'logs')
 
         epoch, _ = self.model.load(self.chkpointDir)
@@ -589,8 +612,8 @@ class Batch:
                 half = batch.half
         elif type(batch) is int:
             self._assertLen(batch)
-            if batch % 4 != 0:
-                raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n!')
+            if batch % 4 != 0 or batch > 8:
+                raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n <= 8!')
             self.batch = [None] * batch
         else:
             raise Exception('Error: batch must be class list, tuple, Batch or int!')
@@ -619,21 +642,26 @@ class Batch:
         forNestingList(self.batch, assertData)
 
     def _assertLen(self, len):
-        assert len % 4 == 0
+        assert len % 4 == 0 and len <= 8
 
     def assertLen(self, length):
         if type(length) in (list, tuple):
-            for l in length:
-                self.assertLen(l)
+            assert len(self) in length
         else:
             assert len(self) == length
 
-    def assertScales(self, nScales):
-        if type(nScales) in (list, tuple):
-            for nScale in nScales:
-                self.assertScales(nScale)
-        else:
-            self.assertLen(nScales * 4)
+    def assertScales(self, nScales, strict=True):
+        try:
+            if type(nScales) in (list, tuple):
+                self.assertLen([nScale * 4 for nScale in nScales])
+            else:
+                self.assertLen(nScales * 4)
+        except:
+            if strict:
+                raise
+            else:
+                return False
+        return True
 
     def __len__(self):
         return len(self.batch)
@@ -654,27 +682,45 @@ class Batch:
         return Batch(self.batch[-4:], cuda=self.cuda, half=self.half)
 
     def firstScaleBatch(self):
-        return Batch(self.batch[:4], cuda=self.cuda, half=self.half)
+        return self.scaleBatch(0)
 
-    def highResRGBs(self, set=None):
+    def oneResRGBs(self, set=None):
+        self.assertScales(1)
+        return self.highestResRGBs(set)
+
+    def oneResDisps(self, set=None):
+        self.assertScales(1)
+        return self.highestResDisps(set)
+
+    def highResRGBs(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.highestResRGBs(set)
+
+    def highResDisps(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.highestResDisps(set)
+
+    def lowResRGBs(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.lowestResRGBs(set)
+
+    def lowResDisps(self, set=None, strict=True):
+        if not self.assertScales(2, strict=strict):
+            return None, None
+        return self.lowestResDisps(set)
+
+    def highestResRGBs(self, set=None):
         if set is not None:
             self.batch[0:2] = set
         return self.batch[0:2]
 
-    def highResDisps(self, set=None):
+    def highestResDisps(self, set=None):
         if set is not None:
             self.batch[2:4] = set
         return self.batch[2:4]
-
-    def lowResRGBs(self, set=None):
-        if set is not None:
-            self.batch[4:6] = set
-        return self.batch[4:6]
-
-    def lowResDisps(self, set=None):
-        if set is not None:
-            self.batch[6:8] = set
-        return self.batch[6:8]
 
     def lowestResRGBs(self, set=None):
         if set is not None:
@@ -743,18 +789,19 @@ def scanCheckpoint(checkpointDirs):
     return checkpointDirs
 
 
-def getSuffix(checkpointDirOrFolder):
-    if type(checkpointDirOrFolder) is str or \
-            (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
-        checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
-        checkpointFolder, _ = os.path.split(checkpointDir)
-        checkpointFolder = checkpointFolder.split('/')[-1]
-        saveFolderSuffix = checkpointFolder.split('_')[1:]
-        saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
-        saveFolderSuffix = ''.join(saveFolderSuffix)
-    else:
-        saveFolderSuffix = ''
-    return saveFolderSuffix
+# Abandoned
+# def getSuffix(checkpointDirOrFolder):
+#     if type(checkpointDirOrFolder) is str or \
+#             (type(checkpointDirOrFolder) in (list, tuple) and len(checkpointDirOrFolder) == 1):
+#         checkpointDir = scanCheckpoint(checkpointDirOrFolder[0])
+#         checkpointFolder, _ = os.path.split(checkpointDir)
+#         checkpointFolder = checkpointFolder.split('/')[-1]
+#         saveFolderSuffix = checkpointFolder.split('_')[1:]
+#         saveFolderSuffix = ['_' + suffix for suffix in saveFolderSuffix]
+#         saveFolderSuffix = ''.join(saveFolderSuffix)
+#     else:
+#         saveFolderSuffix = ''
+#     return saveFolderSuffix
 
 
 def depth(l):

@@ -9,7 +9,10 @@ import dataloader
 class Train(Base):
 
     def _trainIt(self, batch: myUtils.Batch):
-        loss, outputs = self.experiment.model.train(batch=batch.detach())
+        loss, outputs = self.experiment.model.train(
+            batch=batch.detach(),
+            progress=self.experiment.globalStep / (len(self.trainImgLoader) * self.experiment.args.epochs)
+        )
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
             outputs.addImg(name='gtDisp' + side, img=disp, range=self.experiment.model.outMaxDisp)
             outputs.addImg(name='inputRgb' + side, img=input)

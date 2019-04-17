@@ -14,7 +14,7 @@ class RawSRStereo(nn.Module):
         self.updateSR = True
 
     def forward(self, left, right):
-        with torch.no_grad() if self.updateSR else None:
+        with torch.set_grad_enabled(self.updateSR):
             outputSrL = self.sr.forward(left)['outputSr']
             outputSrR = self.sr.forward(right)['outputSr']
 
@@ -31,6 +31,7 @@ class SRStereo(Stereo):
         stereo.optimizer = None
         sr.optimizer = None
         self.stereo = stereo
+        self.outMaxDisp = stereo.outMaxDisp
         self.sr = sr
         self.initModel()
         self.optimizer = optim.Adam(
@@ -42,10 +43,12 @@ class SRStereo(Stereo):
             self.model.cuda()
 
     def setLossWeights(self, lossWeights):
+        self.model.module.updateSR = lossWeights[0] >= 0
+        if lossWeights[0] < 0:
+            lossWeights[0] = 0
         super().setLossWeights(lossWeights)
         self.stereo.setLossWeights(lossWeights[1:])
         self.sr.setLossWeights(lossWeights[0])
-        self.model.module.updateSR = lossWeights[0] >= 0
 
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
@@ -58,10 +61,9 @@ class SRStereo(Stereo):
         loss = myUtils.NameValues()
         if all([img is not None for img in gtSrs]):
             # average lossSrL/R
-            lossSr = self.sr.loss(output={'outputSr': output['outputSrL']}, gt=gtSrs[0]) \
-                .add(self.sr.loss(output={'outputSr': output['outputSrR']}, gt=gtSrs[1])) \
-                .div(2)
-            loss.update(lossSr)
+            lossSr = (self.sr.loss(output={'outputSr': output['outputSrL']}, gt=gtSrs[0])
+                + (self.sr.loss(output={'outputSr': output['outputSrR']}, gt=gtSrs[1]))) / 2
+            loss.add(lossSr)
 
         if not all([disp is None for disp in (dispHigh, dispLow)]):
             loss.add(self.stereo.loss(output=output, gt=(dispHigh, dispLow)))
@@ -69,18 +71,23 @@ class SRStereo(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(2)
         return self.trainBothSides(
             batch.lowestResRGBs(),
-            list(zip([batch.highResRGBs(), ] * 2, batch.highResDisps(), batch.lowResDisps()))
+            list(zip([batch.highResRGBs(), batch.highResRGBs()[::-1]], batch.highResDisps(), batch.lowResDisps()))
         )
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):
-        batch.assertScales(1)
-        outputs = self.sr.predict(batch=batch)
+        outputs = self.sr.predict(batch=batch.lastScaleBatch())
+        batch = batch.detach()
         batch.lowestResRGBs((outputs['outputSrL'], outputs['outputSrR']))
         outputs.update(self.stereo.predict(batch=batch, mask=mask))
         return outputs
+
+    def test(self, batch: myUtils.Batch, evalType: str):
+        loss, outputs = super().test(batch=batch, evalType=evalType)
+        if len(batch) == 8:
+            loss.update(self.sr.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
+        return loss, outputs
 
     def load(self, checkpointDir):
         if checkpointDir is None:

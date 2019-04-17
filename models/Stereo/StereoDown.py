@@ -2,7 +2,7 @@ from .PSMNet import *
 
 
 class RawStereoDown(nn.Module):
-    def __init__(self, stereo):
+    def __init__(self, stereo: Stereo):
         super().__init__()
         self.stereo = myUtils.getNNmoduleFromModel(stereo)
         self.pool = nn.AvgPool2d((2, 2))
@@ -76,15 +76,12 @@ class StereoDown(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
-        batch.assertScales(2)
         return self.trainBothSides(
             batch.highResRGBs(),
             list(zip(batch.highResDisps(), batch.lowResDisps())))
 
     def test(self, batch: myUtils.Batch, evalType: str):
-        batch.assertScales(2)
-        batch = myUtils.Batch(batch.highResRGBs() + batch.lowestResDisps(), cuda=batch.cuda, half=batch.half)
-
+        batch = myUtils.Batch(batch.highResRGBs() + batch.lowResDisps(), cuda=batch.cuda, half=batch.half)
         return super(StereoDown, self).test(batch=batch, evalType=evalType)
 
     def load(self, checkpointDir):
@@ -92,7 +89,7 @@ class StereoDown(Stereo):
             return None, None
 
         if (type(checkpointDir) in (list, tuple) and len(checkpointDir) == 1):
-            return self.stereo.load(checkpointDir[0])
+            return self.load(checkpointDir[0])
         elif type(checkpointDir) is str:
             try:
                 # Complete load StereoDown from checkpoint

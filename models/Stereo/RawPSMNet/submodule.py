@@ -59,8 +59,8 @@ class disparityregression(nn.Module):
         self.disp = Variable(torch.Tensor(np.reshape(np.array(range(maxdisp)),[1,maxdisp,1,1])).cuda(), requires_grad=False)
 
     def forward(self, x):
-        disp = self.disp.repeat(x.size()[0],1,x.size()[2],x.size()[3])
-        out = torch.sum(x*disp,1)
+        disp = self.disp.type_as(x).repeat(x.size()[0],1,x.size()[2],x.size()[3])
+        out = torch.sum(x*disp, 1, dtype=x.dtype)
         return out
 
 class feature_extraction(nn.Module):
