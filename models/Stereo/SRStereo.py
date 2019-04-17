@@ -43,10 +43,12 @@ class SRStereo(Stereo):
             self.model.cuda()
 
     def setLossWeights(self, lossWeights):
+        self.model.module.updateSR = lossWeights[0] >= 0
+        if lossWeights[0] < 0:
+            lossWeights[0] = 0
         super().setLossWeights(lossWeights)
         self.stereo.setLossWeights(lossWeights[1:])
         self.sr.setLossWeights(lossWeights[0])
-        self.model.module.updateSR = lossWeights[0] >= 0
 
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
