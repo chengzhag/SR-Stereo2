@@ -516,6 +516,11 @@ class DefaultParser:
                                  help='disable comet logging')
         return self
 
+    def argument(self):
+        self.parser.add_argument('--argument', action='store_true', default=False,
+                                 help='if do scale argument when training')
+        return self
+
     def parse(self):
         args = self.parser.parse_args()
 

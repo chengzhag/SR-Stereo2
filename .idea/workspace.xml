@@ -2,13 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SR-Stereo2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SR-Stereo2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataloader/DataLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/DataLoader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/settings.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/settings.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/SR_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train/SR_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Stereo_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train/Stereo_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/myUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/myUtils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,7 +30,7 @@
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_eval_EDSRPSMNet_carla.coverage" NAME="Stereo_eval_EDSRPSMNet_carla Coverage Results" MODIFIED="1554888273533" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_train_PSMNetDown_carla.coverage" NAME="Stereo_train_PSMNetDown_carla Coverage Results" MODIFIED="1555381107401" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$SR_eval_EDSRbaseline_kitti.coverage" NAME="SR_eval_EDSRbaseline_kitti Coverage Results" MODIFIED="1555816946280" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
-    <SUITE FILE_PATH="coverage/SR_Stereo2$SR_train_EDSRbaseline_kitti2015.coverage" NAME="SR_train_EDSRbaseline_kitti2015 Coverage Results" MODIFIED="1555834945807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/SR_Stereo2$SR_train_EDSRbaseline_kitti2015.coverage" NAME="SR_train_EDSRbaseline_kitti2015 Coverage Results" MODIFIED="1555836016169" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_train_EDSRPSMNet_carla.coverage" NAME="Stereo_train_EDSRPSMNet_carla Coverage Results" MODIFIED="1554888347746" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_train_PSMNet_carla.coverage" NAME="Stereo_train_PSMNet_carla Coverage Results" MODIFIED="1555338546916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$listKitti2015Sub.coverage" NAME="listKitti2015Sub Coverage Results" MODIFIED="1553774444264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
@@ -77,25 +75,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/experiments/queue/199.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/experiments/queue/162.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/Stereo/SRStereo.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="994">
@@ -107,13 +87,25 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="27" column="47" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
+            <state relative-caret-position="158">
+              <caret line="217" column="9" selection-start-line="217" selection-start-column="9" selection-end-line="217" selection-end-column="9" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/train/SR_train.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="361">
+              <caret line="37" column="20" lean-forward="true" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
+              <folding>
+                <element signature="e#0#25#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -192,7 +184,6 @@
         <option value="$PROJECT_DIR$/experiments/Stereo_StereoDown_compare_carla.sh" />
         <option value="$PROJECT_DIR$/utils/warp.py" />
         <option value="$PROJECT_DIR$/models/SR/EDSRdisp.py" />
-        <option value="$PROJECT_DIR$/train/SR_train.py" />
         <option value="$PROJECT_DIR$/train/Train.py" />
         <option value="$PROJECT_DIR$/models/Stereo/PSMNetDown.py" />
         <option value="$PROJECT_DIR$/evaluation/Stereo_eval.py" />
@@ -203,14 +194,12 @@
         <option value="$PROJECT_DIR$/models/Stereo/Stereo.py" />
         <option value="$PROJECT_DIR$/experiments/compare_carla_SRStereo_Stereo.sh" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/train/Stereo_train.py" />
         <option value="$PROJECT_DIR$/evaluation/SR_eval.py" />
         <option value="$PROJECT_DIR$/models/SR/EDSR.py" />
         <option value="$PROJECT_DIR$/models/SR/SR.py" />
         <option value="$PROJECT_DIR$/models/SR/SRdisp.py" />
         <option value="$PROJECT_DIR$/models/Stereo/PSMNet.py" />
         <option value="$PROJECT_DIR$/models/Stereo/SRdispStereo.py" />
-        <option value="$PROJECT_DIR$/utils/myUtils.py" />
         <option value="$PROJECT_DIR$/models/Stereo/StereoDown.py" />
         <option value="$PROJECT_DIR$/models/Stereo/RawPSMNet/stackhourglass.py" />
         <option value="$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py" />
@@ -223,12 +212,15 @@
         <option value="$PROJECT_DIR$/experiments/compare_carla_SRdispStereo.sh" />
         <option value="$PROJECT_DIR$/models/Stereo/SRStereoRefine.py" />
         <option value="$PROJECT_DIR$/experiments/compare_carla_SRStereoRefine.sh" />
-        <option value="$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh" />
         <option value="$PROJECT_DIR$/experiments/queue/162.sh" />
         <option value="$PROJECT_DIR$/experiments/queue/199.sh" />
         <option value="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" />
         <option value="$PROJECT_DIR$/experiments/settings.sh" />
         <option value="$PROJECT_DIR$/dataloader/DataLoader.py" />
+        <option value="$PROJECT_DIR$/train/SR_train.py" />
+        <option value="$PROJECT_DIR$/utils/myUtils.py" />
+        <option value="$PROJECT_DIR$/train/Stereo_train.py" />
+        <option value="$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh" />
       </list>
     </option>
   </component>
@@ -486,7 +478,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train/SR_train.py" />
-      <option name="PARAMETERS" value="--model EDSR --outputFolder pycharmruns --dataPath ../datasets/kitti/data_scene_flow/training --dataset kitti2015 --chkpoint logs/pretrained/EDSR_pretrained_DIV2K/EDSR_baseline_x2.pt --batchSize 32 8 --trainCrop 64 512 --evalFcn l1 --epochs 6000 --lr 0.0001 --logEvery 1 --testEvery 1 --saveEvery 0 --validSetSample 1 --half --noComet" />
+      <option name="PARAMETERS" value="--model EDSR --outputFolder pycharmruns --dataPath ../datasets/kitti/data_scene_flow/training --dataset kitti2015 --chkpoint logs/pretrained/EDSR_pretrained_DIV2K/EDSR_baseline_x2.pt --batchSize 32 8 --trainCrop 64 512 --evalFcn l1 --epochs 6000 --lr 0.0001 --logEvery 1 --testEvery 1 --saveEvery 0 --validSetSample 1 --half --noComet --argument" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -952,12 +944,12 @@
       <workItem from="1555207170161" duration="26468000" />
       <workItem from="1555296622807" duration="2454000" />
       <workItem from="1555299440094" duration="45716000" />
-      <workItem from="1555816007808" duration="5368000" />
+      <workItem from="1555816007808" duration="5901000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="318677000" />
+    <option name="totallyTimeSpent" value="319210000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -970,11 +962,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="953" y="0" width="974" height="1047" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" weight="0.25273523" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.25273523" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3274918" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.26898047" />
@@ -995,7 +986,7 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Remote Host" order="3" weight="0.32941177" />
       <window_info anchor="right" id="SciView" order="4" />
-      <window_info anchor="right" id="Database" order="5" weight="0.32995737" />
+      <window_info anchor="right" id="Database" order="5" weight="0.32932165" />
     </layout>
     <layout-to-restore>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
@@ -1173,16 +1164,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/models/SR/RawEDSR/edsr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="57" selection-start-line="57" selection-end-line="57" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-2139413991/723454304/torch/nn/modules/module.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
@@ -1358,16 +1339,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train/Stereo_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="26" column="33" selection-start-line="26" selection-start-column="29" selection-end-line="26" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/Stereo/SRdispStereo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
@@ -1385,13 +1356,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="392">
           <caret line="500" column="24" selection-start-line="500" selection-start-column="6" selection-end-line="500" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/myUtils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" column="38" selection-start-line="4" selection-start-column="38" selection-end-line="4" selection-end-column="38" />
         </state>
       </provider>
     </entry>
@@ -1502,41 +1466,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="8" column="323" selection-start-line="8" selection-start-column="316" selection-end-line="8" selection-end-column="323" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" column="222" selection-start-line="12" selection-start-column="222" selection-end-line="12" selection-end-column="222" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/queue/199.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/queue/162.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="27" column="60" selection-start-line="27" selection-start-column="60" selection-end-line="27" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-904567262/1140026386/apex/amp/wrap.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
@@ -1554,22 +1483,87 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/utils/myUtils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="337">
+          <caret line="518" column="16" selection-start-line="518" selection-start-column="8" selection-end-line="518" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train/Stereo_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="28" column="60" lean-forward="true" selection-start-line="28" selection-start-column="60" selection-end-line="28" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train/SR_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="37" column="20" lean-forward="true" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="8" column="334" lean-forward="true" selection-start-line="8" selection-start-column="324" selection-end-line="8" selection-end-column="334" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" column="222" selection-start-line="12" selection-start-column="222" selection-end-line="12" selection-end-column="222" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/queue/162.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/queue/199.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="513">
+          <caret line="27" column="60" selection-start-line="27" selection-start-column="60" selection-end-line="27" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="217" column="9" selection-start-line="217" selection-start-column="9" selection-end-line="217" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/models/Stereo/SRStereo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="994">
           <caret line="75" selection-start-line="75" selection-end-line="75" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="27" column="47" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>

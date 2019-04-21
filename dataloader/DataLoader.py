@@ -25,7 +25,7 @@ class myImageFloder(data.Dataset):
     # trainCrop = (W, H)
     def __init__(self, inputLdirs=None, inputRdirs=None, gtLdirs=None, gtRdirs=None,
                  cropSize=(256, 512), kitti=False, loadScale=(1,), mode='training',
-                 mask=(1, 1, 1, 1), dispScale=1):
+                 mask=(1, 1, 1, 1), dispScale=1, argument=False):
         self.mask = mask
         self.mode = mode
         self.dirs = (inputLdirs, inputRdirs, gtLdirs, gtRdirs)
@@ -34,7 +34,7 @@ class myImageFloder(data.Dataset):
         self.cropSize = cropSize
         self.dispScale = dispScale
         self.loadScale = loadScale
-        self.argument = kitti and mode == 'training' and all([a == b for a, b in zip(mask, [1, 1, 0, 0])])
+        self.argument = argument and mode == 'training'
 
     def __getitem__(self, index):
         def scale(im, method, scaleRatios):
@@ -181,7 +181,7 @@ class myImageFloder(data.Dataset):
 # cropScale: Defaultly set to loadScale to remain ratio between loaded image and cropped image.
 # loadScale: A list of scale to load. Will return 4 * len(loadScale) images. Should be decreasing values.
 def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSizes=(0, 0),
-                  loadScale=(1,), mode='normal', mask=None, validSetSample=1):
+                  loadScale=(1,), mode='normal', mask=None, validSetSample=1, argument=False):
     if mask is None:
         mask = (1, 1, 1, 1)
 
@@ -255,7 +255,8 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
                       loadScale=loadScale,
                       mode=mode,
                       mask=mask,
-                      dispScale=dispScale),
+                      dispScale=dispScale,
+                      argument=argument),
         batch_size=batchSizes[0], shuffle=True, num_workers=4, drop_last=False
     ) if batchSizes[0] > 0 and pathsTrain is not None else None
 
@@ -266,7 +267,8 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
                       loadScale=loadScale,
                       mode='testing' if mode == 'training' else mode,
                       mask=mask,
-                      dispScale=dispScale),
+                      dispScale=dispScale,
+                      argument=argument),
         batch_size=batchSizes[1], shuffle=False, num_workers=4, drop_last=False
     ) if batchSizes[1] > 0 and pathsTest is not None else None
 

@@ -27,17 +27,19 @@ def main():
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
         .loadScale().mask().batchSize().trainCrop().logEvery().testEvery() \
         .saveEvery().epochs().lr().lossWeights().subType() \
-        .half().resume().itRefine().validSetSample().noComet().parse()
+        .half().resume().itRefine().validSetSample().noComet().argument().parse()
 
     # Dataset
-    trainImgLoader, testImgLoader = dataloader.getDataLoader(dataPath=args.dataPath,
-                                                             dataset=args.dataset,
-                                                             trainCrop=args.trainCrop,
-                                                             batchSizes=args.batchSize,
-                                                             loadScale=args.loadScale,
-                                                             mode='training' if args.subType is None else args.subType,
-                                                             validSetSample=args.validSetSample,
-                                                             mask=args.mask)
+    trainImgLoader, testImgLoader = dataloader.getDataLoader(
+        dataPath=args.dataPath,
+        dataset=args.dataset,
+        trainCrop=args.trainCrop,
+        batchSizes=args.batchSize,
+        loadScale=args.loadScale,
+        mode='training' if args.subType is None else args.subType,
+        validSetSample=args.validSetSample,
+        mask=args.mask,
+        argument=args.argument)
 
     # Model
     stereo = Stereo.getModel(
