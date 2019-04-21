@@ -34,7 +34,7 @@ class myImageFloder(data.Dataset):
         self.cropSize = cropSize
         self.dispScale = dispScale
         self.loadScale = loadScale
-        self.argument = kitti and mode == 'training' and operator.eq(mask, (1, 1, 0, 0))
+        self.argument = kitti and mode == 'training' and all([a == b for a, b in zip(mask, [1, 1, 0, 0])])
 
     def __getitem__(self, index):
         def scale(im, method, scaleRatios):
