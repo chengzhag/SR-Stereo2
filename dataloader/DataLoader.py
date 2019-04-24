@@ -138,6 +138,8 @@ class myImageFloder(data.Dataset):
 
                 ims = [np.ascontiguousarray(im, dtype=np.float32) for im, scaleRatio in zip(ims, scaleRatios)]
                 if not isRGBorDepth:
+                    if self.argument:
+                        ims = [im * randomScale.scale for im in ims]
                     ims = [im / self.dispScale * scaleRatio for im, scaleRatio in zip(ims, scaleRatios)]
                 return ims
 
