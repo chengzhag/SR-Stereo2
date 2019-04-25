@@ -25,7 +25,7 @@ class myImageFloder(data.Dataset):
     # trainCrop = (W, H)
     def __init__(self, inputLdirs=None, inputRdirs=None, gtLdirs=None, gtRdirs=None,
                  cropSize=(256, 512), kitti=False, loadScale=(1,), mode='training',
-                 mask=(1, 1, 1, 1), dispScale=1, argument=False):
+                 mask=(1, 1, 1, 1), dispScale=1, argument=None):
         self.mask = mask
         self.mode = mode
         self.dirs = (inputLdirs, inputRdirs, gtLdirs, gtRdirs)
@@ -34,7 +34,7 @@ class myImageFloder(data.Dataset):
         self.cropSize = cropSize
         self.dispScale = dispScale
         self.loadScale = loadScale
-        self.argument = argument and mode == 'training'
+        self.argument = argument
 
     def __getitem__(self, index):
         def scale(im, method, scaleRatios):
@@ -80,8 +80,8 @@ class myImageFloder(data.Dataset):
         def getPatch():
             if self.cropSize is not None:
                 randomCrop = RandomCrop(trainCrop=self.cropSize)
-            if self.argument:
-                randomScale = RandomScale(scaleFrom=1, scaleTo=0.5)
+            if self.argument is not None:
+                randomScale = RandomScale(scaleFrom=self.argument[0], scaleTo=self.argument[1])
                 # randomRotate = RandomRotate(rotateFrom=-30, rotateTo=30)
 
             def loadIm(dirsIndex, loader, scaleRatios, isRGBorDepth):
@@ -111,7 +111,7 @@ class myImageFloder(data.Dataset):
                     elif self.mode in ('training', 'testing', 'submission'):
                         if self.mode == 'training':
                             # random scale
-                            if self.argument:
+                            if self.argument is not None:
                                 ims[0] = randomScale(method=scaleMethod, input=ims[0])
                                 # ims[0] = randomRotate(method=rotateMethod, input=ims[0])
                             # random crop
@@ -138,7 +138,7 @@ class myImageFloder(data.Dataset):
 
                 ims = [np.ascontiguousarray(im, dtype=np.float32) for im, scaleRatio in zip(ims, scaleRatios)]
                 if not isRGBorDepth:
-                    if self.argument:
+                    if self.argument is not None:
                         ims = [im * randomScale.scale for im in ims]
                     ims = [im / self.dispScale * scaleRatio for im, scaleRatio in zip(ims, scaleRatios)]
                 return ims
@@ -183,7 +183,7 @@ class myImageFloder(data.Dataset):
 # cropScale: Defaultly set to loadScale to remain ratio between loaded image and cropped image.
 # loadScale: A list of scale to load. Will return 4 * len(loadScale) images. Should be decreasing values.
 def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSizes=(0, 0),
-                  loadScale=(1,), mode='normal', mask=None, validSetSample=1, argument=False):
+                  loadScale=(1,), mode='normal', mask=None, validSetSample=1, argument=None):
     if mask is None:
         mask = (1, 1, 1, 1)
 
@@ -270,7 +270,7 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
                       mode='testing' if mode == 'training' else mode,
                       mask=mask,
                       dispScale=dispScale,
-                      argument=argument),
+                      argument=None),
         batch_size=batchSizes[1], shuffle=False, num_workers=4, drop_last=False
     ) if batchSizes[1] > 0 and pathsTest is not None else None
 

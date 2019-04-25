@@ -517,8 +517,8 @@ class DefaultParser:
         return self
 
     def argument(self):
-        self.parser.add_argument('--argument', action='store_true', default=False,
-                                 help='if do scale argument when training')
+        self.parser.add_argument('--argument', type=float, default=None, nargs=2,
+                                 help='scaling range (from, to) of argumentation when training')
         return self
 
     def parse(self):
