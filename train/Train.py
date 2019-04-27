@@ -96,13 +96,13 @@ class Train:
 
             # test
             if (
-                    (self.experiment.args.testEvery > 0
+                    ((self.experiment.args.testEvery > 0
                      and self.experiment.epoch > 0
                      and self.experiment.epoch % self.experiment.args.testEvery == 0)
                     or (self.experiment.args.testEvery == 0
                         and (self.experiment.epoch == 0 or self.experiment.epoch == self.experiment.args.epochs))
                     or (self.experiment.args.testEvery < 0
-                        and (-self.experiment.epoch) % self.experiment.args.testEvery == 0)
+                        and (-self.experiment.epoch) % self.experiment.args.testEvery == 0))
                     and self.test.testImgLoader is not None
             ):
                 torch.cuda.empty_cache()
