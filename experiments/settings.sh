@@ -11,6 +11,7 @@ kitti2015_dataset=../datasets/kitti/data_scene_flow/training/
 kitti2015_sr_dataset=../datasets/kitti/data_scene_flow_sr/training/
 kitti2015_dense_dataset=../datasets/kitti/data_scene_flow_dense/training/
 kitti2012_dataset=../datasets/kitti/data_stereo_flow/training/
+kitti2015_dataset_testing=../datasets/kitti/data_scene_flow/testing/
 
 # dir setting
 pretrained_dir=logs/pretrained
@@ -34,7 +35,10 @@ pretrained_carla_EDSRbaselineDisp=${experiment_dir}/compare_carla_SR_SRdisp/SR_t
 
 # checkpoints: compare_kitti_SRStereo_Stereo
 pretrained_kitti2015_PSMNet_trainSet=${experiment_dir}/compare_kitti_SRStereo_Stereo/Stereo_train/190421114842_model_PSMNet_loadScale_1_trainCrop_256_512_batchSize_12_4_lossWeights_1_kitti2015
+pretrained_kitti2015_SRStereo_trainSub=${experiment_dir}/compare_kitti_SRStereo_Stereo/Stereo_train/190427161714_model_SRStereo_EDSR_PSMNet_loadScale_1.0_trainCrop_64_512_batchSize_12_4_lossWeights_-1.0_0.0_1.0_kitti2015
 
 # checkpoints: pretrain_kitti_SR
 pretrained_kitti2015_EDSRbaseline=${experiment_dir}/pretrain_kitti_SR/SR_train/190421181207_model_EDSR_loadScale_1_trainCrop_64_512_batchSize_64_16_lossWeights_1_kitti2015
 pretrained_kitti2015_EDSRbaseline_noArg=${experiment_dir}/pretrain_kitti_SR/SR_train/190421113622_model_EDSR_loadScale_1_trainCrop_64_512_batchSize_64_16_lossWeights_1_kitti2015
+pretrained_kitti2015_EDSRbaseline_trainSub=${experiment_dir}/pretrain_kitti_SR/SR_train/190427085731_model_EDSR_loadScale_1_trainCrop_64_512_batchSize_64_16_lossWeights_1_kitti2015
+
