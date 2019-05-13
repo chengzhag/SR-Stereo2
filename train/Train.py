@@ -50,21 +50,6 @@ class Train:
                     else:
                         avgPeriodLoss.accumuate(loss)
 
-                    # Log
-                    if self.experiment.args.logEvery > 0 \
-                            and self.experiment.globalStep % self.experiment.args.logEvery == 0:
-                        avgPeriodLoss.avg()
-                        avgPeriodLoss['lr'] = lrNow
-                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='train',
-                                                             step=self.experiment.globalStep)
-                        for name, value in avgPeriodLoss.items():
-                            self.experiment.logger.writer.add_scalar(
-                                'train/' + name, value, self.experiment.globalStep)
-                        avgPeriodLoss = None
-
-                        self.experiment.logger.logImages(imgs, 'train/', self.experiment.globalStep,
-                                                         self.experiment.args.nSampleLog)
-
                     # print
                     timeLeft = timeFilter((time.time() - ticETC) / 3600 * (
                             (self.experiment.args.epochs - self.experiment.epoch + 1) * len(
@@ -84,6 +69,22 @@ class Train:
                     print(printMessage)
                     ticETC = time.time()
 
+                    # Log
+                    if self.experiment.args.logEvery > 0 \
+                            and self.experiment.globalStep % self.experiment.args.logEvery == 0:
+                        avgPeriodLoss.avg()
+                        avgPeriodLoss['lr'] = lrNow
+                        avgPeriodLoss['ETC'] = timeLeft
+                        self.experiment.cometExp.log_metrics(avgPeriodLoss, prefix='train',
+                                                             step=self.experiment.globalStep)
+                        for name, value in avgPeriodLoss.items():
+                            self.experiment.logger.writer.add_scalar(
+                                'train/' + name, value, self.experiment.globalStep)
+                        avgPeriodLoss = None
+
+                        self.experiment.logger.logImages(imgs, 'train/', self.experiment.globalStep,
+                                                         self.experiment.args.nSampleLog)
+
                 printMessage = 'epoch %d done' % (self.experiment.epoch)
                 print(printMessage)
                 self.experiment.logger.writer.add_text(
@@ -96,13 +97,13 @@ class Train:
 
             # test
             if (
-                    (self.experiment.args.testEvery > 0
+                    ((self.experiment.args.testEvery > 0
                      and self.experiment.epoch > 0
                      and self.experiment.epoch % self.experiment.args.testEvery == 0)
                     or (self.experiment.args.testEvery == 0
                         and (self.experiment.epoch == 0 or self.experiment.epoch == self.experiment.args.epochs))
                     or (self.experiment.args.testEvery < 0
-                        and (-self.experiment.epoch) % self.experiment.args.testEvery == 0)
+                        and (-self.experiment.epoch) % self.experiment.args.testEvery == 0))
                     and self.test.testImgLoader is not None
             ):
                 torch.cuda.empty_cache()

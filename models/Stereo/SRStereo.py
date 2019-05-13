@@ -59,10 +59,16 @@ class SRStereo(Stereo):
     def loss(self, output: myUtils.Imgs, gt: tuple):
         gtSrs, dispHigh, dispLow = gt
         loss = myUtils.NameValues()
-        if all([img is not None for img in gtSrs]):
+        hasSr = not dispHigh is dispLow
+        if all([img is not None for img in gtSrs]) and self.sr.lossWeights > 0:
+            outputSrL = output['outputSrL']
+            outputSrR = output['outputSrR']
+            if not hasSr:
+                outputSrL = nn.AvgPool2d((2, 2))(outputSrL)
+                outputSrR = nn.AvgPool2d((2, 2))(outputSrR)
             # average lossSrL/R
-            lossSr = (self.sr.loss(output={'outputSr': output['outputSrL']}, gt=gtSrs[0])
-                + (self.sr.loss(output={'outputSr': output['outputSrR']}, gt=gtSrs[1]))) / 2
+            lossSr = (self.sr.loss(output={'outputSr': outputSrL}, gt=gtSrs[0])
+                + self.sr.loss(output={'outputSr': outputSrR}, gt=gtSrs[1])) / 2
             loss.add(lossSr)
 
         if not all([disp is None for disp in (dispHigh, dispLow)]):
@@ -71,9 +77,14 @@ class SRStereo(Stereo):
         return loss
 
     def train(self, batch: myUtils.Batch, progress=0):
+
         return self.trainBothSides(
             batch.lowestResRGBs(),
-            list(zip([batch.highResRGBs(), batch.highResRGBs()[::-1]], batch.highResDisps(), batch.lowResDisps()))
+            list(zip([batch.highestResRGBs(),
+                      batch.highestResRGBs()[::-1] if batch.highestResDisps()[1] is not None else None
+                      ],
+                     batch.highestResDisps(),
+                     batch.lowestResDisps()))
         )
 
     def predict(self, batch: myUtils.Batch, mask=(1, 1)):

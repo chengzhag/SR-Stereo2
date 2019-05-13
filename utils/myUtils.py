@@ -227,7 +227,7 @@ class Experiment:
         self.logFolder = None
 
         # if resume, results will be saved to where the loaded checkpoint is.
-        if args.resume:
+        if args.resume == 'toOld':
             if args.chkpoint is None:
                 raise Exception('Error: No checkpoint to resume!')
             elif len(args.chkpoint) > 1:
@@ -264,13 +264,13 @@ class Experiment:
 
         # update checkpointDir
         self.chkpointDir = chkpointDir
-        if self.args.resume:
+        if self.args.resume == 'toOld':
             self.chkpointFolder, _ = os.path.split(self.chkpointDir[0])
             self.logFolder = os.path.join(self.chkpointFolder, 'logs')
 
         epoch, _ = self.model.load(self.chkpointDir)
 
-        self.epoch = epoch + 1 if self.args.resume and epoch is not None else 0
+        self.epoch = epoch + 1 if self.args.resume is not None and epoch is not None else 0
 
     def save(self, epoch, iteration, info=None):
         # update checkpointDir
@@ -476,10 +476,10 @@ class DefaultParser:
         return self
 
     def resume(self):
-        self.parser.add_argument('--resume', action='store_true', default=False,
+        self.parser.add_argument('--resume', type=str, default=None,
                                  help='resume specified training '
                                       '(or save evaluation results to old folder)'
-                                      ' else save/log into a new folders')
+                                      ' toNew/toOld')
         return self
 
     # evaluation
@@ -514,6 +514,11 @@ class DefaultParser:
     def noComet(self):
         self.parser.add_argument('--noComet', action='store_true', default=False,
                                  help='disable comet logging')
+        return self
+
+    def argument(self):
+        self.parser.add_argument('--argument', type=float, default=None, nargs=2,
+                                 help='scaling range (from, to) of argumentation when training')
         return self
 
     def parse(self):

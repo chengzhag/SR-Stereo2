@@ -52,11 +52,17 @@ class Stereo(Model):
 
     def test(self, batch: myUtils.Batch, evalType: str):
         disps = batch.lowestResDisps()
-        myUtils.assertDisp(*disps)
 
         mask = [disp is not None for disp in disps]
+        if all([m is False for m in mask]):
+            mask[0] = True
         outputs = self.predict(batch, mask)
-        loss = self.testOutput(outputs=outputs, gt=disps, evalType=evalType)
+
+        try:
+            myUtils.assertDisp(*disps)
+            loss = self.testOutput(outputs=outputs, gt=disps, evalType=evalType)
+        except:
+            loss = myUtils.NameValues()
 
         return loss, outputs
 

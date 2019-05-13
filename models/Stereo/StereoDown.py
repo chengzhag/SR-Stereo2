@@ -65,7 +65,7 @@ class StereoDown(Stereo):
                 (self.outMaxDisp * 2, self.outMaxDisp),
                 self.lossWeights
         ):
-            if g is not None:
+            if g is not None and weight > 0:
                 loss['loss' + name] = self.stereo.loss(
                     myUtils.Imgs(
                         (('outputDisp', output['output' + name]),)
