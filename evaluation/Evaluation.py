@@ -1,14 +1,17 @@
 import time
+
+import utils.data
+import utils.experiment
 from utils import myUtils
 import os
 
 
 class Evaluation:
-    def __init__(self, experiment: myUtils.Experiment, testImgLoader):
+    def __init__(self, experiment: utils.experiment.Experiment, testImgLoader):
         self.experiment = experiment
         self.testImgLoader = testImgLoader
 
-    def _evalIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
+    def _evalIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.data.Imgs):
         # return scores, outputs
         return None, None
 
@@ -17,9 +20,9 @@ class Evaluation:
         ticETC = time.time()
         timeFilter = myUtils.Filter()
         totalTestLoss = None
-        avgTestLoss = myUtils.NameValues()
+        avgTestLoss = utils.data.NameValues()
         for batchIdx, batch in enumerate(self.testImgLoader, 1):
-            batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
+            batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
             loss, imgs = self._evalIt(batch)
 

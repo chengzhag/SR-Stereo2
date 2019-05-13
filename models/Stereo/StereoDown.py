@@ -1,3 +1,5 @@
+import utils.data
+import utils.experiment
 from .PSMNet import *
 
 
@@ -16,7 +18,7 @@ class RawStereoDown(nn.Module):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(
+        state_dict = utils.experiment.checkStateDict(
             model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
         super().load_state_dict(state_dict, strict=False)
 
@@ -45,7 +47,7 @@ class StereoDown(Stereo):
     def initModel(self):
         self.model = RawStereoDown(self.stereo)
 
-    def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
         imgs = super().packOutputs(outputs=outputs, imgs=imgs)
         imgs = self.stereo.packOutputs(outputs, imgs)
         imgs.range['outputDisp'] = self.outMaxDisp
@@ -54,10 +56,10 @@ class StereoDown(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: tuple, outMaxDisp=None):
+    def loss(self, output: utils.data.Imgs, gt: tuple, outMaxDisp=None):
         if outMaxDisp is not None:
             raise Exception('Error: outputMaxDisp of PSMNetDown has no use!')
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         loss['loss'] = 0
         for name, g, outMaxDisp, weight in zip(
                 ('DispHigh', 'Disp'),
@@ -67,7 +69,7 @@ class StereoDown(Stereo):
         ):
             if g is not None and weight > 0:
                 loss['loss' + name] = self.stereo.loss(
-                    myUtils.Imgs(
+                    utils.data.Imgs(
                         (('outputDisp', output['output' + name]),)
                     ),
                     g, outMaxDisp=outMaxDisp
@@ -75,13 +77,13 @@ class StereoDown(Stereo):
                 loss['loss'] += weight * loss['loss' + name]
         return loss
 
-    def train(self, batch: myUtils.Batch, progress=0):
+    def train(self, batch: utils.data.Batch, progress=0):
         return self.trainBothSides(
             batch.highResRGBs(),
             list(zip(batch.highResDisps(), batch.lowResDisps())))
 
-    def test(self, batch: myUtils.Batch, evalType: str):
-        batch = myUtils.Batch(batch.highResRGBs() + batch.lowResDisps(), cuda=batch.cuda, half=batch.half)
+    def test(self, batch: utils.data.Batch, evalType: str):
+        batch = utils.data.Batch(batch.highResRGBs() + batch.lowResDisps(), cuda=batch.cuda, half=batch.half)
         return super(StereoDown, self).test(batch=batch, evalType=evalType)
 
     def load(self, checkpointDir):

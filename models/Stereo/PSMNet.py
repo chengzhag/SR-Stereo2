@@ -1,6 +1,10 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
+
+import utils.data
+import utils.experiment
+import utils.imProcess
 from utils import myUtils
 from .RawPSMNet import stackhourglass as rawPSMNet
 from .Stereo import Stereo
@@ -26,7 +30,7 @@ class RawPSMNetScale(rawPSMNet):
         if self.training:
             rawOutputs = super(RawPSMNetScale, self).forward(left, right)
         else:
-            autoPad = myUtils.AutoPad(left, self.multiple)
+            autoPad = utils.imProcess.AutoPad(left, self.multiple)
 
             left, right = autoPad.pad((left, right))
             rawOutputs = super(RawPSMNetScale, self).forward(left, right)
@@ -36,7 +40,7 @@ class RawPSMNetScale(rawPSMNet):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(
+        state_dict = utils.experiment.checkStateDict(
             model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
         super().load_state_dict(state_dict, strict=False)
 
@@ -53,7 +57,7 @@ class PSMNet(Stereo):
     def initModel(self):
         self.model = RawPSMNetScale(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
-    def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputDisp'):
@@ -65,12 +69,12 @@ class PSMNet(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None):
+    def loss(self, output: utils.data.Imgs, gt: torch.Tensor, outMaxDisp=None):
         if outMaxDisp is None:
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
         mask = (gt > 0).detach() if self.kitti else (gt < outMaxDisp).detach()
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         loss['lossDisp'] = \
             0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
             + 0.7 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
@@ -79,5 +83,5 @@ class PSMNet(Stereo):
 
         return loss
 
-    def train(self, batch: myUtils.Batch, progress=0):
+    def train(self, batch: utils.data.Batch, progress=0):
         return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())

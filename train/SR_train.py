@@ -1,3 +1,5 @@
+import utils.data
+import utils.experiment
 from utils import myUtils
 import os
 from models import SR
@@ -8,7 +10,7 @@ import dataloader
 
 class Train(Base):
 
-    def _trainIt(self, batch: myUtils.Batch):
+    def _trainIt(self, batch: utils.data.Batch):
         loss, outputs = self.experiment.model.train(batch=batch.detach())
 
         for input, gt, side in zip(batch.lowResRGBs(), batch.highResRGBs(), ('L', 'R')):
@@ -20,7 +22,7 @@ class Train(Base):
 
 def main():
     # Arguments
-    args = myUtils.DefaultParser(description='train or finetune SR net') \
+    args = utils.experiment.DefaultParser(description='train or finetune SR net') \
         .outputFolder().dataPath().model().chkpoint().noCuda().seed().evalFcn() \
         .nSampleLog().dataset().loadScale().trainCrop().batchSize().logEvery() \
         .testEvery().saveEvery().epochs().lr().half().lossWeights().resume().subType() \
@@ -44,7 +46,7 @@ def main():
 
     # Train
     stage, _ = os.path.splitext(os.path.basename(__file__))
-    experiment = myUtils.Experiment(model=sr, stage=stage, args=args)
+    experiment = utils.experiment.Experiment(model=sr, stage=stage, args=args)
     test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     train = Train(test=test, trainImgLoader=trainImgLoader)
     train()

@@ -1,4 +1,8 @@
 import torch
+
+import utils.data
+import utils.experiment
+import utils.imProcess
 from evaluation import evalFcn
 from utils import myUtils
 from ..Model import Model
@@ -15,15 +19,15 @@ class Stereo(Model):
     def loss(self, output, gt):
         pass
 
-    def predict(self, batch: myUtils.Batch, mask=(1, 1)):
+    def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         self.model.eval()
 
         imgL, imgR = batch.lowestResRGBs()
 
         with torch.no_grad():
-            outputs = myUtils.Imgs()
+            outputs = utils.data.Imgs()
             for inputL, inputR, process, do, side in zip((imgL, imgR), (imgR, imgL),
-                                                         (lambda im: im, myUtils.flipLR),
+                                                         (lambda im: im, utils.imProcess.flipLR),
                                                          mask,
                                                          ('L', 'R')):
                 if do:
@@ -32,8 +36,8 @@ class Stereo(Model):
 
             return outputs
 
-    def testOutput(self, outputs: myUtils.Imgs, gt, evalType: str):
-        loss = myUtils.NameValues()
+    def testOutput(self, outputs: utils.data.Imgs, gt, evalType: str):
+        loss = utils.data.NameValues()
         for disp, side in zip(gt, ('L', 'R')):
             dispOut = outputs.get('outputDisp' + side)
             if dispOut is not None and disp is not None:
@@ -50,7 +54,7 @@ class Stereo(Model):
 
         return loss
 
-    def test(self, batch: myUtils.Batch, evalType: str):
+    def test(self, batch: utils.data.Batch, evalType: str):
         disps = batch.lowestResDisps()
 
         mask = [disp is not None for disp in disps]
@@ -59,19 +63,19 @@ class Stereo(Model):
         outputs = self.predict(batch, mask)
 
         try:
-            myUtils.assertDisp(*disps)
+            utils.imProcess.assertDisp(*disps)
             loss = self.testOutput(outputs=outputs, gt=disps, evalType=evalType)
         except:
-            loss = myUtils.NameValues()
+            loss = utils.data.NameValues()
 
         return loss, outputs
 
     def trainBothSides(self, inputs, gts):
-        losses = myUtils.NameValues()
-        outputs = myUtils.Imgs()
+        losses = utils.data.NameValues()
+        outputs = utils.data.Imgs()
         for input, gt, process, side in zip(
                 (inputs, inputs[::-1]), gts,
-                (lambda im: im, myUtils.flipLR),
+                (lambda im: im, utils.imProcess.flipLR),
                 ('L', 'R')
         ):
             if (type(gt) not in (tuple, list) and gt is not None) \

@@ -1,6 +1,9 @@
 import torch.optim as optim
 import torch
 import torch.nn as nn
+
+import utils.data
+import utils.experiment
 from utils import myUtils
 from .Stereo import Stereo
 from .. import SR
@@ -53,12 +56,12 @@ class SRStereo(Stereo):
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
 
-    def packOutputs(self, outputs, imgs: myUtils.Imgs = None):
+    def packOutputs(self, outputs, imgs: utils.data.Imgs = None):
         return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))
 
-    def loss(self, output: myUtils.Imgs, gt: tuple):
+    def loss(self, output: utils.data.Imgs, gt: tuple):
         gtSrs, dispHigh, dispLow = gt
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         hasSr = not dispHigh is dispLow
         if all([img is not None for img in gtSrs]) and self.sr.lossWeights > 0:
             outputSrL = output['outputSrL']
@@ -76,7 +79,7 @@ class SRStereo(Stereo):
 
         return loss
 
-    def train(self, batch: myUtils.Batch, progress=0):
+    def train(self, batch: utils.data.Batch, progress=0):
 
         return self.trainBothSides(
             batch.lowestResRGBs(),
@@ -87,14 +90,14 @@ class SRStereo(Stereo):
                      batch.lowestResDisps()))
         )
 
-    def predict(self, batch: myUtils.Batch, mask=(1, 1)):
+    def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         outputs = self.sr.predict(batch=batch.lastScaleBatch())
         batch = batch.detach()
         batch.lowestResRGBs((outputs['outputSrL'], outputs['outputSrR']))
         outputs.update(self.stereo.predict(batch=batch, mask=mask))
         return outputs
 
-    def test(self, batch: myUtils.Batch, evalType: str):
+    def test(self, batch: utils.data.Batch, evalType: str):
         loss, outputs = super().test(batch=batch, evalType=evalType)
         if len(batch) == 8:
             loss.update(self.sr.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))

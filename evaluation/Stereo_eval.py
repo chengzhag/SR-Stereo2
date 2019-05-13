@@ -1,3 +1,5 @@
+import utils.data
+import utils.experiment
 from utils import myUtils
 import os
 from models import Stereo
@@ -7,7 +9,7 @@ import dataloader
 
 class Evaluation(Base):
 
-    def _evalIt(self, batch: myUtils.Batch):
+    def _evalIt(self, batch: utils.data.Batch):
         loss, outputs = self.experiment.model.test(batch=batch.detach(),
                                                    evalType=self.experiment.args.evalFcn)
         for disp, input, side in zip(batch.lowestResDisps(), batch.lowestResRGBs(), ('L', 'R')):
@@ -19,7 +21,7 @@ class Evaluation(Base):
 
 def main():
     # Arguments
-    args = myUtils.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
+    args = utils.experiment.DefaultParser(description='evaluate Stereo net or SR-Stereo net') \
         .outputFolder().maxDisp().dispScale().model().dataPath() \
         .chkpoint().noCuda().seed().evalFcn().nSampleLog().dataset() \
         .loadScale().batchSize().half().resume().itRefine() \
@@ -46,7 +48,7 @@ def main():
 
     # Test
     stage, _ = os.path.splitext(os.path.basename(__file__))
-    experiment = myUtils.Experiment(model=stereo, stage=stage, args=args)
+    experiment = utils.experiment.Experiment(model=stereo, stage=stage, args=args)
     test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     test()
 

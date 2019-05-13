@@ -1,4 +1,7 @@
 import time
+
+import utils.data
+import utils.experiment
 from utils import myUtils
 from evaluation.Evaluation import Evaluation
 import torch
@@ -13,7 +16,7 @@ class Train:
             if self.experiment.epoch > 0 else 0
         self.experiment.model.setLossWeights(self.experiment.args.lossWeights)
 
-    def _trainIt(self, batch: myUtils.Batch) -> (myUtils.NameValues, myUtils.Imgs):
+    def _trainIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.data.Imgs):
         # return scores, outputs
         return None, None
 
@@ -33,13 +36,13 @@ class Train:
             if self.experiment.epoch > 0:
                 # Train
                 print('This is %d-th epoch' % (self.experiment.epoch))
-                lrNow = myUtils.adjustLearningRate(
+                lrNow = utils.experiment.adjustLearningRate(
                     self.experiment.model.optimizer, self.experiment.epoch, self.experiment.args.lr)
 
                 # iteration
                 ticETC = time.time()
                 for self.experiment.iteration, batch in enumerate(self.trainImgLoader, 1):
-                    batch = myUtils.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
+                    batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
                     self.experiment.globalStep += 1
 

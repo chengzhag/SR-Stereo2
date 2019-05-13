@@ -4,6 +4,9 @@ from torch.autograd import Variable
 import numpy as np
 import gc
 
+import utils.data
+import utils.experiment
+
 
 def warpAndCat(batch, doCatMask=False):
     inputL, inputR, dispL, dispR = batch
@@ -108,7 +111,7 @@ def main():
     import dataloader
 
     # Arguments
-    args = myUtils.DefaultParser(description='warp module test') \
+    args = utils.experiment.DefaultParser(description='warp module test') \
         .outputFolder().maxDisp().dataPath().noCuda().seed().evalFcn().dataset().loadScale().nSampleLog().parse()
 
     # Dataset
@@ -121,10 +124,10 @@ def main():
     # Log samples
     logFolder = [folder for folder in args.dataPath.split('/') if folder != '']
     logFolder[-1] += '_warpTest'
-    logger = myUtils.Logger(os.path.join(*logFolder))
+    logger = utils.experiment.Logger(os.path.join(*logFolder))
 
     for iSample, sample in enumerate(testImgLoader, 1):
-        batch = myUtils.Batch(sample, cuda=args.cuda)
+        batch = utils.data.Batch(sample, cuda=args.cuda)
         print('sample %d' % iSample)
         imglw, imgrw, maskl, maskr = warp(*batch)
 
@@ -133,7 +136,7 @@ def main():
         errorL = getattr(evalFcn, args.evalFcn)(batch[0][masklRGB], imglw[masklRGB])
         errorR = getattr(evalFcn, args.evalFcn)(batch[1][maskrRGB], imgrw[maskrRGB])
 
-        for name, value in myUtils.NameValues((('L', errorL), ('R', errorR)), prefix='error').items():
+        for name, value in utils.data.NameValues((('L', errorL), ('R', errorR)), prefix='error').items():
             logger.writer.add_scalar('warp/' + name, value, iSample)
         for name, im, range in zip(
                 ('inputL', 'inputR', 'gtL', 'gtR', 'warpToL', 'warpToR', 'maskL', 'maskR'),

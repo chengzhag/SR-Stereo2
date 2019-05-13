@@ -1,6 +1,10 @@
 import torch.optim as optim
 import torch
 import torch.nn as nn
+
+import utils.data
+import utils.experiment
+import utils.imProcess
 from utils import myUtils
 import collections
 from .SRdispStereo import SRdispStereo
@@ -25,12 +29,12 @@ class SRStereoRefine(SRdispStereo):
             itRefine = self.itRefine
 
         # initialize SR output from low res input
-        outputs = myUtils.Imgs()
+        outputs = utils.data.Imgs()
         with torch.no_grad():
             outSRs = [F.interpolate(
                 lowResInput, scale_factor=2, mode='bilinear', align_corners=False
             ) for lowResInput in batch.lowestResRGBs()]
-            initialBatch = myUtils.Batch(4, cuda=batch.cuda, half=batch.half)
+            initialBatch = utils.data.Batch(4, cuda=batch.cuda, half=batch.half)
             initialBatch.lowestResRGBs(outSRs)
             itOutputs = self.stereo.predict(initialBatch)
             outputs.update(itOutputs, suffix='_0')
@@ -47,14 +51,14 @@ class SRStereoRefine(SRdispStereo):
 
         return outputs
 
-    def test(self, batch: myUtils.Batch, evalType: str):
+    def test(self, batch: utils.data.Batch, evalType: str):
         disps = batch.lowestResDisps()
-        myUtils.assertDisp(*disps)
+        utils.imProcess.assertDisp(*disps)
 
         mask = [disp is not None for disp in disps]
         outputs = self.predict(batch, mask)
 
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         for it in range(self.itRefine + 1):
             output = outputs.getIt(it)
             lossIt = self.testOutput(outputs=output, gt=disps, evalType=evalType)
@@ -70,15 +74,15 @@ class SRStereoRefine(SRdispStereo):
     #   SR output losses (lossSR),
     #   SR disparity map losses (lossDispHigh),
     #   normal sized disparity map losses (lossDispLow)
-    def train(self, batch: myUtils.Batch, progress=0):
+    def train(self, batch: utils.data.Batch, progress=0):
         # probability of training with dispsOut as input:
         # progress = [0, 1]: p = [0, 1]
         if random.random() < progress or self.kitti:
             itRefine = random.randint(0, 2)
             dispChoice = itRefine
             outputs = self.predict(batch.lastScaleBatch(), itRefine=itRefine)
-            warpBatch = myUtils.Batch(batch.lowestResRGBs() + [outputs['outputDispL'], outputs['outputDispR']],
-                                      cuda=batch.cuda, half=batch.half)
+            warpBatch = utils.data.Batch(batch.lowestResRGBs() + [outputs['outputDispL'], outputs['outputDispR']],
+                                         cuda=batch.cuda, half=batch.half)
         else:
             warpBatch = batch.lastScaleBatch()
             dispChoice = -1
@@ -87,7 +91,7 @@ class SRStereoRefine(SRdispStereo):
         batch = batch.detach()
         batch.lowestResRGBs(cated)
         losses, outputs = super(SRdispStereo, self).train(batch=batch, progress=progress)
-        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
+        utils.data.packWarpTo(warpTos=warpTos, outputs=outputs)
         losses['dispChoice'] = dispChoice
 
         return losses, outputs

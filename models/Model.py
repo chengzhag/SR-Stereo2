@@ -1,4 +1,7 @@
 import torch
+
+import utils.data
+import utils.experiment
 from utils import myUtils
 from apex import amp
 
@@ -17,9 +20,9 @@ class Model:
     def initModel(self):
         pass
 
-    def packOutputs(self, outputs, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+    def packOutputs(self, outputs, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
         if imgs is None:
-            imgs = myUtils.Imgs()
+            imgs = utils.data.Imgs()
         return imgs
 
     def setLossWeights(self, lossWeights):
@@ -42,10 +45,10 @@ class Model:
     def trainBothSides(self, inputs, gts):
         pass
 
-    def train(self, batch: myUtils.Batch):
+    def train(self, batch: utils.data.Batch):
         pass
 
-    def predict(self, batch: myUtils.Batch):
+    def predict(self, batch: utils.data.Batch):
         pass
 
     def load(self, chkpointDir: str) -> (int, int):

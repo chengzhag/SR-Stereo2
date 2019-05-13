@@ -2,6 +2,9 @@ import torch.utils.data as data
 import random
 from PIL import Image
 import numpy as np
+
+import utils.data
+import utils.experiment
 from utils import python_pfm as pfm
 import torchvision.transforms as transforms
 import operator
@@ -291,7 +294,7 @@ def main():
     from utils import myUtils
 
     # Arguments
-    args = myUtils.DefaultParser(description='DataLoader module test') \
+    args = utils.experiment.DefaultParser(description='DataLoader module test') \
         .outputFolder().maxDisp().seed().dataPath().loadScale().nSampleLog().dataset().parse()
 
     # Dataset
@@ -303,12 +306,12 @@ def main():
     # Log samples
     logFolder = [folder for folder in args.dataPath.split('/') if folder != '']
     logFolder[-1] += '_listTest'
-    logger = myUtils.Logger(os.path.join(*logFolder))
+    logger = utils.experiment.Logger(os.path.join(*logFolder))
 
     def logSamplesFrom(imgLoader, tag):
         if imgLoader is not None:
             for iSample, sample in enumerate(imgLoader, 1):
-                batch = myUtils.Batch(sample)
+                batch = utils.data.Batch(sample)
                 print('sample %d' % iSample)
                 for iScale, scale in enumerate(args.loadScale):
                     for name, im in zip(('inputL', 'inputR', 'gtL', 'gtR'), batch.scaleBatch(iScale)):
