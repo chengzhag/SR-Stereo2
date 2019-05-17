@@ -27,13 +27,13 @@ def disparity_regression(x, maxdisp):
     return torch.sum(x * disp_values, 1, keepdim=False)
 
 
-def build_concat_volume(refimg_fea, targetimg_fea, maxdisp):
+def build_concat_volume(refimg_fea, targetimg_fea, maxdisp, dispScale):
     B, C, H, W = refimg_fea.shape
     volume = refimg_fea.new_zeros([B, 2 * C, maxdisp, H, W])
     for i in range(maxdisp):
         if i > 0:
-            volume[:, :C, i, :, i:] = refimg_fea[:, :, :, i:]
-            volume[:, C:, i, :, i:] = targetimg_fea[:, :, :, :-i]
+            volume[:, :C, i, :, (i * dispScale):] = refimg_fea[:, :, :, (i * dispScale):]
+            volume[:, C:, i, :, (i * dispScale):] = targetimg_fea[:, :, :, :(-i * dispScale)]
         else:
             volume[:, :C, i, :, :] = refimg_fea
             volume[:, C:, i, :, :] = targetimg_fea
@@ -50,12 +50,13 @@ def groupwise_correlation(fea1, fea2, num_groups):
     return cost
 
 
-def build_gwc_volume(refimg_fea, targetimg_fea, maxdisp, num_groups):
+def build_gwc_volume(refimg_fea, targetimg_fea, maxdisp, num_groups, dispScale):
     B, C, H, W = refimg_fea.shape
     volume = refimg_fea.new_zeros([B, num_groups, maxdisp, H, W])
     for i in range(maxdisp):
         if i > 0:
-            volume[:, :, i, :, i:] = groupwise_correlation(refimg_fea[:, :, :, i:], targetimg_fea[:, :, :, :-i],
+            volume[:, :, i, :, (i * dispScale):] = groupwise_correlation(refimg_fea[:, :, :, (i * dispScale):],
+                                                           targetimg_fea[:, :, :, :(-i * dispScale)],
                                                            num_groups)
         else:
             volume[:, :, i, :, :] = groupwise_correlation(refimg_fea, targetimg_fea, num_groups)

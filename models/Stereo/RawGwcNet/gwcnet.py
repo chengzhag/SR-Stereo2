@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.utils.data
 from torch.autograd import Variable
 import torch.nn.functional as F
-from models.submodule import *
+from .submodule import *
 import math
 
 
@@ -105,10 +105,12 @@ class hourglass(nn.Module):
 
 
 class GwcNet(nn.Module):
-    def __init__(self, maxdisp, use_concat_volume=False):
+    def __init__(self, maxdisp, use_concat_volume=False, dispScale=1):
         super(GwcNet, self).__init__()
         self.maxdisp = maxdisp
         self.use_concat_volume = use_concat_volume
+        self.dispScale = int(dispScale)
+        self.outMaxDisp = self.maxdisp * self.dispScale
 
         self.num_groups = 40
 
@@ -172,10 +174,10 @@ class GwcNet(nn.Module):
         features_right = self.feature_extraction(right)
 
         gwc_volume = build_gwc_volume(features_left["gwc_feature"], features_right["gwc_feature"], self.maxdisp // 4,
-                                      self.num_groups)
+                                      self.num_groups, self.dispScale)
         if self.use_concat_volume:
             concat_volume = build_concat_volume(features_left["concat_feature"], features_right["concat_feature"],
-                                                self.maxdisp // 4)
+                                                self.maxdisp // 4, self.dispScale )
             volume = torch.cat((gwc_volume, concat_volume), 1)
         else:
             volume = gwc_volume
@@ -223,9 +225,9 @@ class GwcNet(nn.Module):
             return [pred3]
 
 
-def GwcNet_G(d):
-    return GwcNet(d, use_concat_volume=False)
+def GwcNet_G(d, dispScale=1):
+    return GwcNet(d, use_concat_volume=False, dispScale=dispScale)
 
 
-def GwcNet_GC(d):
-    return GwcNet(d, use_concat_volume=True)
+def GwcNet_GC(d, dispScale=1):
+    return GwcNet(d, use_concat_volume=True, dispScale=dispScale)
