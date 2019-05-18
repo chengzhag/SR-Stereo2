@@ -1,7 +1,7 @@
+import utils.experiment
 import torch
 import torch.nn as nn
 import utils.data
-import utils.experiment
 import utils.imProcess
 from .Stereo import Stereo
 import torch.optim as optim

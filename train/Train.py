@@ -1,7 +1,6 @@
-import time
-
-import utils.data
 import utils.experiment
+import time
+import utils.data
 import utils.imProcess
 from utils import myUtils
 from evaluation.Evaluation import Evaluation

@@ -1,9 +1,8 @@
+import utils.experiment
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
-
 import utils.data
-import utils.experiment
 import utils.imProcess
 from .RawPSMNet import stackhourglass as rawPSMNet
 from .Stereo import Stereo

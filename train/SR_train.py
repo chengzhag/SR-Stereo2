@@ -1,5 +1,5 @@
-import utils.data
 import utils.experiment
+import utils.data
 from utils import myUtils
 import os
 from models import SR

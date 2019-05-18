@@ -1,7 +1,6 @@
-import torch
-
-import utils.data
 import utils.experiment
+import torch
+import utils.data
 import utils.imProcess
 from utils import myUtils
 from apex import amp

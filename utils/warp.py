@@ -1,11 +1,10 @@
+import utils.experiment
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 import gc
-
 import utils.data
-import utils.experiment
 
 
 def warpAndCat(batch, doCatMask=False):

@@ -3,8 +3,8 @@ import os
 import sys
 import time
 
-import torch
 from comet_ml import Experiment as CometExp
+import torch
 from tensorboardX import SummaryWriter
 
 from utils.data import NameValues

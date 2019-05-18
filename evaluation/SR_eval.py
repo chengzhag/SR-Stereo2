@@ -1,7 +1,6 @@
-import os
-
-import utils.data
 import utils.experiment
+import os
+import utils.data
 from models import SR
 from utils import myUtils
 from evaluation.Evaluation import Evaluation as Base

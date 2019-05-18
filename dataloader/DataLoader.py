@@ -1,10 +1,9 @@
+import utils.experiment
 import torch.utils.data as data
 import random
 from PIL import Image
 import numpy as np
-
 import utils.data
-import utils.experiment
 from utils import python_pfm as pfm
 import torchvision.transforms as transforms
 import operator
