@@ -29,7 +29,7 @@ class SRStereoRefine(SRdispStereo):
             itRefine = self.itRefine
 
         # initialize SR output from low res input
-        outputs = utils.data.Imgs()
+        outputs = utils.imProcess.Imgs()
         with torch.no_grad():
             outSRs = [F.interpolate(
                 lowResInput, scale_factor=2, mode='bilinear', align_corners=False

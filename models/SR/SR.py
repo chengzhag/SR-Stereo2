@@ -2,6 +2,7 @@ import torch
 
 import utils.data
 import utils.experiment
+import utils.imProcess
 from evaluation import evalFcn
 from utils import myUtils
 from ..Model import Model
@@ -15,7 +16,7 @@ class SR(Model):
     def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         self.model.eval()
 
-        outputs = utils.data.Imgs()
+        outputs = utils.imProcess.Imgs()
         with torch.no_grad():
             for input, do, side in zip(batch.lowestResRGBs(), mask, ('L', 'R')):
                 if do:
@@ -24,7 +25,7 @@ class SR(Model):
 
         return outputs
 
-    def testOutput(self, outputs: utils.data.Imgs, gt, evalType: str):
+    def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = utils.data.NameValues()
         for g, side in zip(gt, ('L', 'R')):
             output = outputs.get('outputSr' + side)

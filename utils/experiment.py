@@ -9,7 +9,7 @@ from tensorboardX import SummaryWriter
 
 from utils.data import NameValues
 from utils.myUtils import struct2dict, getattrNE, checkDir
-from utils.imProcess import gray2rgb
+from utils.imProcess import gray2rgb, Imgs
 
 
 class Experiment:
@@ -373,7 +373,7 @@ def scanCheckpoint(checkpointDirs):
                     return None
 
             for filename in filenames:
-                if any(filename.endswith(extension) for extension in ('.tar', '.pt')):
+                if any(filename.endswith(extension) for extension in ('.tar', '.pt', '.ckpt')):
                     if latestCheckpointName is None:
                         latestCheckpointName = filename
                         latestEpoch = _getEpoch(filename)

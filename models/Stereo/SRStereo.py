@@ -4,6 +4,7 @@ import torch.nn as nn
 
 import utils.data
 import utils.experiment
+import utils.imProcess
 from utils import myUtils
 from .Stereo import Stereo
 from .. import SR
@@ -56,10 +57,10 @@ class SRStereo(Stereo):
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
 
-    def packOutputs(self, outputs, imgs: utils.data.Imgs = None):
+    def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None):
         return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))
 
-    def loss(self, output: utils.data.Imgs, gt: tuple):
+    def loss(self, output: utils.imProcess.Imgs, gt: tuple):
         gtSrs, dispHigh, dispLow = gt
         loss = utils.data.NameValues()
         hasSr = not dispHigh is dispLow

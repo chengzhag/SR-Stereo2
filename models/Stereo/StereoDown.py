@@ -1,5 +1,6 @@
 import utils.data
 import utils.experiment
+import utils.imProcess
 from .PSMNet import *
 
 
@@ -47,7 +48,7 @@ class StereoDown(Stereo):
     def initModel(self):
         self.model = RawStereoDown(self.stereo)
 
-    def packOutputs(self, outputs: dict, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs=outputs, imgs=imgs)
         imgs = self.stereo.packOutputs(outputs, imgs)
         imgs.range['outputDisp'] = self.outMaxDisp
@@ -56,7 +57,7 @@ class StereoDown(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: utils.data.Imgs, gt: tuple, outMaxDisp=None):
+    def loss(self, output: utils.imProcess.Imgs, gt: tuple, outMaxDisp=None):
         if outMaxDisp is not None:
             raise Exception('Error: outputMaxDisp of PSMNetDown has no use!')
         loss = utils.data.NameValues()
@@ -69,7 +70,7 @@ class StereoDown(Stereo):
         ):
             if g is not None and weight > 0:
                 loss['loss' + name] = self.stereo.loss(
-                    utils.data.Imgs(
+                    utils.imProcess.Imgs(
                         (('outputDisp', output['output' + name]),)
                     ),
                     g, outMaxDisp=outMaxDisp

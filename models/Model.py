@@ -2,6 +2,7 @@ import torch
 
 import utils.data
 import utils.experiment
+import utils.imProcess
 from utils import myUtils
 from apex import amp
 
@@ -20,9 +21,9 @@ class Model:
     def initModel(self):
         pass
 
-    def packOutputs(self, outputs, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
+    def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         if imgs is None:
-            imgs = utils.data.Imgs()
+            imgs = utils.imProcess.Imgs()
         return imgs
 
     def setLossWeights(self, lossWeights):
@@ -63,6 +64,7 @@ class Model:
         loadStateDict = torch.load(chkpointDir)
         # for EDSR and PSMNet compatibility
         writeModelDict = loadStateDict.get('state_dict', loadStateDict)
+        writeModelDict = loadStateDict.get('model', writeModelDict)
         try:
             self.model.load_state_dict(writeModelDict)
         except RuntimeError:

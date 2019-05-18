@@ -25,7 +25,7 @@ class Stereo(Model):
         imgL, imgR = batch.lowestResRGBs()
 
         with torch.no_grad():
-            outputs = utils.data.Imgs()
+            outputs = utils.imProcess.Imgs()
             for inputL, inputR, process, do, side in zip((imgL, imgR), (imgR, imgL),
                                                          (lambda im: im, utils.imProcess.flipLR),
                                                          mask,
@@ -36,7 +36,7 @@ class Stereo(Model):
 
             return outputs
 
-    def testOutput(self, outputs: utils.data.Imgs, gt, evalType: str):
+    def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = utils.data.NameValues()
         for disp, side in zip(gt, ('L', 'R')):
             dispOut = outputs.get('outputDisp' + side)
@@ -72,7 +72,7 @@ class Stereo(Model):
 
     def trainBothSides(self, inputs, gts):
         losses = utils.data.NameValues()
-        outputs = utils.data.Imgs()
+        outputs = utils.imProcess.Imgs()
         for input, gt, process, side in zip(
                 (inputs, inputs[::-1]), gts,
                 (lambda im: im, utils.imProcess.flipLR),

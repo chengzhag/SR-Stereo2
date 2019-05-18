@@ -49,7 +49,7 @@ class EDSR(SR):
     def initModel(self):
         self.model = RawEDSR(cInput=self.cInput)
 
-    def packOutputs(self, outputs: dict, imgs: utils.data.Imgs = None) -> utils.data.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputSr'):
@@ -69,7 +69,7 @@ class EDSR(SR):
 
     def trainBothSides(self, inputs, gts):
         losses = utils.data.NameValues()
-        outputs = utils.data.Imgs()
+        outputs = utils.imProcess.Imgs()
         for input, gt, side in zip(inputs, gts, ('L', 'R')):
             if gt is not None:
                 loss, output = self.trainOneSide((input, ), gt)
@@ -81,7 +81,7 @@ class EDSR(SR):
     def train(self, batch: utils.data.Batch):
         return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
 
-    def testOutput(self, outputs: utils.data.Imgs, gt, evalType: str):
+    def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
         for name in loss.keys():
             loss[name] *= self.model.module.args.rgb_range

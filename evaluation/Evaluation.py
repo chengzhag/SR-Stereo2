@@ -2,6 +2,7 @@ import time
 
 import utils.data
 import utils.experiment
+import utils.imProcess
 from utils import myUtils
 import os
 
@@ -11,7 +12,7 @@ class Evaluation:
         self.experiment = experiment
         self.testImgLoader = testImgLoader
 
-    def _evalIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.data.Imgs):
+    def _evalIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.imProcess.Imgs):
         # return scores, outputs
         return None, None
 

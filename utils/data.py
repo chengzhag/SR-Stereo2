@@ -1,12 +1,10 @@
 import collections
 import copy
-import os
 
-import skimage.io
 import torch
 
-from utils.imProcess import savePreprocessDisp, savePreprocessRGB
-from utils.myUtils import checkDir, forNestingList
+from utils.imProcess import Imgs
+from utils.myUtils import forNestingList
 
 
 class NameValues(collections.OrderedDict):
@@ -107,74 +105,6 @@ class NameValues(collections.OrderedDict):
             sSuffix = addValue(sSuffix, value)
 
         return sSuffix
-
-
-class Imgs(collections.OrderedDict):
-    def __init__(self, imgs=None):
-        if type(imgs) in (list, tuple):
-            super().__init__(imgs)
-        else:
-            super().__init__()
-        if isinstance(imgs, Imgs):
-            self.update(imgs)
-        self.range = {}
-
-    def cpu(self):
-        for name in self.keys():
-            self[name] = self[name].cpu()
-        return self
-
-    def update(self, imgs, suffix=''):
-        assert type(imgs) is Imgs
-        for name in imgs.keys():
-            self[name + suffix] = imgs[name]
-            self.range[name + suffix] = imgs.range[name]
-
-    def clone(self):
-        r = Imgs()
-        for name, value in self.items():
-            r[name] = value.clone()
-            r.range[name] = self.range[name]
-        return r
-
-    def addImg(self, name: str, img, range=1):
-        if img is not None:
-            self.range[name] = range
-            self[name] = img
-
-    def getImgPair(self, name: str, suffix=''):
-        return (self[name + 'L' + suffix], self[name + 'R' + suffix])
-
-    def getIt(self, it: int):
-        output = Imgs()
-        for key in self.keys():
-            if key.endswith('_%d' % it):
-                output[key[:key.find('_')]] = self[key]
-        return output
-
-    def logPrepare(self):
-        for name in self.keys():
-            self[name] /= self.range[name]
-
-    def _savePrepare(self):
-        for name in self.keys():
-            self[name] = self[name][0]
-            if 'Disp' in name:
-                if self.range[name] == 192:
-                    self[name] = savePreprocessDisp(self[name])
-                elif self.range[name] == 384:
-                    self[name] = savePreprocessDisp(self[name], dispScale=170)
-            elif 'Rgb':
-                self[name] = savePreprocessRGB(self[name])
-
-    def save(self, dir, name):
-        self._savePrepare()
-        checkDir(dir)
-        for folder, value in self.items():
-            checkDir(os.path.join(dir, folder))
-            saveDir = os.path.join(dir, folder, name + '.png')
-            skimage.io.imsave(saveDir, value)
-            print('saving to: %s' % saveDir)
 
 
 class Batch:

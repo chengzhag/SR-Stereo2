@@ -214,7 +214,7 @@ class GwcNet(nn.Module):
             cost3 = torch.squeeze(cost3, 1)
             pred3 = F.softmax(cost3, dim=1)
             pred3 = disparity_regression(pred3, self.maxdisp)
-            return [pred0, pred1, pred2, pred3]
+            return [pred.unsqueeze(1) * self.dispScale for pred in (pred0, pred1, pred2, pred3)]
 
         else:
             cost3 = self.classif3(out3)
@@ -222,12 +222,14 @@ class GwcNet(nn.Module):
             cost3 = torch.squeeze(cost3, 1)
             pred3 = F.softmax(cost3, dim=1)
             pred3 = disparity_regression(pred3, self.maxdisp)
-            return [pred3]
+            return pred3.unsqueeze(1) * self.dispScale
 
 
-def GwcNet_G(d, dispScale=1):
-    return GwcNet(d, use_concat_volume=False, dispScale=dispScale)
+class GwcNet_G(GwcNet):
+    def __init__(self, maxdisp, dispScale=1):
+        super().__init__(maxdisp, use_concat_volume=False, dispScale=dispScale)
 
+class GwcNet_GC(GwcNet):
+    def __init__(self, maxdisp, dispScale=1):
+        super().__init__(maxdisp, use_concat_volume=True, dispScale=dispScale)
 
-def GwcNet_GC(d, dispScale=1):
-    return GwcNet(d, use_concat_volume=True, dispScale=dispScale)

@@ -2,6 +2,7 @@ import time
 
 import utils.data
 import utils.experiment
+import utils.imProcess
 from utils import myUtils
 from evaluation.Evaluation import Evaluation
 import torch
@@ -16,7 +17,7 @@ class Train:
             if self.experiment.epoch > 0 else 0
         self.experiment.model.setLossWeights(self.experiment.args.lossWeights)
 
-    def _trainIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.data.Imgs):
+    def _trainIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.imProcess.Imgs):
         # return scores, outputs
         return None, None
 
