@@ -134,8 +134,10 @@ class myImageFloder(data.Dataset):
                     # scale to different sizes specified by scaleRatios
                     ims += scale(ims[0], scaleMethod, multiScales)
                     ims = [transforms.ToTensor()(im) for im in ims]
-                    if not isRGBorDepth and ims[0].max() == 0:
+                    if not isRGBorDepth and any([torch.sum(im > 0) < 100 for im in ims]):
                         # print('Note: Crop has no data, recropping...')
+                        return None
+                    if any([torch.isnan(im).any() for im in ims]):
                         return None
 
                 ims = [np.ascontiguousarray(im, dtype=np.float32) for im, scaleRatio in zip(ims, scaleRatios)]
@@ -153,7 +155,11 @@ class myImageFloder(data.Dataset):
                 return None
 
             inputL = loadIm(0, self.inputLoader, self.loadScale, True)
+            if inputL is None:
+                return None
             inputR = loadIm(1, self.inputLoader, self.loadScale, True)
+            if inputR is None:
+                return None
 
             outputs = [inputL, inputR, gtL, gtR]
             return outputs
