@@ -113,9 +113,10 @@ class LGA(Module):
 
 
 class GetCostVolume(Module):
-    def __init__(self, maxdisp):
+    def __init__(self, maxdisp, dispScale):
         super(GetCostVolume, self).__init__()
         self.maxdisp=maxdisp+1
+        self.dispScale = dispScale
 
     def forward(self, x,y):
         assert(x.is_contiguous() == True)
@@ -125,8 +126,8 @@ class GetCostVolume(Module):
 #            cost = Variable(torch.FloatTensor(x.size()[0], x.size()[1]*2, self.maxdisp,  x.size()[2],  x.size()[3]).zero_(), volatile= not self.training).cuda()
             for i in range(self.maxdisp):
                 if i > 0 :
-                    cost[:, :x.size()[1], i, :,i:]   = x[:,:,:,i:]
-                    cost[:, x.size()[1]:, i, :,i:]   = y[:,:,:,:-i]
+                    cost[:, :x.size()[1], i, :,(i * self.dispScale):]   = x[:,:,:,(i * self.dispScale):]
+                    cost[:, x.size()[1]:, i, :,(i * self.dispScale):]   = y[:,:,:,:-(i * self.dispScale)]
                 else:
                     cost[:, :x.size()[1], i, :,:]   = x
                     cost[:, x.size()[1]:, i, :,:]   = y

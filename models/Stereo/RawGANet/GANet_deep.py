@@ -359,8 +359,11 @@ class CostAggregation(nn.Module):
         return disp0, disp1, disp2
 
 class GANet(nn.Module):
-    def __init__(self):
+    def __init__(self, maxdisp=192, dispScale=1):
+        if maxdisp != 192:
+            raise Exception('maxdisp has no other options except 192 for GANet!')
         super(GANet, self).__init__()
+        self.dispScale = int(dispScale)
         self.conv_start = nn.Sequential(BasicConv(3, 16, kernel_size=3, padding=1),
                                         BasicConv(16, 32, kernel_size=3, padding=1))
 
@@ -372,7 +375,7 @@ class GANet(nn.Module):
         self.feature = Feature()
         self.guidance = Guidance()
         self.cost_agg = CostAggregation()
-        self.cv = GetCostVolume(maxdisp=64)
+        self.cv = GetCostVolume(maxdisp=64, dispScale=self.dispScale)
 
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.Conv3d)):
