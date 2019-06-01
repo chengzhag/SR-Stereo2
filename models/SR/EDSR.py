@@ -1,6 +1,9 @@
+import utils.experiment
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
+import utils.data
+import utils.imProcess
 from utils import myUtils
 from .RawEDSR import edsr
 from .SR import SR
@@ -28,7 +31,7 @@ class RawEDSR(edsr.EDSR):
         return output
 
     def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(
+        state_dict = utils.experiment.checkStateDict(
             model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module')
         super().load_state_dict(state_dict, strict=False)
 
@@ -45,16 +48,16 @@ class EDSR(SR):
     def initModel(self):
         self.model = RawEDSR(cInput=self.cInput)
 
-    def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputSr'):
-                imgs.addImg(name=key, img=myUtils.quantize(value, 1))
+                imgs.addImg(name=key, img=utils.imProcess.quantize(value, 1))
         return imgs
 
     # outputs, gts: RGB value range 0~1
     def loss(self, output, gt):
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         # To get same loss with orignal EDSR, input range should scale to 0~self.args.rgb_range
         loss['lossSr'] = F.smooth_l1_loss(
             output['outputSr'] * self.model.module.args.rgb_range,
@@ -64,8 +67,8 @@ class EDSR(SR):
         return loss
 
     def trainBothSides(self, inputs, gts):
-        losses = myUtils.NameValues()
-        outputs = myUtils.Imgs()
+        losses = utils.data.NameValues()
+        outputs = utils.imProcess.Imgs()
         for input, gt, side in zip(inputs, gts, ('L', 'R')):
             if gt is not None:
                 loss, output = self.trainOneSide((input, ), gt)
@@ -74,10 +77,10 @@ class EDSR(SR):
 
         return losses, outputs
 
-    def train(self, batch: myUtils.Batch):
+    def train(self, batch: utils.data.Batch):
         return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
 
-    def testOutput(self, outputs: myUtils.Imgs, gt, evalType: str):
+    def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
         for name in loss.keys():
             loss[name] *= self.model.module.args.rgb_range

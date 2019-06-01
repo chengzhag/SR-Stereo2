@@ -1,3 +1,5 @@
+import utils.experiment
+import utils.data
 from utils.warp import warpAndCat
 from .EDSR import *
 
@@ -13,17 +15,17 @@ class SRdisp(SR):
         super().setLossWeights(lossWeights)
         self.sr.setLossWeights(lossWeights)
 
-    def predict(self, batch: myUtils.Batch, mask=(1, 1)):
+    def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         batch.lowestResRGBs(cated)
         outputs = self.sr.predict(batch, mask)
-        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
+        utils.data.packWarpTo(warpTos=warpTos, outputs=outputs)
         return outputs
 
-    def train(self, batch: myUtils.Batch):
+    def train(self, batch: utils.data.Batch):
         cated, warpTos = warpAndCat(batch.lastScaleBatch())
         losses, outputs = self.sr.trainBothSides(cated, batch.highResRGBs())
-        myUtils.packWarpTo(warpTos=warpTos, outputs=outputs)
+        utils.data.packWarpTo(warpTos=warpTos, outputs=outputs)
         return losses, outputs
 
 

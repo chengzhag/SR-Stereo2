@@ -1,44 +1,47 @@
+import utils.experiment
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
-from utils import myUtils
+import utils.data
+import utils.imProcess
 from .RawPSMNet import stackhourglass as rawPSMNet
 from .Stereo import Stereo
 import torch.optim as optim
 
+def gerRawPSMNetScale(Base):
+    class RawPSMNetScale(Base):
+        def __init__(self, maxDisp, dispScale):
+            super().__init__(maxDisp, dispScale)
+            self.multiple = 16
+            self.__imagenet_stats = {'mean': [0.485, 0.456, 0.406],
+                                     'std': [0.229, 0.224, 0.225]}
 
-class RawPSMNetScale(rawPSMNet):
-    def __init__(self, maxDisp, dispScale):
-        super().__init__(maxDisp, dispScale)
-        self.multiple = 16
-        self.__imagenet_stats = {'mean': [0.485, 0.456, 0.406],
-                                 'std': [0.229, 0.224, 0.225]}
+        # input: RGB value range 0~1
+        # outputs: disparity range 0~self.maxdisp * self.dispScale
+        def forward(self, left, right):
+            def normalize(inputRgbs):
+                return (inputRgbs - torch.Tensor(self.__imagenet_stats['mean']).type_as(inputRgbs).view(1, 3, 1, 1)) \
+                               / torch.Tensor(self.__imagenet_stats['std']).type_as(inputRgbs).view(1, 3, 1, 1)
 
-    # input: RGB value range 0~1
-    # outputs: disparity range 0~self.maxdisp * self.dispScale
-    def forward(self, left, right):
-        def normalize(inputRgbs):
-            return (inputRgbs - torch.Tensor(self.__imagenet_stats['mean']).type_as(inputRgbs).view(1, 3, 1, 1)) \
-                           / torch.Tensor(self.__imagenet_stats['std']).type_as(inputRgbs).view(1, 3, 1, 1)
+            left, right = normalize(left), normalize(right)
 
-        left, right = normalize(left), normalize(right)
+            if self.training:
+                rawOutputs = super(RawPSMNetScale, self).forward(left, right)
+            else:
+                autoPad = utils.imProcess.AutoPad(left, self.multiple)
 
-        if self.training:
-            rawOutputs = super(RawPSMNetScale, self).forward(left, right)
-        else:
-            autoPad = myUtils.AutoPad(left, self.multiple)
+                left, right = autoPad.pad((left, right))
+                rawOutputs = super(RawPSMNetScale, self).forward(left, right)
+                rawOutputs = autoPad.unpad(rawOutputs)
+            output = {}
+            output['outputDisp'] = rawOutputs
+            return output
 
-            left, right = autoPad.pad((left, right))
-            rawOutputs = super(RawPSMNetScale, self).forward(left, right)
-            rawOutputs = autoPad.unpad(rawOutputs)
-        output = {}
-        output['outputDisp'] = rawOutputs
-        return output
-
-    def load_state_dict(self, state_dict, strict=False):
-        state_dict = myUtils.checkStateDict(
-            model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
-        super().load_state_dict(state_dict, strict=False)
+        def load_state_dict(self, state_dict, strict=False):
+            state_dict = utils.experiment.checkStateDict(
+                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+            super().load_state_dict(state_dict, strict=False)
+    return RawPSMNetScale
 
 
 class PSMNet(Stereo):
@@ -51,9 +54,9 @@ class PSMNet(Stereo):
             self.model.cuda()
 
     def initModel(self):
-        self.model = RawPSMNetScale(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model = gerRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
-    def packOutputs(self, outputs: dict, imgs: myUtils.Imgs = None) -> myUtils.Imgs:
+    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputDisp'):
@@ -65,12 +68,12 @@ class PSMNet(Stereo):
     # input disparity maps:
     #   disparity range: 0~self.maxdisp * self.dispScale
     #   format: NCHW
-    def loss(self, output: myUtils.Imgs, gt: torch.Tensor, outMaxDisp=None):
+    def loss(self, output: utils.imProcess.Imgs, gt: torch.Tensor, outMaxDisp=None):
         if outMaxDisp is None:
             outMaxDisp = self.outMaxDisp
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
         mask = (gt > 0).detach() if self.kitti else (gt < outMaxDisp).detach()
-        loss = myUtils.NameValues()
+        loss = utils.data.NameValues()
         loss['lossDisp'] = \
             0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
             + 0.7 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
@@ -79,5 +82,5 @@ class PSMNet(Stereo):
 
         return loss
 
-    def train(self, batch: myUtils.Batch, progress=0):
+    def train(self, batch: utils.data.Batch, progress=0):
         return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())

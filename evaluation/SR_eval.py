@@ -1,4 +1,6 @@
+import utils.experiment
 import os
+import utils.data
 from models import SR
 from utils import myUtils
 from evaluation.Evaluation import Evaluation as Base
@@ -7,7 +9,7 @@ import dataloader
 
 class Evaluation(Base):
 
-    def _evalIt(self, batch: myUtils.Batch):
+    def _evalIt(self, batch: utils.data.Batch):
         loss, outputs = self.experiment.model.test(batch=batch.detach(),
                                                    evalType=self.experiment.args.evalFcn)
 
@@ -20,7 +22,7 @@ class Evaluation(Base):
 
 def main():
     # Arguments
-    args = myUtils.DefaultParser(description='evaluate SR net') \
+    args = utils.experiment.DefaultParser(description='evaluate SR net') \
         .outputFolder().dataPath().model().chkpoint().noCuda().seed() \
         .evalFcn().nSampleLog().dataset().loadScale().batchSize() \
         .half().resume().validSetSample().noComet().subType().parse()
@@ -40,7 +42,7 @@ def main():
 
     # Test
     stage, _ = os.path.splitext(os.path.basename(__file__))
-    experiment = myUtils.Experiment(model=sr, stage=stage, args=args)
+    experiment = utils.experiment.Experiment(model=sr, stage=stage, args=args)
     test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     test()
 
