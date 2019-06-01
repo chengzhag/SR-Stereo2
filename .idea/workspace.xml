@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SR-Stereo2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SR-Stereo2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataloader/DataLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/DataLoader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/settings.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/settings.sh" afterDir="false" />
-    </list>
+    <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +63,7 @@
             <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="427">
-                  <caret line="46" column="177" lean-forward="true" selection-start-line="46" selection-start-column="177" selection-end-line="46" selection-end-column="177" />
+                  <caret line="46" column="177" selection-start-line="46" selection-start-column="177" selection-end-line="46" selection-end-column="177" />
                 </state>
               </provider>
             </entry>
@@ -80,7 +72,7 @@
             <entry file="file://$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="490">
-                  <caret line="114" column="254" lean-forward="true" selection-start-line="114" selection-start-column="254" selection-end-line="114" selection-end-column="254" />
+                  <caret line="114" column="254" selection-start-line="114" selection-start-column="254" selection-end-line="114" selection-end-column="254" />
                 </state>
               </provider>
             </entry>
@@ -115,38 +107,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/models/Stereo/RawGwcNet/gwcnet.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="19">
-                  <caret line="177" column="34" selection-start-line="177" selection-start-column="34" selection-end-line="177" selection-end-column="34" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="2394">
-                  <caret line="136" column="88" selection-start-line="136" selection-start-column="88" selection-end-line="136" selection-end-column="88" />
-                  <folding>
-                    <element signature="e#0#23#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/dataloader/listSceneFlowFiles.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="247">
-                  <caret line="17" selection-start-line="17" selection-end-line="17" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/dataloader/listCarlaFiles.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="399">
-                  <caret line="25" selection-start-line="25" selection-end-line="25" />
+                <state relative-caret-position="266">
+                  <caret line="190" selection-start-line="190" selection-end-line="190" />
                 </state>
               </provider>
             </entry>
@@ -165,6 +127,18 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/models/Stereo/RawGANet/GANet_deep.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="209">
+                  <caret line="11" column="18" lean-forward="true" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
+                  <folding>
+                    <element signature="e#0#12#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/experiments/compare_carla_Stereo_StereoDown.sh">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="342">
@@ -253,7 +227,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/experiments/pretrain_Stereo_StereoDown.sh" />
         <option value="$PROJECT_DIR$/experiments/SR_SRdisp_compare_carla.sh" />
         <option value="$PROJECT_DIR$/experiments/compare_SRStereo_Stereo_kitti.sh" />
         <option value="$PROJECT_DIR$/experiments/compare_SR_SRdisp_carla.sh" />
@@ -304,6 +277,7 @@
         <option value="$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh" />
         <option value="$PROJECT_DIR$/experiments/queue/199.sh" />
         <option value="$PROJECT_DIR$/experiments/settings.sh" />
+        <option value="$PROJECT_DIR$/models/Stereo/RawGANet/GANet_deep.py" />
       </list>
     </option>
   </component>
@@ -372,6 +346,13 @@
               <item name="SR-Stereo2" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
               <item name="Stereo" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SR-Stereo2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SR-Stereo2" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+              <item name="Stereo" type="462c0819:PsiDirectoryNode" />
+              <item name="RawGANet" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="SR-Stereo2" type="b2602c69:ProjectViewProjectNode" />
@@ -1161,12 +1142,12 @@
       <workItem from="1558229327513" duration="592000" />
       <workItem from="1558334879652" duration="1069000" />
       <workItem from="1558342582940" duration="26425000" />
-      <workItem from="1558940796268" duration="19886000" />
+      <workItem from="1558940796268" duration="20147000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="435933000" />
+    <option name="totallyTimeSpent" value="436194000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1382,33 +1363,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="1134" selection-start-line="1134" selection-end-line="1134" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/train/SR_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="49" selection-start-line="49" selection-end-line="49" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/train/Train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="76" column="55" lean-forward="true" selection-start-line="76" selection-start-column="55" selection-end-line="76" selection-end-column="55" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
@@ -1498,13 +1452,6 @@
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/Stereo/RawGwcNet/loss.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -1705,34 +1652,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dataloader/listCarlaFiles.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/pretrain_carla_Stereo_StereoDown.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="20" column="55" selection-start-line="20" selection-start-column="55" selection-end-line="20" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/compare_carla_SRStereo.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/train/Stereo_train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
@@ -1771,21 +1690,72 @@
     <entry file="file://$PROJECT_DIR$/experiments/compare_kitti_SRStereo_Stereo.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="490">
-          <caret line="114" column="254" lean-forward="true" selection-start-line="114" selection-start-column="254" selection-end-line="114" selection-end-column="254" />
+          <caret line="114" column="254" selection-start-line="114" selection-start-column="254" selection-end-line="114" selection-end-column="254" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="427">
-          <caret line="46" column="177" lean-forward="true" selection-start-line="46" selection-start-column="177" selection-end-line="46" selection-end-column="177" />
+          <caret line="46" column="177" selection-start-line="46" selection-start-column="177" selection-end-line="46" selection-end-column="177" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Stereo/RawGwcNet/loss.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Stereo/RawGANet/libs/GANet/src/GANet_cuda.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Stereo/RawGANet/libs/GANet/src/GANet_cuda.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dataloader/listCarlaFiles.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/Stereo/RawGwcNet/gwcnet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="177" column="34" selection-start-line="177" selection-start-column="34" selection-end-line="177" selection-end-column="34" />
+        <state relative-caret-position="266">
+          <caret line="190" selection-start-line="190" selection-end-line="190" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/compare_carla_SRStereo.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/pretrain_carla_Stereo_StereoDown.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="20" column="55" selection-start-line="20" selection-start-column="55" selection-end-line="20" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Stereo/RawGANet/GANet_deep.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="11" column="18" lean-forward="true" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
