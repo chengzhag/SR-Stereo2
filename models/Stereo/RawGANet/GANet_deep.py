@@ -403,5 +403,5 @@ class GANet(nn.Module):
         g = self.guidance(g)
 
         disp0, disp1, disp2 = self.cost_agg(x, g)
-        return disp0, disp1, disp2		
+        return disp0.unsqueeze(1), disp1.unsqueeze(1), disp2.unsqueeze(1)
 

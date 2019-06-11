@@ -13,11 +13,12 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 # try PSMNet with argumentation: scale from 2 to 0.5 (best)
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_PSMNet --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 10 --saveEvery 200 --half --argument 2 0.7
 
-### GwcNetGC
+### GwcNet
 # create baseline GwcNetGC
 #PYTHONPATH=./ python train/Stereo_train.py --model GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_GwcNetGC --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 10 --saveEvery 200 --half
 # submission: train with all trainset
 #PYTHONPATH=./ python train/Stereo_train.py --model GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_GwcNetGC --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 0 --saveEvery 200 --half --subType trainSub
+PYTHONPATH=./ python train/Stereo_train.py --model GwcNetG --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_GwcNetG --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 0 --saveEvery 200 --half --subType trainSub
 
 
 
@@ -65,10 +66,10 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 # train
 #PYTHONPATH=./ python train/Stereo_train.py --model SRStereo EDSR PSMNet --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaseline_trainSub $pretrained_kitti2015_PSMNet --loadScale 1 --batchSize 12 $nGPUs --trainCrop 64 512 --evalFcn outlier --epochs 1200 --lr 0.001 300 0.0005 450 0.0002 600 0.0001 --lossWeights -1 0 1 --logEvery 50 --testEvery 0 --saveEvery 200 --half --argument 1.5 0.75 --subType trainSub
 # submission
-#PYTHONPATH=./ python evaluation/Stereo_eval.py --model SRStereo EDSR PSMNet --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset_testing --dataset kitti2015 --chkpoint $pretrained_kitti2015_SRStereo_trainSub --loadScale 1 --batchSize 0 1 --evalFcn outlier --half --noComet --subType subTest --resume toOld
+#PYTHONPATH=./ python evaluation/Stereo_eval.py --model SRStereo EDSR PSMNet --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset_testing --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaselinePSMNet_trainSub --loadScale 1 --batchSize 0 1 --evalFcn outlier --half --noComet --subType subTest --resume toOld
 
 
-### GwcNetGC
+### GwcNet
 
 ## try different combinations
 # compare: Stereo trained with carla
@@ -109,7 +110,9 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/Stereo_train.py --model SRStereo EDSR GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaseline $pretrained_kitti2015_GwcNetGC_trainSet --loadScale 1 --batchSize 12 $nGPUs --trainCrop 64 512 --evalFcn outlier --epochs 2400 --lr 0.001 300 0.0005 600 0.0002 900 0.0001 --lossWeights -1 0 1 --logEvery 50 --testEvery 10 --saveEvery 300 --half --argument 1.75 0.63
 
 ## finnal KITTI submission
-# train (SERVER 199)
+# train
 #PYTHONPATH=./ python train/Stereo_train.py --model SRStereo EDSR GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaseline_trainSub $pretrained_kitti2015_GwcNetGC --loadScale 1 --batchSize 12 $nGPUs --trainCrop 64 512 --evalFcn outlier --epochs 2400 --lr 0.001 300 0.0005 600 0.0002 900 0.0001 --lossWeights -1 0 1 --logEvery 50 --testEvery 0 --saveEvery 300 --half --argument 1.75 0.63 --subType trainSub
+PYTHONPATH=./ python train/Stereo_train.py --model SRStereo EDSR GwcNetG --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaseline_trainSub $pretrained_kitti2015_GwcNetGC --loadScale 1 --batchSize 12 $nGPUs --trainCrop 64 512 --evalFcn outlier --epochs 1200 --lr 0.001 300 0.0005 600 0.0002 900 0.0001 --lossWeights -1 0 1 --logEvery 50 --testEvery 0 --saveEvery 300 --half --argument 1.75 0.63 --subType trainSub
 # submission
-PYTHONPATH=./ python evaluation/Stereo_eval.py --model SRStereo EDSR GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset_testing --dataset kitti2015 --chkpoint $pretrained_kitti2015_GwcNetGC_trainSub --loadScale 1 --batchSize 0 1 --evalFcn outlier --half --noComet --subType subTest --resume toOld
+#PYTHONPATH=./ python evaluation/Stereo_eval.py --model SRStereo EDSR GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset_testing --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaselineGwcNetGC_trainSub --loadScale 1 --batchSize 0 1 --evalFcn outlier --half --noComet --subType subTest --resume toOld
+#PYTHONPATH=./ python evaluation/Stereo_eval.py --model SRStereo EDSR GwcNetG --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 2 --dataPath $kitti2015_dataset_testing --dataset kitti2015 --chkpoint $pretrained_kitti2015_EDSRbaselineGwcNetG_trainSub --loadScale 1 --batchSize 0 1 --evalFcn outlier --half --noComet --subType subTest --resume toOld
