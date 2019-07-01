@@ -1,5 +1,6 @@
 from .PSMNet import PSMNet
 from .GwcNet import GwcNetG, GwcNetGC
+# from .GANet import GANet
 from .StereoDown import StereoDown
 from .SRStereo import SRStereo
 from .SRdispStereo import SRdispStereo

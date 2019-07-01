@@ -7,6 +7,8 @@ import utils.imProcess
 from .RawPSMNet import stackhourglass as rawPSMNet
 from .Stereo import Stereo
 import torch.optim as optim
+from apex import amp
+
 
 def gerRawPSMNetScale(Base):
     class RawPSMNetScale(Base):
@@ -50,8 +52,9 @@ class PSMNet(Stereo):
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
-            self.model = nn.DataParallel(self.model)
             self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = gerRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)

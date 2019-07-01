@@ -1,5 +1,6 @@
 import utils.experiment
 import torch
+import torch.nn.functional as F
 import torch.nn as nn
 import utils.data
 import utils.imProcess
@@ -8,15 +9,12 @@ import torch.optim as optim
 from apex import amp
 
 from .PSMNet import gerRawPSMNetScale
-from .RawGwcNet import GwcNet_G as rawGwcNetG
-from .RawGwcNet import GwcNet_GC as  rawGwcNetGC
-from .RawGwcNet import model_loss as lossGwcNet
+from .RawGANet import GANet as rawGANet
+from .RawGANet.libs.GANet.modules.GANet import MyLoss2
 
-
-class GwcNet(Stereo):
-    def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False, rawGwcNet=None):
+class GANet(Stereo):
+    def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False):
         super().__init__(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
-        self.rawGwcNet = rawGwcNet
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
@@ -25,14 +23,15 @@ class GwcNet(Stereo):
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
-        self.model = gerRawPSMNetScale(self.rawGwcNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model = gerRawPSMNetScale(rawGANet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model.multiple = 48
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
         for key, value in outputs.items():
             if key.startswith('outputDisp'):
                 if type(value) in (list, tuple):
-                    value = value[3].detach()
+                    value = value[2].detach()
                 imgs.addImg(name=key, img=value, range=self.outMaxDisp)
         return imgs
 
@@ -45,16 +44,19 @@ class GwcNet(Stereo):
         # for kitti dataset, only consider loss of none zero disparity pixels in gt
         loss = utils.data.NameValues()
         mask = ((gt < outMaxDisp) & (gt > 0)).detach()
-        loss['lossDisp'] = lossGwcNet(output['outputDisp'], gt, mask)
+
+        if self.kitti:
+            loss['lossDisp'] = 0.2 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
+                   + 0.6 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
+                   + MyLoss2(thresh=3, alpha=2)(output['outputDisp'][2][mask], gt[mask])
+        else:
+            loss['lossDisp'] = 0.2 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
+                   + 0.6 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
+                   + F.smooth_l1_loss(output['outputDisp'][2][mask], gt[mask],reduction='mean')
+
         loss['loss'] = loss['lossDisp'] * self.lossWeights
 
         return loss
 
     def train(self, batch: utils.data.Batch, progress=0):
         return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())
-
-def GwcNetG(kitti, maxDisp=192, dispScale=1, cuda=True, half=False):
-    return GwcNet(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half, rawGwcNet=rawGwcNetG)
-
-def GwcNetGC(kitti, maxDisp=192, dispScale=1, cuda=True, half=False):
-    return GwcNet(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half, rawGwcNet=rawGwcNetGC)

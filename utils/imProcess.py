@@ -1,7 +1,7 @@
 import collections
 import os
 
-import cv2
+# import cv2
 import numpy as np
 import skimage.io
 import torch
@@ -53,21 +53,21 @@ def gray2rgb(im):
     return im.repeat(1, 3, 1, 1)
 
 
-def gray2color(im):
-    if im.dim() == 4 and im.size(1) == 1:
-        im = im.squeeze(1)
-    if im.dim() == 3 and im.size(0) >= 1:
-        imReturn = torch.zeros([im.size(0), 3, im.size(1), im.size(2)], dtype=torch.uint8)
-        for i in range(im.size(0)):
-            imReturn[i, :, :, :] = gray2color(im[i, :, :])
-        return imReturn
-    elif im.dim() == 2:
-        im = (im.numpy() * 255).astype(np.uint8)
-        im = cv2.applyColorMap(im, cv2.COLORMAP_JET)
-        im = torch.from_numpy(cv2.cvtColor(im, cv2.COLOR_BGR2RGB).transpose((2, 0, 1)))
-        return im
-    else:
-        raise Exception('Error: Input of gray2color must have one channel!')
+# def gray2color(im):
+#     if im.dim() == 4 and im.size(1) == 1:
+#         im = im.squeeze(1)
+#     if im.dim() == 3 and im.size(0) >= 1:
+#         imReturn = torch.zeros([im.size(0), 3, im.size(1), im.size(2)], dtype=torch.uint8)
+#         for i in range(im.size(0)):
+#             imReturn[i, :, :, :] = gray2color(im[i, :, :])
+#         return imReturn
+#     elif im.dim() == 2:
+#         im = (im.numpy() * 255).astype(np.uint8)
+#         im = cv2.applyColorMap(im, cv2.COLORMAP_JET)
+#         im = torch.from_numpy(cv2.cvtColor(im, cv2.COLOR_BGR2RGB).transpose((2, 0, 1)))
+#         return im
+#     else:
+#         raise Exception('Error: Input of gray2color must have one channel!')
 
 
 def quantize(img, range):
@@ -140,10 +140,10 @@ class Imgs(collections.OrderedDict):
         for name in self.keys():
             self[name] = self[name][0]
             if 'Disp' in name:
-                if self.range[name] == 192:
-                    self[name] = savePreprocessDisp(self[name])
-                elif self.range[name] == 384:
+                if self.range[name] == 384:
                     self[name] = savePreprocessDisp(self[name], dispScale=170)
+                else:
+                    self[name] = savePreprocessDisp(self[name])
             elif 'Rgb':
                 self[name] = savePreprocessRGB(self[name])
 

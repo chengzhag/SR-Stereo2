@@ -7,6 +7,7 @@ import utils.imProcess
 from utils import myUtils
 from .RawEDSR import edsr
 from .SR import SR
+from apex import amp
 
 
 class RawEDSR(edsr.EDSR):
@@ -42,8 +43,9 @@ class EDSR(SR):
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:
-            self.model = nn.DataParallel(self.model)
             self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = RawEDSR(cInput=self.cInput)
