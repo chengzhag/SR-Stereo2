@@ -22,7 +22,11 @@ experiment_bak_dir=logs/experiments_bak
 pretrained_sceneflow_PSMNet=${pretrained_dir}/PSMNet_pretrained_sceneflow/PSMNet_pretrained_sceneflow.tar
 pretrained_kitti2012_PSMNet=${pretrained_dir}/PSMNet_pretrained_model_KITTI2012/PSMNet_pretrained_model_KITTI2012.tar
 pretrained_kitti2015_PSMNet=${pretrained_dir}/PSMNet_pretrained_model_KITTI2015/PSMNet_pretrained_model_KITTI2015.tar
-pretrained_EDSR_DIV2K=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_baseline_x2.pt
+pretrained_DIV2K_EDSR_baseline_x2=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_baseline_x2.pt
+pretrained_DIV2K_EDSR_x2=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_x2.pt
+pretrained_DIV2K_EDSR_x3=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_x3.pt
+pretrained_DIV2K_EDSR_x4=${pretrained_dir}/EDSR_pretrained_DIV2K/EDSR_x4.pt
+pretrained_DIV2K_MDSR=${pretrained_dir}/EDSR_pretrained_DIV2K/MDSR.pt
 
 # checkpoints: pretrain_carla_Stereo_StereoDown
 pretrained_carla_PSMNetDown=${experiment_dir}/pretrain_carla_Stereo_StereoDown/Stereo_train/190410221228_StereoDown_loadScale_1.0_0.5_trainCrop_128_1024_batchSize_12_4_lossWeights_0.8_0.2_carla
