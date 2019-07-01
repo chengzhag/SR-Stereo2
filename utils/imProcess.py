@@ -140,10 +140,10 @@ class Imgs(collections.OrderedDict):
         for name in self.keys():
             self[name] = self[name][0]
             if 'Disp' in name:
-                if self.range[name] == 192:
-                    self[name] = savePreprocessDisp(self[name])
-                elif self.range[name] == 384:
+                if self.range[name] == 384:
                     self[name] = savePreprocessDisp(self[name], dispScale=170)
+                else:
+                    self[name] = savePreprocessDisp(self[name])
             elif 'Rgb':
                 self[name] = savePreprocessRGB(self[name])
 

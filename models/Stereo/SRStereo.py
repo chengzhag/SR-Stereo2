@@ -7,6 +7,7 @@ import utils.imProcess
 from utils import myUtils
 from .Stereo import Stereo
 from .. import SR
+from apex import amp
 
 
 class RawSRStereo(nn.Module):
@@ -42,8 +43,9 @@ class SRStereo(Stereo):
             lr=0.001, betas=(0.9, 0.999)
         )
         if self.cuda:
-            self.model = nn.DataParallel(self.model)
             self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=self.half)
+            self.model = nn.DataParallel(self.model)
 
     def setLossWeights(self, lossWeights):
         self.model.module.updateSR = lossWeights[0] >= 0

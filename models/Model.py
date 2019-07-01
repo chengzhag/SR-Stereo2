@@ -11,7 +11,6 @@ class Model:
     def __init__(self, cuda=True, half=False):
         self.cuda = cuda
         self.half = half
-        self.ampHandle = amp.init(half)
 
         self.model = None
         self.optimizer = None
@@ -36,7 +35,7 @@ class Model:
         self.optimizer.zero_grad()
         rawOutput = self.model.forward(*input)
         loss = self.loss(output=rawOutput, gt=gt)
-        with self.ampHandle.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
+        with amp.scale_loss(loss['loss'], self.optimizer) as scaledLoss:
             scaledLoss.backward()
         self.optimizer.step()
         output = self.packOutputs(rawOutput)

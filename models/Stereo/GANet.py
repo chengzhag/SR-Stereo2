@@ -6,6 +6,7 @@ import utils.data
 import utils.imProcess
 from .Stereo import Stereo
 import torch.optim as optim
+from apex import amp
 
 from .PSMNet import gerRawPSMNetScale
 from .RawGANet import GANet as rawGANet
@@ -17,8 +18,9 @@ class GANet(Stereo):
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
-            self.model = nn.DataParallel(self.model)
             self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = gerRawPSMNetScale(rawGANet)(maxDisp=self.maxDisp, dispScale=self.dispScale)

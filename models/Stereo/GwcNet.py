@@ -5,11 +5,13 @@ import utils.data
 import utils.imProcess
 from .Stereo import Stereo
 import torch.optim as optim
+from apex import amp
 
 from .PSMNet import gerRawPSMNetScale
 from .RawGwcNet import GwcNet_G as rawGwcNetG
 from .RawGwcNet import GwcNet_GC as  rawGwcNetGC
 from .RawGwcNet import model_loss as lossGwcNet
+
 
 class GwcNet(Stereo):
     def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False, rawGwcNet=None):
@@ -18,8 +20,9 @@ class GwcNet(Stereo):
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
-            self.model = nn.DataParallel(self.model)
             self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = gerRawPSMNetScale(self.rawGwcNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
