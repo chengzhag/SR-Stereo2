@@ -172,6 +172,11 @@ class PSMNetBody(nn.Module):
         self.dispScale = int(dispScale)
         self.outMaxDisp = self.maxdisp * self.dispScale
 
+        self.down = nn.Sequential(nn.MaxPool2d((2, 2)),
+                                  nn.Conv2d(cInput // 2, cInput // 2, 3, 1, 1),
+                                  nn.MaxPool2d((2, 2)),
+                                  nn.Conv2d(cInput // 2, cInput // 2, 3, 1, 1))
+
         self.dres0 = nn.Sequential(convbn_3d(cInput, 32, 3, 1, 1),
                                    nn.ReLU(inplace=True),
                                    convbn_3d(32, 32, 3, 1, 1),
@@ -217,8 +222,8 @@ class PSMNetBody(nn.Module):
 
     def forward(self, left, right):
 
-        refimg_fea = nn.MaxPool2d((4, 4))(left)
-        targetimg_fea = nn.MaxPool2d((4, 4))(right)
+        refimg_fea = self.down(left)
+        targetimg_fea = self.down(right)
 
         # matching
         cost = torch.zeros(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4, refimg_fea.size()[2],

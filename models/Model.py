@@ -50,7 +50,7 @@ class Model:
     def predict(self, batch: utils.data.Batch):
         pass
 
-    def load(self, chkpointDir: str) -> (int, int):
+    def load(self, chkpointDir: str, strict=True) -> (int, int):
         if chkpointDir in (None, 'None'):
             return None, None
         if type(chkpointDir) is list:
@@ -66,7 +66,7 @@ class Model:
         try:
             self.model.load_state_dict(writeModelDict)
         except RuntimeError:
-            self.model.module.load_state_dict(writeModelDict, strict=False)
+            self.model.module.load_state_dict(writeModelDict, strict=strict)
 
         if 'optimizer' in loadStateDict.keys() and self.optimizer is not None:
             self.optimizer.load_state_dict(loadStateDict['optimizer'])

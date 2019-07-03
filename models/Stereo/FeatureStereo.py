@@ -76,11 +76,11 @@ class FeatureStereo(Stereo):
 
         if type(checkpointDir) in (list, tuple):
             if len(checkpointDir) == 2:
-                self.feature.load(checkpointDir[0])
+                self.feature.load(checkpointDir[0], strict=False)
                 self.stereoBody.load(checkpointDir[1])
                 return None, None
             elif len(checkpointDir) == 1:
-                return super().load(checkpointDir)
+                return super().load(checkpointDir, strict=True)
         elif type(checkpointDir) is str:
             return super().load(checkpointDir)
         raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')
