@@ -8,9 +8,11 @@ from .RawPSMNet import stackhourglass as rawPSMNet
 from .Stereo import Stereo
 import torch.optim as optim
 from apex import amp
+from .RawPSMNet.stackhourglass import PSMNetBody as rawPSMNetBody
+from .RawPSMNet.submodule import *
 
 
-def gerRawPSMNetScale(Base):
+def getRawPSMNetScale(Base):
     class RawPSMNetScale(Base):
         def __init__(self, maxDisp, dispScale):
             super().__init__(maxDisp, dispScale)
@@ -57,7 +59,7 @@ class PSMNet(Stereo):
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
-        self.model = gerRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model = getRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -87,3 +89,73 @@ class PSMNet(Stereo):
 
     def train(self, batch: utils.data.Batch, progress=0):
         return self.trainBothSides(batch.oneResRGBs(), batch.oneResDisps())
+
+
+def getRawPSMNetBody(Base):
+    class RawPSMNetScale(Base):
+        def __init__(self, maxDisp, dispScale, cInput):
+            super().__init__(maxDisp, dispScale, cInput)
+            self.multiple = 16
+
+        # input: Feature
+        # outputs: disparity range 0~self.maxdisp * self.dispScale
+        def forward(self, left, right):
+            if self.training:
+                rawOutputs = super(RawPSMNetScale, self).forward(left, right)
+            else:
+                autoPad = utils.imProcess.AutoPad(left, self.multiple)
+
+                left, right = autoPad.pad((left, right))
+                rawOutputs = super(RawPSMNetScale, self).forward(left, right)
+                rawOutputs = autoPad.unpad(rawOutputs)
+            output = {}
+            output['outputDisp'] = rawOutputs
+            return output
+
+        def load_state_dict(self, state_dict, strict=False):
+            state_dict = utils.experiment.checkStateDict(
+                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+            super().load_state_dict(state_dict, strict=False)
+    return RawPSMNetScale
+
+
+class PSMNetBody(Stereo):
+    def __init__(self, kitti, maxDisp=192, dispScale=1, cuda=True, half=False, cFeature=32):
+        super().__init__(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
+        self.cInput = cFeature * 2
+        self.initModel()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
+        if self.cuda:
+            self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
+
+    def initModel(self):
+        self.model = getRawPSMNetBody(rawPSMNetBody)(maxDisp=self.maxDisp, dispScale=self.dispScale, cInput=self.cInput)
+
+    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
+        imgs = super().packOutputs(outputs, imgs)
+        for key, value in outputs.items():
+            if key.startswith('outputDisp'):
+                if type(value) in (list, tuple):
+                    value = value[2].detach()
+                imgs.addImg(name=key, img=value, range=self.outMaxDisp)
+        return imgs
+
+    # input disparity maps:
+    #   disparity range: 0~self.maxdisp * self.dispScale
+    #   format: NCHW
+    def loss(self, output: utils.imProcess.Imgs, gt: torch.Tensor, outMaxDisp=None):
+        if outMaxDisp is None:
+            outMaxDisp = self.outMaxDisp
+        # for kitti dataset, only consider loss of none zero disparity pixels in gt
+        mask = (gt > 0).detach() if self.kitti else (gt < outMaxDisp).detach()
+        loss = utils.data.NameValues()
+        loss['lossDisp'] = \
+            0.5 * F.smooth_l1_loss(output['outputDisp'][0][mask], gt[mask], reduction='mean') \
+            + 0.7 * F.smooth_l1_loss(output['outputDisp'][1][mask], gt[mask], reduction='mean') \
+            + F.smooth_l1_loss(output['outputDisp'][2][mask], gt[mask], reduction='mean')
+        loss['loss'] = loss['lossDisp'] * self.lossWeights
+
+        return loss
+

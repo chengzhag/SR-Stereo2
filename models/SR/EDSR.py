@@ -8,6 +8,8 @@ from utils import myUtils
 from .RawEDSR import edsr
 from .SR import SR
 from apex import amp
+from .RawEDSR import common
+from ..Stereo.Feature import Feature
 
 
 class RawEDSR(edsr.EDSR):
@@ -88,3 +90,90 @@ class EDSR(SR):
             loss[name] *= self.model.module.args.rgb_range
         return loss
 
+class RawEDSRfeature(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        class Arg:
+            def __init__(self):
+                self.n_resblocks = 16
+                self.n_feats = 64
+                self.scale = [2]
+                self.rgb_range = 255
+                self.n_colors = 3
+                self.n_inputs = 3
+                self.res_scale = 1
+
+        conv = common.default_conv
+        args = Arg()
+        self.args = args
+
+        n_resblocks = args.n_resblocks
+        n_feats = args.n_feats
+        kernel_size = 3
+        scale = args.scale[0]
+        act = nn.ReLU(True)
+        self.sub_mean = common.MeanShift(args.rgb_range)
+        self.add_mean = common.MeanShift(args.rgb_range, sign=1)
+
+        # define head module
+        m_head = [conv(args.n_inputs, n_feats, kernel_size)]
+
+        # define body module
+        m_body = [
+            common.ResBlock(
+                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale
+            ) for _ in range(n_resblocks)
+        ]
+        m_body.append(conv(n_feats, n_feats, kernel_size))
+
+        self.head = nn.Sequential(*m_head)
+        self.body = nn.Sequential(*m_body)
+
+    # input: RGB value range 0~1
+    # output: Feature
+    def forward(self, x):
+        x = x * self.args.rgb_range
+
+        x = self.sub_mean(x)
+        x = self.head(x)
+
+        res = self.body(x)
+        res += x
+
+        output = {'outputFeature': res}
+
+        return output
+
+    def load_state_dict(self, state_dict, strict=True):
+        own_state = self.state_dict()
+        for name, param in state_dict.items():
+            if name in own_state:
+                if isinstance(param, nn.Parameter):
+                    param = param.data
+                try:
+                    own_state[name].copy_(param)
+                except Exception:
+                    if name.find('tail') == -1:
+                        raise RuntimeError('While copying the parameter named {}, '
+                                           'whose dimensions in the model are {} and '
+                                           'whose dimensions in the checkpoint are {}.'
+                                           .format(name, own_state[name].size(), param.size()))
+            elif strict:
+                if name.find('tail') == -1:
+                    raise KeyError('unexpected key "{}" in state_dict'
+                                   .format(name))
+
+class EDSRfeature(Feature):
+    def __init__(self, cuda=True, half=False):
+        super().__init__(cuda=cuda, half=half)
+        self.cOutput = 64
+        self.initModel()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
+        if self.cuda:
+            self.model.cuda()
+            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+            self.model = nn.DataParallel(self.model)
+
+    def initModel(self):
+        self.model = RawEDSRfeature()
