@@ -30,7 +30,10 @@ class NameValues(collections.OrderedDict):
     def add(self, other):
         for key in other.keys():
             if key in self.keys():
-                self[key] += other[key]
+                if other[key] == other[key]:
+                    self[key] += other[key]
+                else:
+                    print('Warning: NaN added!')
             else:
                 self[key] = other[key]
         return self
