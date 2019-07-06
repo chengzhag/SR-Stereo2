@@ -27,8 +27,12 @@ def getModel(model, kitti, maxDisp, dispScale, cuda, half):
             return globals()[model[0]](sr.sr, stereo)
         elif model[0] in ('FeatureStereo'):
             feature = SR.getModel(model[1], cuda=cuda, half=half)
-            stereoBody = globals()[model[2]](
-                kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half, cFeature=feature.cOutput)
+            if model[2].endswith('Body'):
+                stereoBody = globals()[model[2]](
+                    kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half, cInput=feature.cOutput)
+            else:
+                stereoBody = globals()[model[2]](
+                    kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half, cInput=feature.cOutput, normalize=False)
             return FeatureStereo(feature=feature, stereoBody=stereoBody)
         if len(model) == 1:
             model = model[0]
