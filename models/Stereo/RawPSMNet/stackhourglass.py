@@ -56,13 +56,13 @@ class hourglass(nn.Module):
 
 
 class PSMNet(nn.Module):
-    def __init__(self, maxdisp, dispScale=1):
+    def __init__(self, maxdisp, dispScale=1, cInput=3):
         super(PSMNet, self).__init__()
         self.maxdisp = maxdisp
         self.dispScale = int(dispScale)
         self.outMaxDisp = self.maxdisp * self.dispScale
 
-        self.feature_extraction = feature_extraction()
+        self.feature_extraction = feature_extraction(cInput=cInput)
 
         self.dres0 = nn.Sequential(convbn_3d(64, 32, 3, 1, 1),
                                    nn.ReLU(inplace=True),
@@ -163,3 +163,4 @@ class PSMNet(nn.Module):
                    pred3.unsqueeze(1) * self.dispScale
         else:
             return pred3.unsqueeze(1) * self.dispScale
+

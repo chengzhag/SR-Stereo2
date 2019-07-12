@@ -44,7 +44,7 @@ class Evaluation:
                     imgs.clone().save(dir='temp', name='temp')
                 for name in imgs.keys():
                     self.experiment.cometExp.set_step(self.experiment.epoch)
-                    self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name, overwrite=True)
+                    self.experiment.cometExp.log_image(os.path.join('temp', name, 'temp.png'), name, overwrite=False)
 
             timeLeft = timeFilter((time.time() - ticETC) / 3600 * (len(self.testImgLoader) - batchIdx))
 

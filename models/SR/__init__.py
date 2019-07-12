@@ -1,6 +1,8 @@
 from .SR import SR
 from .EDSR import EDSR
 from .SRdisp import SRdisp
+from .MDSR import MDSRfeature
+from .EDSR import EDSRfeature
 
 
 def getMask(model):

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="kc110_server_95" showNewOnSourceInSync="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="kc110_server_199" showNewOnSourceInSync="false">
     <serverData>
       <paths name="kc110_server_135">
         <serverdata>
           <mappings>
             <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath path="/home/xddz/zc/SR-Stereo/SR-Stereo2/logs" />
+          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="kc110_server_162">
@@ -14,6 +17,9 @@
           <mappings>
             <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" />
           </mappings>
+          <excludedPaths>
+            <excludedPath path="/home/xddz/zc/SR-Stereo/SR-Stereo2/logs" />
+          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="kc110_server_199">
@@ -21,6 +27,9 @@
           <mappings>
             <mapping deploy="/media/hardder3/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath path="/media/hardder3/zc/SR-Stereo/SR-Stereo2/logs" />
+          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="kc110_server_95">
@@ -28,6 +37,9 @@
           <mappings>
             <mapping deploy="/media/omnisky/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath path="/media/omnisky/zc/SR-Stereo/SR-Stereo2/logs" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>

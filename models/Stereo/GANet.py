@@ -8,7 +8,7 @@ from .Stereo import Stereo
 import torch.optim as optim
 from apex import amp
 
-from .PSMNet import gerRawPSMNetScale
+from .PSMNet import getRawPSMNetScale
 from .RawGANet import GANet as rawGANet
 from .RawGANet.libs.GANet.modules.GANet import MyLoss2
 
@@ -23,7 +23,7 @@ class GANet(Stereo):
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
-        self.model = gerRawPSMNetScale(rawGANet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model = getRawPSMNetScale(rawGANet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
         self.model.multiple = 48
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:

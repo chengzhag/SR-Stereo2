@@ -9,5 +9,5 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/SR_train.py --model EDSR --outputFolder experiments/pretrain_kitti_SR --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_EDSR_DIV2K --batchSize 64 $(( 4 * $nGPUs)) --trainCrop 64 512 --evalFcn l1 --epochs 6000 --lr 0.0001 --logEvery 50 --testEvery 50 --saveEvery 1000 --half --argument 1 0.5
 
 # finnal KITTI submission: train without validating
-PYTHONPATH=./ python train/SR_train.py --model EDSR --outputFolder experiments/pretrain_kitti_SR --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_EDSR_DIV2K --batchSize 64 $(( 4 * $nGPUs)) --trainCrop 64 512 --evalFcn l1 --epochs 6000 --lr 0.0001 --logEvery 50 --testEvery 0 --saveEvery 1000 --half --argument 1 0.5 --subType trainSub
+PYTHONPATH=./ python train/SR_train.py --model EDSR --outputFolder experiments/pretrain_kitti_SR --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_DIV2K_EDSR_baseline_x2 --batchSize 64 $(( 4 * $nGPUs)) --trainCrop 64 512 --evalFcn l1 --epochs 6000 --lr 0.0001 --logEvery 50 --testEvery 0 --saveEvery 1000 --half --argument 1 0.5 --subType trainSub
 

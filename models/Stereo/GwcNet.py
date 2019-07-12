@@ -7,7 +7,7 @@ from .Stereo import Stereo
 import torch.optim as optim
 from apex import amp
 
-from .PSMNet import gerRawPSMNetScale
+from .PSMNet import getRawPSMNetScale
 from .RawGwcNet import GwcNet_G as rawGwcNetG
 from .RawGwcNet import GwcNet_GC as  rawGwcNetGC
 from .RawGwcNet import model_loss as lossGwcNet
@@ -25,7 +25,7 @@ class GwcNet(Stereo):
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
-        self.model = gerRawPSMNetScale(self.rawGwcNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
+        self.model = getRawPSMNetScale(self.rawGwcNet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
