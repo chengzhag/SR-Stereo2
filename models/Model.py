@@ -19,6 +19,11 @@ class Model:
     def initModel(self):
         pass
 
+    def showParamNum(self):
+        total_num = sum(p.numel() for p in self.model.parameters())
+        trainable_num = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        print(f'model: {self.__class__.__name__}, Total params: {total_num}, Trainable params: {trainable_num}')
+
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         if imgs is None:
             imgs = utils.imProcess.Imgs()

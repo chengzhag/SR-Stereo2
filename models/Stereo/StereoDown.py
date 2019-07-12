@@ -48,6 +48,7 @@ class StereoDown(Stereo):
 
     def initModel(self):
         self.model = RawStereoDown(self.stereo)
+        self.showParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs=outputs, imgs=imgs)

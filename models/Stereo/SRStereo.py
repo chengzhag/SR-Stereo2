@@ -57,6 +57,7 @@ class SRStereo(Stereo):
 
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
+        self.showParamNum()
 
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None):
         return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))

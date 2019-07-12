@@ -25,6 +25,7 @@ class GANet(Stereo):
     def initModel(self):
         self.model = getRawPSMNetScale(rawGANet)(maxDisp=self.maxDisp, dispScale=self.dispScale)
         self.model.multiple = 48
+        self.showParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)

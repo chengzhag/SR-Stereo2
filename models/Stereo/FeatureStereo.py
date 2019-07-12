@@ -60,6 +60,7 @@ class FeatureStereo(Stereo):
 
     def initModel(self):
         self.model = RawFeatureStereo(self.feature, self.stereoBody)
+        self.showParamNum()
 
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None):
         return self.stereoBody.packOutputs(outputs, self.feature.packOutputs(outputs, imgs))

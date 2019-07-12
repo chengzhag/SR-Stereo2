@@ -51,6 +51,7 @@ class EDSR(SR):
 
     def initModel(self):
         self.model = RawEDSR(cInput=self.cInput)
+        self.showParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -177,3 +178,4 @@ class EDSRfeature(Feature):
 
     def initModel(self):
         self.model = RawEDSRfeature()
+        self.showParamNum()
