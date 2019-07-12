@@ -45,7 +45,7 @@ def getRawPSMNetScale(Base):
 
         def load_state_dict(self, state_dict, strict=False):
             state_dict = utils.experiment.checkStateDict(
-                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module.')
             super().load_state_dict(state_dict, strict=False)
     return RawPSMNetScale
 
@@ -231,7 +231,7 @@ def getRawPSMNetBody(Base):
 
         def load_state_dict(self, state_dict, strict=False):
             state_dict = utils.experiment.checkStateDict(
-                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+                model=self, stateDict=state_dict, strict=strict, possiblePrefix='module.stereoBody.')
             super().load_state_dict(state_dict, strict=False)
     return RawPSMNetScale
 

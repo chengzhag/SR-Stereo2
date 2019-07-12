@@ -77,7 +77,7 @@ class FeatureStereo(Stereo):
         if type(checkpointDir) in (list, tuple):
             if len(checkpointDir) == 2:
                 self.feature.load(checkpointDir[0], strict=False)
-                self.stereoBody.load(checkpointDir[1])
+                self.stereoBody.load(checkpointDir[1], strict=False)
                 return None, None
             elif len(checkpointDir) == 1:
                 return super().load(checkpointDir, strict=True)

@@ -21,7 +21,7 @@ class RawStereoDown(nn.Module):
 
     def load_state_dict(self, state_dict, strict=False):
         state_dict = utils.experiment.checkStateDict(
-            model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+            model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module.')
         super().load_state_dict(state_dict, strict=False)
 
 

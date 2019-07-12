@@ -35,7 +35,7 @@ class RawEDSR(edsr.EDSR):
 
     def load_state_dict(self, state_dict, strict=False):
         state_dict = utils.experiment.checkStateDict(
-            model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module')
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module.')
         super().load_state_dict(state_dict, strict=False)
 
 
