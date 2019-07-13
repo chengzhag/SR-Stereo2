@@ -24,6 +24,9 @@ class SR(Model):
 
         return outputs
 
+    def getFlops(self, inputs, show=True):
+        return super().getFlops(inputs=(inputs.lowestResRGBs()[0], ))
+
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = utils.data.NameValues()
         for g, side in zip(gt, ('L', 'R')):

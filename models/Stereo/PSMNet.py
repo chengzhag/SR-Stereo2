@@ -64,7 +64,7 @@ class PSMNet(Stereo):
 
     def initModel(self):
         self.model = getRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale, cInput=self.cInput, normalize=self.normalize)
-        self.showParamNum()
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -250,7 +250,7 @@ class PSMNetBody(Stereo):
 
     def initModel(self):
         self.model = getRawPSMNetBody(RawPSMNetBody)(maxDisp=self.maxDisp, dispScale=self.dispScale, cInput=self.cInput)
-        self.showParamNum()
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)

@@ -4,6 +4,7 @@ import utils.data
 import utils.imProcess
 from utils import myUtils
 from apex import amp
+from thop import profile
 
 
 # manage loss, training, predicting, testing, loading, saving of general models
@@ -19,10 +20,18 @@ class Model:
     def initModel(self):
         pass
 
-    def showParamNum(self):
+    def getParamNum(self, show=True):
         total_num = sum(p.numel() for p in self.model.parameters())
         trainable_num = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-        print(f'model: {self.__class__.__name__}, Total params: {total_num}, Trainable params: {trainable_num}')
+        if show:
+            print(f'model: {self.__class__.__name__}, Total params: {total_num}, Trainable params: {trainable_num}')
+        return total_num, trainable_num
+
+    def getFlops(self, inputs, show=True):
+        flops, params = profile(myUtils.getNNmoduleFromModel(self), inputs=inputs)
+        if show:
+            print(f'model: {self.__class__.__name__}, flops: {flops}, params: {params}')
+        return flops, params
 
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         if imgs is None:

@@ -82,5 +82,5 @@ class MDSRfeature(Feature):
 
     def initModel(self):
         self.model = RawMDSRfeature()
-        self.showParamNum()
+        self.getParamNum()
 
