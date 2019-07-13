@@ -18,7 +18,7 @@ class RawFeatureStereo(nn.Module):
         self.updateFeature = True
 
     def forward(self, left, right):
-        with torch.set_grad_enabled(self.updateFeature):
+        with torch.set_grad_enabled(self.updateFeature and self.training):
             outputFeatureL = self.feature.forward(left)['outputFeature']
             outputFeatureR = self.feature.forward(right)['outputFeature']
 

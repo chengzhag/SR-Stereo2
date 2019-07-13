@@ -18,7 +18,7 @@ class RawSRStereo(nn.Module):
         self.updateSR = True
 
     def forward(self, left, right):
-        with torch.set_grad_enabled(self.updateSR):
+        with torch.set_grad_enabled(self.updateSR and self.training):
             outputSrL = self.sr.forward(left)['outputSr']
             outputSrR = self.sr.forward(right)['outputSr']
 

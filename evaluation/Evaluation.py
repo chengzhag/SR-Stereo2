@@ -11,7 +11,7 @@ class Evaluation:
     def __init__(self, experiment: utils.experiment.Experiment, testImgLoader):
         self.experiment = experiment
         self.testImgLoader = testImgLoader
-        self.flopsLoged = False
+        self.flopsLogged = False
 
     def _evalIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.imProcess.Imgs):
         # return scores, outputs
@@ -26,8 +26,8 @@ class Evaluation:
         for batchIdx, batch in enumerate(self.testImgLoader, 1):
             batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
-            if self.flopsLoged is False:
-                self.flopsLoged = True
+            if self.flopsLogged is False:
+                self.flopsLogged = True
                 flops, params = self.experiment.model.getFlops(batch.detach())
                 self.experiment.cometExp.log_metric('test_flops', flops)
                 self.experiment.cometExp.log_metric('test_params', params)

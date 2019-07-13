@@ -3,6 +3,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import copy
 
 def default_conv(in_channels, out_channels, kernel_size, bias=True):
     return nn.Conv2d(
@@ -30,7 +31,7 @@ class BasicBlock(nn.Sequential):
         if bn:
             m.append(nn.BatchNorm2d(out_channels))
         if act is not None:
-            m.append(act)
+            m.append(copy.deepcopy(act))
 
         super(BasicBlock, self).__init__(*m)
 
@@ -46,7 +47,7 @@ class ResBlock(nn.Module):
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
-                m.append(act)
+                m.append(copy.deepcopy(act))
 
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale
