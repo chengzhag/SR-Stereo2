@@ -115,3 +115,5 @@ class Train:
 
             self.experiment.cometExp.log_epoch_end(
                 epoch_cnt=self.experiment.args.epochs, step=self.experiment.epoch)
+        if self.test.testImgLoader is not None:
+            self.test.estimateFlops()

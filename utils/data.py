@@ -5,6 +5,7 @@ import torch
 
 from utils.imProcess import Imgs
 from utils.myUtils import forNestingList
+import numpy as np
 
 
 class NameValues(collections.OrderedDict):
@@ -115,7 +116,12 @@ class Batch:
         # for different param types
         if type(batch) in (list, tuple):
             self._assertLen(len(batch))
-            self.batch = batch[:]  # deattach with initial list
+            if type(batch[0]) is torch.Tensor:
+                self.batch = batch[:]  # deattach with initial list
+            elif type(batch[0]) is np.ndarray:
+                self.batch = [torch.from_numpy(x[np.newaxis, :]) for x in batch]
+            else:
+                raise Exception(f'Error: type {type(batch[0]).__name__} of batch elements has no match!')
         elif type(batch) is Batch:
             self.batch = batch.batch[:]
             if cuda is None:

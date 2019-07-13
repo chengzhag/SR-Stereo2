@@ -11,11 +11,17 @@ class Evaluation:
     def __init__(self, experiment: utils.experiment.Experiment, testImgLoader):
         self.experiment = experiment
         self.testImgLoader = testImgLoader
-        self.flopsLogged = False
 
     def _evalIt(self, batch: utils.data.Batch) -> (utils.data.NameValues, utils.imProcess.Imgs):
         # return scores, outputs
         return None, None
+
+    def estimateFlops(self):
+        batch = self.testImgLoader.dataset[0]
+        batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
+        flops, params = self.experiment.model.getFlops(batch)
+        self.experiment.cometExp.log_metric('test_flops', flops)
+        self.experiment.cometExp.log_metric('test_params', params)
 
     def __call__(self):
         # Evaluate
@@ -25,13 +31,6 @@ class Evaluation:
         avgTestLoss = utils.data.NameValues()
         for batchIdx, batch in enumerate(self.testImgLoader, 1):
             batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
-
-            if self.flopsLogged is False:
-                self.flopsLogged = True
-                flops, params = self.experiment.model.getFlops(batch.detach())
-                self.experiment.cometExp.log_metric('test_flops', flops)
-                self.experiment.cometExp.log_metric('test_params', params)
-                myUtils.getNNmoduleFromModel(self.experiment.model).cuda()
 
             loss, imgs = self._evalIt(batch)
 

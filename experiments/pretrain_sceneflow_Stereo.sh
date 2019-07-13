@@ -37,8 +37,8 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/Stereo_train.py --model FeatureStereo EDSRfeature PSMNetBody --outputFolder experiments/pretrain_sceneflow_Stereo --dataPath $sceneflow_dataset --dataset sceneflow --loadScale 1 --batchSize 4 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.0001 --lossWeights 1 1 --logEvery 50 --testEvery 1 --saveEvery 1 --mask 1 1 1 0
 
 # train EDSRfeaturePSMNet
-# only update body
+# only update stereo
 #PYTHONPATH=./ python train/Stereo_train.py --model FeatureStereo EDSRfeature PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_EDSR_baseline_x2 None --loadScale 1 --batchSize 8 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --lossWeights 0 1 --logEvery 50 --testEvery 1 --saveEvery 1 --mask 1 1 1 0
-# update feature and body
+# update feature and stereo
 #PYTHONPATH=./ python train/Stereo_train.py --model FeatureStereo EDSRfeature PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_EDSR_baseline_x2 None --loadScale 1 --batchSize 4 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.0001 --lossWeights 1 1 --logEvery 50 --testEvery 1 --saveEvery 1 --mask 1 1 1 0
 

@@ -51,6 +51,7 @@ def main():
     experiment = utils.experiment.Experiment(model=stereo, stage=stage, args=args)
     test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     test()
+    test.estimateFlops()
 
 
 if __name__ == '__main__':
