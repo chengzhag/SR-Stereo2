@@ -45,7 +45,7 @@ def getRawPSMNetScale(Base):
 
         def load_state_dict(self, state_dict, strict=False):
             state_dict = utils.experiment.checkStateDict(
-                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module.')
+                model=self, stateDict=state_dict, strict=strict, possiblePrefix=('stereo.module.', 'module.stereoBody.'))
             super().load_state_dict(state_dict, strict=False)
     return RawPSMNetScale
 
@@ -242,10 +242,8 @@ class PSMNetBody(Stereo):
         super().__init__(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
         self.cInput = cInput * 2
         self.initModel()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
             self.model.cuda()
-            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):

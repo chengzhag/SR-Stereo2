@@ -14,7 +14,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_PSMNet --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 10 --saveEvery 200 --half --argument 2 0.7
 
 ### GwcNet
-# create baseline GwcNetGC (SERVER 162)
+# create baseline GwcNetGC
 #PYTHONPATH=./ python train/Stereo_train.py --model GwcNetGC --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_GwcNetGC --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 10 --saveEvery 200 --half
 #PYTHONPATH=./ python train/Stereo_train.py --model GwcNetG --outputFolder experiments/compare_kitti_SRStereo_Stereo --dispScale 1 --dataPath $kitti2015_dataset --dataset kitti2015 --chkpoint $pretrained_sceneflow_GwcNetG --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn outlier --epochs 1200 --lr 0.001 200 0.0001 --logEvery 50 --testEvery 10 --saveEvery 200 --half
 # submission: train with all trainset

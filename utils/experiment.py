@@ -392,8 +392,14 @@ def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possib
     selectModelDict = {}
     for name, value in stateDict.items():
         if possiblePrefix is not None:
-            if name.startswith(possiblePrefix):
-                name = name[len(possiblePrefix):]
+            if type(possiblePrefix) is str:
+                if name.startswith(possiblePrefix):
+                    name = name[len(possiblePrefix):]
+            elif type(possiblePrefix) in (list, tuple):
+                for prefix in possiblePrefix:
+                    if name.startswith(prefix):
+                        name = name[len(prefix):]
+                        break
         if name in writeModelDict and writeModelDict[name].size() == value.size():
             selectModelDict[name] = value
         else:
