@@ -10,7 +10,7 @@ import torch.optim as optim
 from apex import amp
 from .RawPSMNet.stackhourglass import hourglass
 from .RawPSMNet.submodule import *
-
+from .Feature import Feature
 
 def getRawPSMNetScale(Base):
     class RawPSMNetScale(Base):
@@ -276,3 +276,24 @@ class PSMNetBody(Stereo):
 
         return loss
 
+class RawPSMNetFeature(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.feature_extraction = feature_extraction(cInput=3)
+
+    def forward(self, input):
+        return self.feature_extraction(input)
+
+class PSMNetFeature(Feature):
+    def __init__(self, cuda=True, half=False):
+        super().__init__(cuda=cuda, half=half)
+        self.cOutput = 32
+        self.initModel()
+        if self.cuda:
+            self.model.cuda()
+            self.model = nn.DataParallel(self.model)
+
+    def initModel(self):
+        self.model = RawPSMNetFeature()
+        self.getParamNum()

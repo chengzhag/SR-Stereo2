@@ -26,7 +26,7 @@ def main():
         .outputFolder().dataPath().model().chkpoint().noCuda().seed().evalFcn() \
         .nSampleLog().dataset().loadScale().trainCrop().batchSize().logEvery() \
         .testEvery().saveEvery().epochs().lr().half().lossWeights().resume().subType() \
-        .validSetSample().noComet().argument().parse()
+        .validSetSample().noComet().argument().mask().parse()
 
     # Dataset
     mask = SR.getMask(args.model)
@@ -38,7 +38,7 @@ def main():
         loadScale=(args.loadScale[0], args.loadScale[0] / 2),
         mode='training' if args.subType is None else args.subType,
         validSetSample=args.validSetSample,
-        mask=mask,
+        mask=mask if args.mask is None else args.mask,
         argument=args.argument)
 
     # Model

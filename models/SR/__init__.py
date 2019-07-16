@@ -3,12 +3,13 @@ from .EDSR import EDSR
 from .SRdisp import SRdisp
 from .MDSR import MDSRfeature
 from .EDSR import EDSRfeature
+from .PSMNetSR import PSMNetSR
 
 
 def getMask(model):
     if type(model) in (list, tuple):
         model = model[0]
-    if model in ('EDSR',):
+    if model in ('EDSR', 'PSMNetSR'):
         mask = (1, 1, 0, 0)
     elif model in ('SRdisp',):
         mask = (1, 1, 1, 1)
