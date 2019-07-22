@@ -18,8 +18,8 @@ class Evaluation:
 
     def estimateFlops(self):
         batch = self.testImgLoader.dataset[0]
-        batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
-        flops, params = self.experiment.model.getFlops(batch)
+        batcht = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
+        flops, params = self.experiment.model.getFlops(batcht)
         self.experiment.cometExp.log_metric('test_flops', flops)
         self.experiment.cometExp.log_metric('test_params', params)
 

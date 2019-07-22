@@ -113,26 +113,31 @@ class NameValues(collections.OrderedDict):
 
 class Batch:
     def __init__(self, batch, cuda=None, half=None):
+        self.batch = batch[:]  # deattach with initial list
         # for different param types
-        if type(batch) in (list, tuple):
-            self._assertLen(len(batch))
-            if type(batch[0]) is torch.Tensor:
-                self.batch = batch[:]  # deattach with initial list
-            elif type(batch[0]) is np.ndarray:
-                self.batch = [torch.from_numpy(x[np.newaxis, :]) for x in batch]
+        if type(self.batch) in (list, tuple):
+            if len(self.batch) == 3: # SR dataloader
+                self.batch = [self.batch[1]] + [None] * 3 + [self.batch[0]] + [None] * 3
+            self._assertLen(len(self.batch))
+            if type(self.batch[0]) in (np.ndarray, torch.Tensor):
+                if type(self.batch[0]) is np.ndarray:
+                    self.batch = [torch.from_numpy(x) for x in self.batch]
+                if type(self.batch[0]) is torch.Tensor:
+                    if len(self.batch[0].shape) == 3:
+                        self.batch = [x.unsqueeze(0) if x is not None else None for x in self.batch]
             else:
-                raise Exception(f'Error: type {type(batch[0]).__name__} of batch elements has no match!')
-        elif type(batch) is Batch:
-            self.batch = batch.batch[:]
+                raise Exception(f'Error: type {type(self.batch[0]).__name__} of batch elements has no match!')
+        elif type(self.batch) is Batch:
+            self.batch = self.batch.batch[:]
             if cuda is None:
-                cuda = batch.cuda
+                cuda = self.batch.cuda
             if half is None:
-                half = batch.half
-        elif type(batch) is int:
-            self._assertLen(batch)
-            if batch % 4 != 0 or batch > 8:
-                raise Exception(f'Error: input batch with length {len(batch)} doesnot match required 4n <= 8!')
-            self.batch = [None] * batch
+                half = self.batch.half
+        elif type(self.batch) is int:
+            self._assertLen(self.batch)
+            if self.batch % 4 != 0 or self.batch > 8:
+                raise Exception(f'Error: input batch with length {len(self.batch)} doesnot match required 4n <= 8!')
+            self.self.batch = [None] * self.batch
         else:
             raise Exception('Error: batch must be class list, tuple, Batch or int!')
 

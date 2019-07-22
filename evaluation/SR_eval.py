@@ -25,7 +25,7 @@ def main():
     args = utils.experiment.DefaultParser(description='evaluate SR net') \
         .outputFolder().dataPath().model().chkpoint().noCuda().seed() \
         .evalFcn().nSampleLog().dataset().loadScale().batchSize() \
-        .half().resume().validSetSample().noComet().subType().parse()
+        .half().resume().validSetSample().noComet().subType().mask().parse()
 
     # Dataset
     mask = SR.getMask(args.model)
@@ -35,7 +35,7 @@ def main():
                                                 loadScale=(args.loadScale[0], args.loadScale[0] / 2),
                                                 mode='testing' if args.subType is None else args.subType,
                                                 validSetSample=args.validSetSample,
-                                                mask=mask)
+                                                mask=mask if args.mask is None else args.mask,)
 
     # Model
     sr = SR.getModel(args.model, cuda=args.cuda, half=args.half)

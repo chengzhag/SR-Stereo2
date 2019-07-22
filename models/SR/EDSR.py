@@ -87,8 +87,6 @@ class EDSR(SR):
 
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
-        for name in loss.keys():
-            loss[name] *= self.model.module.args.rgb_range
         return loss
 
 class RawEDSRfeature(nn.Module):

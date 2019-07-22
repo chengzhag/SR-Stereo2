@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import math
 
 def getEvalFcn(type):
     if '_' in type:
@@ -44,3 +45,21 @@ def outlierPSMNet(disp_true, pred_disp):
     torch.cuda.empty_cache()
 
     return (1 - (float(torch.sum(correct)) / float(len(index[0])))) * 100
+
+def psnr(sr, hr, scale=2, rgb_range=1, dataset=None):
+    if hr.nelement() == 1: return 0
+
+    diff = (sr - hr) / rgb_range
+    if dataset and dataset.dataset.benchmark:
+        shave = scale
+        if diff.size(1) > 1:
+            gray_coeffs = [65.738, 129.057, 25.064]
+            convert = diff.new_tensor(gray_coeffs).view(1, 3, 1, 1) / 256
+            diff = diff.mul(convert).sum(dim=1)
+    else:
+        shave = scale + 6
+
+    valid = diff[..., shave:-shave, shave:-shave]
+    mse = valid.pow(2).mean()
+
+    return -10 * math.log10(mse)

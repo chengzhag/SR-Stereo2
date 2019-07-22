@@ -12,6 +12,7 @@ kitti2015_sr_dataset=../datasets/kitti/data_scene_flow_sr/training/
 kitti2015_dense_dataset=../datasets/kitti/data_scene_flow_dense/training/
 kitti2012_dataset=../datasets/kitti/data_stereo_flow/training/
 kitti2015_dataset_testing=../datasets/kitti/data_scene_flow/testing/
+sr_dataset=../datasets/SR
 
 # dir setting
 pretrained_dir=logs/pretrained

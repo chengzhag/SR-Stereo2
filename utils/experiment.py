@@ -195,7 +195,7 @@ class DefaultParser:
         return self
 
     def trainCrop(self):
-        self.parser.add_argument('--trainCrop', type=int, default=(256, 512), nargs=2,
+        self.parser.add_argument('--trainCrop', type=int, default=(256, 512), nargs='+',
                                  help='size of random crop (H x W) applied to data during training')
         return self
 

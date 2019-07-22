@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/models/Stereo/RawGANet/libs/GANet/build" />
       <excludeFolder url="file://$MODULE_DIR$/models/Stereo/RawGANet/libs/sync_bn/build" />
     </content>
-    <orderEntry type="jdk" jdkName="Remote Python 3.6.8 (sftp://omnisky@192.168.1.11:22/home/omnisky/anaconda3/envs/zc36_pytorch10/bin/python)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.6.8 (sftp://omnisky@192.168.1.95:22/home/omnisky/anaconda3/envs/zc36_pytorch10/bin/python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
