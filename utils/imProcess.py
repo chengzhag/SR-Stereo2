@@ -10,10 +10,11 @@ from utils.myUtils import forNestingList, checkDir
 
 
 class AutoPad:
-    def __init__(self, imgs, multiple):
+    def __init__(self, imgs, multiple, scale=1):
         self.N, self.C, self.H, self.W = imgs.size()
         self.HPad = ((self.H - 1) // multiple + 1) * multiple
         self.WPad = ((self.W - 1) // multiple + 1) * multiple
+        self.scale = scale
 
     def pad(self, imgs):
         def _pad(img):
@@ -25,7 +26,7 @@ class AutoPad:
         return forNestingList(imgs, _pad)
 
     def unpad(self, imgs):
-        return forNestingList(imgs, lambda img: img[:, :, (self.HPad - self.H):, (self.WPad - self.W):])
+        return forNestingList(imgs, lambda img: img[:, :, (self.HPad - self.H) * self.scale:, (self.WPad - self.W) * self.scale:])
 
 
 def flipLR(ims):

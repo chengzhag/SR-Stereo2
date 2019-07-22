@@ -13,18 +13,15 @@ from ..Stereo.PSMNet import RawPSMNetFeature
 class RawPSMNetSR(nn.Module):
     def __init__(self):
         super().__init__()
+        self.multiple = 4
 
         self.feature = RawPSMNetFeature()
 
         class Arg:
             def __init__(self):
-                self.n_resblocks = 16
                 self.n_feats = 32
-                self.scale = [2]
                 self.rgb_range = 255
                 self.n_colors = 3
-                self.n_inputs = 3
-                self.res_scale = 1
 
         conv = common.default_conv
         args = Arg()
@@ -32,7 +29,7 @@ class RawPSMNetSR(nn.Module):
 
         n_feats = args.n_feats
         kernel_size = 3
-        scale = args.scale[0]
+        scale = 2
 
         self.sub_mean = common.MeanShift(args.rgb_range)
 
@@ -52,31 +49,24 @@ class RawPSMNetSR(nn.Module):
         x = x * self.args.rgb_range
         x = self.sub_mean(x)
 
-        x = self.feature(x)
-        x = self.tail(x)
+        if self.training:
+            x = self.feature(x)
+            x = self.tail(x)
+        else:
+            autoPad = utils.imProcess.AutoPad(x, self.multiple, scale=2)
+            x = autoPad.pad(x)
+            x = self.feature(x)
+            x = self.tail(x)
+            x = autoPad.unpad(x)
 
         rawOutput = x / self.args.rgb_range
         output = {'outputSr': rawOutput}
         return output
 
-    def load_state_dict(self, state_dict, strict=True):
-        own_state = self.state_dict()
-        for name, param in state_dict.items():
-            if name in own_state:
-                if isinstance(param, nn.Parameter):
-                    param = param.data
-                try:
-                    own_state[name].copy_(param)
-                except Exception:
-                    if name.find('tail') == -1:
-                        raise RuntimeError('While copying the parameter named {}, '
-                                           'whose dimensions in the model are {} and '
-                                           'whose dimensions in the checkpoint are {}.'
-                                           .format(name, own_state[name].size(), param.size()))
-            elif strict:
-                if name.find('tail') == -1:
-                    raise KeyError('unexpected key "{}" in state_dict'
-                                   .format(name))
+    def load_state_dict(self, state_dict, strict=False):
+        state_dict = utils.experiment.checkStateDict(
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix=('stereo.module.', 'module.stereoBody.'))
+        super().load_state_dict(state_dict, strict=False)
 
 
 class PSMNetSR(SR):
@@ -127,6 +117,4 @@ class PSMNetSR(SR):
 
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
-        for name in loss.keys():
-            loss[name] *= self.model.module.args.rgb_range
         return loss
