@@ -8,14 +8,17 @@ from utils import myUtils
 from .SR import SR
 from apex import amp
 from .RawEDSR import common
-from ..Stereo.PSMNet import RawPSMNetFeature
+from ..Stereo.RawPSMNet.submodule import *
+import torch
+import torch.nn.functional as F
+from ..Stereo.RawPSMNet.submodule import convbn, convbn_3d, BasicBlock
 
 class RawPSMNetSR(nn.Module):
     def __init__(self):
         super().__init__()
         self.multiple = 4
 
-        self.feature = RawPSMNetFeature()
+        self.feature_extraction = feature_extraction(cInput=3)
 
         class Arg:
             def __init__(self):
@@ -50,12 +53,12 @@ class RawPSMNetSR(nn.Module):
         x = self.sub_mean(x)
 
         if self.training:
-            x = self.feature(x)
+            x = self.feature_extraction(x)
             x = self.tail(x)
         else:
             autoPad = utils.imProcess.AutoPad(x, self.multiple, scale=2)
             x = autoPad.pad(x)
-            x = self.feature(x)
+            x = self.feature_extraction(x)
             x = self.tail(x)
             x = autoPad.unpad(x)
 

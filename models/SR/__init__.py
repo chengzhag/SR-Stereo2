@@ -4,7 +4,7 @@ from .SRdisp import SRdisp
 from .MDSR import MDSRfeature
 from .EDSR import EDSRfeature
 from .PSMNetSR import PSMNetSR
-
+from ..Stereo.PSMNet import PSMNetFeature
 
 def getMask(model):
     if type(model) in (list, tuple):

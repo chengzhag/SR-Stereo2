@@ -276,15 +276,6 @@ class PSMNetBody(Stereo):
 
         return loss
 
-class RawPSMNetFeature(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.feature_extraction = feature_extraction(cInput=3)
-
-    def forward(self, input):
-        return self.feature_extraction(input)
-
 class PSMNetFeature(Feature):
     def __init__(self, cuda=True, half=False):
         super().__init__(cuda=cuda, half=half)
@@ -295,5 +286,5 @@ class PSMNetFeature(Feature):
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
-        self.model = RawPSMNetFeature()
+        self.model = feature_extraction(cInput=3)
         self.getParamNum()

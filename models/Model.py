@@ -64,7 +64,7 @@ class Model:
     def predict(self, batch: utils.data.Batch):
         pass
 
-    def load(self, chkpointDir: str, strict=True) -> (int, int):
+    def load(self, chkpointDir: str, strict=False) -> (int, int):
         if chkpointDir in (None, 'None'):
             return None, None
         if type(chkpointDir) is list:
@@ -77,13 +77,20 @@ class Model:
         # for EDSR and PSMNet compatibility
         writeModelDict = loadStateDict.get('state_dict', loadStateDict)
         writeModelDict = loadStateDict.get('model', writeModelDict)
-        try:
-            self.model.load_state_dict(writeModelDict)
-        except RuntimeError:
+        startsWithModule = all([key.startswith('module') for key in writeModelDict.keys()])
+        hasModule = hasattr(self.model, 'module')
+        if startsWithModule:
+            writeModelDict = {key[len('module.'):]:value for key, value in writeModelDict.items()}
+        if hasModule:
             self.model.module.load_state_dict(writeModelDict, strict=strict)
+        else:
+            self.model.load_state_dict(writeModelDict, strict=strict)
 
         if 'optimizer' in loadStateDict.keys() and self.optimizer is not None:
-            self.optimizer.load_state_dict(loadStateDict['optimizer'])
+            try:
+                self.optimizer.load_state_dict(loadStateDict['optimizer'])
+            except ValueError as error:
+                print('Optimizer not loaded: ' + error.args[0])
 
         epoch = loadStateDict.get('epoch')
         iteration = loadStateDict.get('iteration')
