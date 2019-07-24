@@ -3,7 +3,7 @@ from .EDSR import EDSR
 from .SRdisp import SRdisp
 from .MDSR import MDSRfeature
 from .EDSR import EDSRfeature
-from .PSMNetSR import PSMNetSR
+from .PSMNetSR import *
 from ..Stereo.PSMNet import PSMNetFeature
 
 def getMask(model):
@@ -28,4 +28,6 @@ def getModel(model, cuda, half):
             return globals()[model[0]](sr)
         if len(model) == 1:
             model = model[0]
+    if 'PSMNetSR' in model:
+        return getPSMNetSR(globals()['Raw' + model])(cuda=cuda, half=half)
     return globals()[model](cuda=cuda, half=half)

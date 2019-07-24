@@ -8,10 +8,87 @@ from utils import myUtils
 from .SR import SR
 from apex import amp
 from .RawEDSR import common
-from ..Stereo.RawPSMNet.submodule import *
+# from ..Stereo.RawPSMNet.submodule import *
 import torch
 import torch.nn.functional as F
 from ..Stereo.RawPSMNet.submodule import convbn, convbn_3d, BasicBlock
+
+class feature_extraction(nn.Module):
+    def __init__(self, cInput=3):
+        super(feature_extraction, self).__init__()
+        self.inplanes = 32
+        self.firstconv = nn.Sequential(convbn(cInput, 32, 3, 2, 1, 1),
+                                       nn.ReLU(inplace=True),
+                                       convbn(32, 32, 3, 1, 1, 1),
+                                       nn.ReLU(inplace=True),
+                                       convbn(32, 32, 3, 1, 1, 1),
+                                       nn.ReLU(inplace=True))
+
+        self.layer1 = self._make_layer(BasicBlock, 32, 3, 1,1,1)
+        self.layer2 = self._make_layer(BasicBlock, 64, 16, 2,1,1)
+        self.layer3 = self._make_layer(BasicBlock, 128, 3, 1,1,1)
+        self.layer4 = self._make_layer(BasicBlock, 128, 3, 1,1,2)
+
+        self.branch1 = nn.Sequential(nn.AvgPool2d((64, 64), stride=(64,64)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch2 = nn.Sequential(nn.AvgPool2d((32, 32), stride=(32,32)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch3 = nn.Sequential(nn.AvgPool2d((16, 16), stride=(16,16)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch4 = nn.Sequential(nn.AvgPool2d((8, 8), stride=(8,8)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.lastconv = nn.Sequential(convbn(320, 128, 3, 1, 1, 1),
+                                      nn.ReLU(inplace=True),
+                                      nn.Conv2d(128, 32, kernel_size=1, padding=0, stride = 1, bias=False))
+
+    def _make_layer(self, block, planes, blocks, stride, pad, dilation):
+        downsample = None
+        if stride != 1 or self.inplanes != planes * block.expansion:
+           downsample = nn.Sequential(
+                nn.Conv2d(self.inplanes, planes * block.expansion,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes * block.expansion),)
+
+        layers = []
+        layers.append(block(self.inplanes, planes, stride, downsample, pad, dilation))
+        self.inplanes = planes * block.expansion
+        for i in range(1, blocks):
+            layers.append(block(self.inplanes, planes,1,None,pad,dilation))
+
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        output      = self.firstconv(x)
+        inputBy2      = self.layer1(output)
+        output_raw  = self.layer2(inputBy2)
+        output      = self.layer3(output_raw)
+        output_skip = self.layer4(output)
+
+
+        output_branch1 = self.branch1(output_skip)
+        output_branch1 = F.interpolate(output_branch1, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch2 = self.branch2(output_skip)
+        output_branch2 = F.interpolate(output_branch2, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch3 = self.branch3(output_skip)
+        output_branch3 = F.interpolate(output_branch3, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch4 = self.branch4(output_skip)
+        output_branch4 = F.interpolate(output_branch4, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_feature = torch.cat((output_raw, output_skip, output_branch4, output_branch3, output_branch2, output_branch1), 1)
+        output_feature = self.lastconv(output_feature)
+
+        return output_feature, inputBy2
 
 class RawPSMNetSR(nn.Module):
     def __init__(self):
@@ -52,14 +129,14 @@ class RawPSMNetSR(nn.Module):
         x = x * self.args.rgb_range
         x = self.sub_mean(x)
 
-        if self.training:
-            x = self.feature_extraction(x)
-            x = self.tail(x)
-        else:
+        if not self.training:
             autoPad = utils.imProcess.AutoPad(x, self.multiple, scale=2)
             x = autoPad.pad(x)
-            x = self.feature_extraction(x)
-            x = self.tail(x)
+
+        x, _ = self.feature_extraction(x)
+        x = self.tail(x)
+
+        if not self.training:
             x = autoPad.unpad(x)
 
         rawOutput = x / self.args.rgb_range
@@ -72,52 +149,57 @@ class RawPSMNetSR(nn.Module):
         super().load_state_dict(state_dict, strict=False)
 
 
-class PSMNetSR(SR):
-    def __init__(self, cuda=True, half=False):
-        super().__init__(cuda=cuda, half=half)
-        self.initModel()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
-        if self.cuda:
-            self.model.cuda()
-            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
-            self.model = nn.DataParallel(self.model)
+def getPSMNetSR(rawPSMNetSR):
+    class PSMNetSR(SR):
+        def __init__(self, cuda=True, half=False):
+            super().__init__(cuda=cuda, half=half)
+            self.initModel()
+            self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
+            if self.cuda:
+                self.model.cuda()
+                self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
+                self.model = nn.DataParallel(self.model)
 
-    def initModel(self):
-        self.model = RawPSMNetSR()
-        self.getParamNum()
+        def initModel(self):
+            self.model = rawPSMNetSR()
+            self.getParamNum()
 
-    def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
-        imgs = super().packOutputs(outputs, imgs)
-        for key, value in outputs.items():
-            if key.startswith('outputSr'):
-                imgs.addImg(name=key, img=utils.imProcess.quantize(value, 1))
-        return imgs
+        def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
+            imgs = super().packOutputs(outputs, imgs)
+            for key, value in outputs.items():
+                if key.startswith('outputSr'):
+                    imgs.addImg(name=key, img=utils.imProcess.quantize(value, 1))
+            return imgs
 
-    # outputs, gts: RGB value range 0~1
-    def loss(self, output, gt):
-        loss = utils.data.NameValues()
-        # To get same loss with orignal EDSR, input range should scale to 0~self.args.rgb_range
-        loss['lossSr'] = F.smooth_l1_loss(
-            output['outputSr'] * self.model.module.args.rgb_range,
-            gt * self.model.module.args.rgb_range,
-            reduction='mean')
-        loss['loss'] = loss['lossSr'] * self.lossWeights
-        return loss
+        # outputs, gts: RGB value range 0~1
+        def loss(self, output, gt):
+            loss = utils.data.NameValues()
+            # To get same loss with orignal EDSR, input range should scale to 0~self.args.rgb_range
+            loss['lossSr'] = F.smooth_l1_loss(
+                output['outputSr'] * self.model.module.args.rgb_range,
+                gt * self.model.module.args.rgb_range,
+                reduction='mean')
+            loss['loss'] = loss['lossSr'] * self.lossWeights
+            return loss
 
-    def trainBothSides(self, inputs, gts):
-        losses = utils.data.NameValues()
-        outputs = utils.imProcess.Imgs()
-        for input, gt, side in zip(inputs, gts, ('L', 'R')):
-            if gt is not None:
-                loss, output = self.trainOneSide((input, ), gt)
-                losses.update(nameValues=loss, suffix=side)
-                outputs.update(imgs=output, suffix=side)
+        def trainBothSides(self, inputs, gts):
+            losses = utils.data.NameValues()
+            outputs = utils.imProcess.Imgs()
+            for input, gt, side in zip(inputs, gts, ('L', 'R')):
+                if gt is not None:
+                    loss, output = self.trainOneSide((input, ), gt)
+                    losses.update(nameValues=loss, suffix=side)
+                    outputs.update(imgs=output, suffix=side)
 
-        return losses, outputs
+            return losses, outputs
 
-    def train(self, batch: utils.data.Batch):
-        return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
+        def train(self, batch: utils.data.Batch):
+            return self.trainBothSides(batch.lowResRGBs(), batch.highResRGBs())
 
-    def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
-        loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
-        return loss
+        def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
+            loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
+            return loss
+    return PSMNetSR
+
+
+
