@@ -9,7 +9,7 @@ from ..Stereo.PSMNet import PSMNetFeature
 def getMask(model):
     if type(model) in (list, tuple):
         model = model[0]
-    if model in ('EDSR', 'PSMNetSR'):
+    if model in ('EDSR', ) or 'PSMNetSR' in model:
         mask = (1, 1, 0, 0)
     elif model in ('SRdisp',):
         mask = (1, 1, 1, 1)
