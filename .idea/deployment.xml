@@ -12,7 +12,7 @@
       <paths name="kc110_server_135">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/media/xddz/zcHDD/projects/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
           <excludedPaths>
             <excludedPath path="/home/xddz/zc/SR-Stereo/SR-Stereo2/logs" />
