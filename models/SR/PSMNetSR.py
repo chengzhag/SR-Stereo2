@@ -268,6 +268,65 @@ class RawPSMNetSRfullCatHalfRes(nn.Module):
             model=self, stateDict=state_dict, strict=strict, possiblePrefix=('stereo.module.', 'module.stereoBody.'))
         super().load_state_dict(state_dict, strict=False)
 
+class RawPSMNetSRfullCat(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.multiple = 4
+
+        self.feature_extraction = feature_extraction(cInput=3)
+
+        class Arg:
+            def __init__(self):
+                self.n_feats = 32
+                self.rgb_range = 255
+                self.n_colors = 3
+
+        conv = common.default_conv
+        args = Arg()
+        self.args = args
+
+        n_feats = args.n_feats
+        kernel_size = 3
+        scale = 2
+
+        self.sub_mean = common.MeanShift(args.rgb_range)
+
+        # define tail module
+        self.upsampler1 = common.Upsampler(conv, scale, n_feats, act=False)
+        self.upsampler2 = common.Upsampler(conv, scale, n_feats, act=False)
+        self.upsampler3 = common.Upsampler(conv, scale, n_feats + args.n_colors, act=False)
+        self.finalconv = conv(n_feats + args.n_colors, args.n_colors, kernel_size)
+
+
+    # input: RGB value range 0~1
+    # output: Feature
+    def forward(self, input):
+        input = input * self.args.rgb_range
+        input = self.sub_mean(input)
+
+        if not self.training:
+            autoPad = utils.imProcess.AutoPad(input, self.multiple, scale=2)
+            input = autoPad.pad(input)
+
+        feature, inputBy2 = self.feature_extraction(input)
+        outputBy4 = self.upsampler1(feature)
+        outputBy2 = self.upsampler2(outputBy4)
+        cat2 = torch.cat((outputBy2, input), 1)
+        outputBy1 = self.upsampler3(cat2)
+        outputBy1 = self.finalconv(outputBy1)
+
+        if not self.training:
+            outputBy1 = autoPad.unpad(outputBy1)
+
+        rawOutput = outputBy1 / self.args.rgb_range
+        output = {'outputSr': rawOutput}
+        return output
+
+    def load_state_dict(self, state_dict, strict=False):
+        state_dict = utils.experiment.checkStateDict(
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix=('stereo.module.', 'module.stereoBody.'))
+        super().load_state_dict(state_dict, strict=False)
+
 
 def getPSMNetSR(rawPSMNetSR):
     class PSMNetSR(SR):
