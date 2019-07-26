@@ -95,7 +95,8 @@ class Train:
 
             # save
             if (self.experiment.args.saveEvery > 0 and self.experiment.epoch % self.experiment.args.saveEvery == 0) \
-                    or (self.experiment.args.saveEvery == 0 and self.experiment.epoch == self.experiment.args.epochs):
+                    or (self.experiment.args.saveEvery == 0 and self.experiment.epoch == self.experiment.args.epochs) \
+                    or (self.experiment.epoch == self.experiment.args.epochs):
                 self.experiment.save(epoch=self.experiment.epoch, iteration=self.experiment.iteration)
 
             # test
