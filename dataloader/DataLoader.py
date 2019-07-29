@@ -306,6 +306,9 @@ def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSize
                 self.cpu = False
                 self.n_threads = 4
 
+        if mode in ('subTrain', 'subTest', 'subTrainEval'):
+            raise Exception(f'Mode \'{mode}\' not implemented!')
+
         loader = EDSRdata(Arg())
 
         trainImgLoader, testImgLoader = loader.loader_train, loader.loader_test[0]

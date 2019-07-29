@@ -5,6 +5,8 @@ from models import SR
 from utils import myUtils
 from evaluation.Evaluation import Evaluation as Base
 import dataloader
+from torch import nn
+import torch
 
 
 class Evaluation(Base):
@@ -16,6 +18,10 @@ class Evaluation(Base):
         for input, gt, side in zip(batch.lowResRGBs(), batch.highResRGBs(), ('L', 'R')):
             outputs.addImg(name='inputSr' + side, img=input)
             outputs.addImg(name='gtSr' + side, img=gt)
+            if input is not None:
+                with torch.no_grad():
+                    outputs.addImg(name='bilinearSr' + side,
+                                   img=nn.functional.interpolate(input, scale_factor=2, mode='bilinear', align_corners=False))
 
         return loss, outputs.cpu()
 

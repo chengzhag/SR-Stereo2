@@ -118,6 +118,7 @@ class Batch:
         if type(self.batch) in (list, tuple):
             if len(self.batch) == 3: # SR dataloader
                 self.batch = [self.batch[1]] + [None] * 3 + [self.batch[0]] + [None] * 3
+                self.name = batch[2]
             self._assertLen(len(self.batch))
             if type(self.batch[0]) in (np.ndarray, torch.Tensor):
                 if type(self.batch[0]) is np.ndarray:
@@ -137,7 +138,7 @@ class Batch:
             self._assertLen(self.batch)
             if self.batch % 4 != 0 or self.batch > 8:
                 raise Exception(f'Error: input batch with length {len(self.batch)} doesnot match required 4n <= 8!')
-            self.self.batch = [None] * self.batch
+            self.batch = [None] * self.batch
         else:
             raise Exception('Error: batch must be class list, tuple, Batch or int!')
 

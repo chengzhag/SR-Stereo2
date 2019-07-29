@@ -40,8 +40,11 @@ class Evaluation:
                 totalTestLoss.accumuate(loss)
 
             if self.experiment.args.subType is not None and self.experiment.args.subType.startswith('sub'):
-                name = self.testImgLoader.dataset.name(batchIdx - 1)
-                name, extension = os.path.splitext(name)
+                if not hasattr(batch, 'name'):
+                    name = self.testImgLoader.dataset.name(batchIdx - 1)
+                    name, extension = os.path.splitext(name)
+                else:
+                    name = batch.name[0]
                 imgs.clone().save(dir=os.path.join(self.experiment.chkpointFolder, 'submission'), name=name)
 
             if batchIdx == 1:
