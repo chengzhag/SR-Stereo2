@@ -30,16 +30,18 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullHalfCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 512 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
 
 # train PSMNetSRfullCatHalfRes
-# (SERVER 11 no dilated convolution)
+# (SERVER 162) PSMNetSRfChR_noDilated: no dilated convolution
+# PSMNetSRfChR_avgBN: momentum set to None
+# PSMNetSRfChR_smootherBN: momentum set to 0.01
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
-# PSMNetSRfChR_crop_256: cropsize 256
+# PSMNetSRfChR_crop256: cropsize 256
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 256 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
-# (SERVER 95) PSMNetSRfChR_crop_512: cropsize 512
+# (SERVER 95) PSMNetSRfChR_crop512: cropsize 512
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 512 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
 
 # train PSMNetSRfullCat
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
 
 # submission
-PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint $pretrained_DIV2K_PSMNetSRfullHalfCat --evalFcn psnr --resume toNew --subType subEval --noComet
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint $pretrained_DIV2K_PSMNetSRfullHalfCat --evalFcn psnr --resume toNew --subType subEval --noComet
 

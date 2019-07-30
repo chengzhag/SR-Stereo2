@@ -42,6 +42,10 @@ class Train:
                 # iteration
                 ticETC = time.time()
                 for self.experiment.iteration, batch in enumerate(self.trainImgLoader, 1):
+                    if self.experiment.args.batchSize[0] == 12 \
+                            and self.experiment.model.__class__.__name__ == 'PSMNet' \
+                            and not self.experiment.model.half:
+                        torch.cuda.empty_cache()
                     batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
                     self.experiment.globalStep += 1
