@@ -35,25 +35,25 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 5 --saveEvery 50
 # PSMNetSRfChR_crop256: cropsize 256
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 256 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 5 --saveEvery 50
-# (SERVER 162) PSMNetSRfChR_crop512: cropsize 512
+# PSMNetSRfChR_crop512: cropsize 512
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 512 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 5 --saveEvery 50
 
 # train PSMNetSRfullCat
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 5 --saveEvery 50
 
 # submission
-#190731111452:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190731111452_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
-#190730150154:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190730150154_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
-#190729132606:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190729132606_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_512_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
-#190726185245:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726185245_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_256_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
-#190726102730:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726102730_model_PSMNetSRfullHalfCat_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+##190731111452:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190731111452_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+##190730150154:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190730150154_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+##190729132606:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190729132606_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_512_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+##190726185245:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726185245_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_256_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+##190726102730:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726102730_model_PSMNetSRfullHalfCat_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
 #190724163918:
-#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder submission/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 1 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190724163918_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190724163918_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
 
 
 

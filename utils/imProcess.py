@@ -1,10 +1,12 @@
 import collections
 import os
 
-# import cv2
+import cv2
 import numpy as np
 import skimage.io
 import torch
+import imageio
+
 
 from utils.myUtils import forNestingList, checkDir
 
@@ -148,6 +150,15 @@ class Imgs(collections.OrderedDict):
             elif 'Rgb':
                 self[name] = savePreprocessRGB(self[name])
 
+        # scan for SR input/output
+        addedImgs = Imgs()
+        for name in self.keys():
+            if name.startswith('inputSr'):
+                interName = 'bicubicSr' + name[len('inputSr'):]
+                interImg = cv2.resize(self[name], None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+                addedImgs.addImg(interName, interImg, self.range[name])
+        self.update(addedImgs)
+
     def save(self, dir, name):
         self._savePrepare()
         checkDir(dir)
@@ -155,4 +166,43 @@ class Imgs(collections.OrderedDict):
             checkDir(os.path.join(dir, folder))
             saveDir = os.path.join(dir, folder, name + '.png')
             skimage.io.imsave(saveDir, value)
-            print('saving to: %s' % saveDir)
+            print('saved to: %s' % saveDir)
+
+        ## save gif for sr
+        gifFrames = collections.OrderedDict()
+        for key in self.keys():
+            if key.startswith('bicubicSr'):
+                gifFrames[key] = self[key]
+                outputName = 'output' + key[len('bicubic'):]
+                gifFrames[outputName] = self[outputName]
+
+        # add title
+        frames=[]
+        framesCrop=[]
+        for title, im in gifFrames.items():
+            frames.append(putTitle(im, title))
+            cropCenter = [l // 2 for l in im.shape]
+            framesCrop.append(putTitle(
+                im[(cropCenter[0] - 100):(cropCenter[0] + 100), (cropCenter[0] - 100):(cropCenter[0] + 100)], title))
+        checkDir(os.path.join(dir, 'compareSr'))
+        saveDir = os.path.join(dir, 'compareSr', name + '.gif')
+        imageio.mimsave(saveDir, frames, 'GIF', duration=1)
+        print('saved to: %s' % saveDir)
+
+        checkDir(os.path.join(dir, 'compareSrCrop'))
+        saveDir = os.path.join(dir, 'compareSrCrop', name + '.gif')
+        imageio.mimsave(saveDir, framesCrop, 'GIF', duration=1)
+        print('saved to: %s' % saveDir)
+
+
+def putTitle(im, title):
+    fontScale = im.shape[0] // 500 + 1
+    thickness = fontScale
+    fontFace = cv2.FONT_HERSHEY_DUPLEX
+    textSize = cv2.getTextSize(title, fontFace, fontScale, 3)
+    textCoor = (im.shape[1] // 2 - textSize[0][0] // 2, im.shape[0] - textSize[0][1])
+    imTitle = cv2.putText(np.ascontiguousarray(im, dtype=np.uint8), title, textCoor,
+                          fontFace, fontScale, (255, 255, 255), int(thickness * 1.5 + 1), cv2.LINE_AA)
+    imTitle = cv2.putText(np.ascontiguousarray(imTitle, dtype=np.uint8), title, textCoor,
+                          fontFace, fontScale, (255, 0, 0), thickness, cv2.LINE_AA)
+    return imTitle

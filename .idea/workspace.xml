@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8c852e18-a685-4442-b39f-9edcd6531e2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataloader/DataLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/DataLoader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/pretrain_div2k_SR.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/pretrain_div2k_SR.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,7 +38,7 @@
     <SUITE FILE_PATH="coverage/SR_Stereo2$SR_eval_PSMNetSRfullHalfCat_div2k.coverage" NAME="SR_eval_PSMNetSRfullHalfCat_div2k Coverage Results" MODIFIED="1564120249494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_train_EDSRfeaturePSMNet_sceneflow.coverage" NAME="Stereo_train_EDSRfeaturePSMNet_sceneflow Coverage Results" MODIFIED="1563007173717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$SR_eval_EDSRbaselineDisp_carla.coverage" NAME="SR_eval_EDSRbaselineDisp_carla Coverage Results" MODIFIED="1554971759087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
-    <SUITE FILE_PATH="coverage/SR_Stereo2$SR_eval_PSMNetSRfullCatHalfRes_div2k.coverage" NAME="SR_eval_PSMNetSRfullCatHalfRes_div2k Coverage Results" MODIFIED="1564121301146" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/SR_Stereo2$SR_eval_PSMNetSRfullCatHalfRes_div2k.coverage" NAME="SR_eval_PSMNetSRfullCatHalfRes_div2k Coverage Results" MODIFIED="1564651585254" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_eval_PSMNet_kitti2015.coverage" NAME="Stereo_eval_PSMNet_kitti2015 Coverage Results" MODIFIED="1564471360026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_eval_EDSRbaselinePSMNet_kitti2015.coverage" NAME="Stereo_eval_EDSRbaselinePSMNet_kitti2015 Coverage Results" MODIFIED="1556428230104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/SR_Stereo2$Stereo_train_PSMNet_kitti2015.coverage" NAME="Stereo_train_PSMNet_kitti2015 Coverage Results" MODIFIED="1564478649930" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
@@ -88,23 +85,23 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.70698255">
+    <splitter split-orientation="horizontal" split-proportion="0.45087403">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/train/Train.py">
+            <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="722">
-                  <caret line="113" column="91" selection-start-line="113" selection-start-column="91" selection-end-line="113" selection-end-column="91" />
+                <state relative-caret-position="345">
+                  <caret line="50" column="47" lean-forward="true" selection-start-line="50" selection-start-column="47" selection-end-line="50" selection-end-column="47" />
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/train/Stereo_train.py">
+            <entry file="file://$PROJECT_DIR$/evaluation/SR_eval.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="982">
-                  <caret line="61" selection-start-line="61" selection-end-line="61" />
+                <state relative-caret-position="95">
+                  <caret line="33" column="41" selection-start-line="33" selection-start-column="41" selection-end-line="33" selection-end-column="41" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -113,22 +110,22 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
+            <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="517">
-                  <caret line="67" column="37" selection-start-line="67" selection-start-column="37" selection-end-line="67" selection-end-column="82" />
+                <state relative-caret-position="571">
+                  <caret line="323" column="43" lean-forward="true" selection-start-line="323" selection-start-column="43" selection-end-line="323" selection-end-column="43" />
+                  <folding>
+                    <element signature="e#0#23#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/models/SR/PSMNetSR.py">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="684">
-                  <caret line="276" selection-start-line="276" selection-end-line="276" />
-                  <folding>
-                    <element signature="e#0#23#0" expanded="true" />
-                  </folding>
+                <state relative-caret-position="323">
+                  <caret line="17" selection-start-line="17" selection-end-line="17" />
                 </state>
               </provider>
             </entry>
@@ -136,8 +133,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/utils/experiment.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="494">
-                  <caret line="32" lean-forward="true" selection-start-line="32" selection-end-line="32" />
+                <state relative-caret-position="202">
+                  <caret line="335" column="39" selection-start-line="335" selection-start-column="39" selection-end-line="335" selection-end-column="39" />
                   <folding>
                     <element signature="e#0#15#0" expanded="true" />
                   </folding>
@@ -145,11 +142,14 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/experiments/pretrain_div2k_SR.sh">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/utils/imProcess.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="727">
-                  <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
+                <state relative-caret-position="342">
+                  <caret line="197" column="24" lean-forward="true" selection-start-line="197" selection-start-column="24" selection-end-line="197" selection-end-column="24" />
+                  <folding>
+                    <element signature="e#0#18#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -159,15 +159,6 @@
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/experiments/queue/95.sh">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="57">
-                  <caret line="3" column="30" selection-start-line="3" selection-start-column="30" selection-end-line="3" selection-end-column="30" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/experiments/queue/11.sh">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="57">
@@ -177,10 +168,19 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/experiments/queue/95.sh">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="57">
+                  <caret line="3" column="30" selection-start-line="3" selection-start-column="30" selection-end-line="3" selection-end-column="30" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/experiments/queue/135.sh">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="57">
-                  <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+                  <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
                 </state>
               </provider>
             </entry>
@@ -194,11 +194,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/models/SR/PSMNetSR.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="418">
-                  <caret line="31" column="48" selection-start-line="31" selection-start-column="48" selection-end-line="31" selection-end-column="48" />
+                <state relative-caret-position="247">
+                  <caret line="99" column="18" lean-forward="true" selection-start-line="99" selection-start-column="18" selection-end-line="99" selection-end-column="18" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -207,10 +207,10 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py">
+            <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/stackhourglass.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state>
-                  <caret line="12" column="52" selection-start-line="12" selection-start-column="52" selection-end-line="12" selection-end-column="52" />
+                <state relative-caret-position="495">
+                  <caret line="75" column="30" selection-start-line="75" selection-start-column="21" selection-end-line="75" selection-end-column="30" />
                   <folding>
                     <element signature="e#0#37#0" expanded="true" />
                   </folding>
@@ -219,10 +219,34 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="171">
+                  <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+                  <folding>
+                    <element signature="e#0#37#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/models/SR/RawEDSR/common.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="193">
+                  <caret line="42" column="19" selection-start-line="42" selection-start-column="14" selection-end-line="42" selection-end-column="19" />
+                  <folding>
+                    <element signature="e#0#11#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/evaluation/SR_eval.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="241">
-                  <caret line="23" column="80" selection-start-line="23" selection-start-column="80" selection-end-line="23" selection-end-column="80" />
+                <state relative-caret-position="165">
+                  <caret line="19" column="54" selection-start-line="19" selection-start-column="54" selection-end-line="19" selection-end-column="54" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -243,13 +267,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>{</find>
-      <find>def initModel</find>
-      <find>cuda</find>
-      <find>inline</find>
-      <find>set_grad_enabled</find>
-      <find>append</find>
-      <find>batch</find>
       <find>strict=str</find>
       <find>SERVER</find>
       <find>possiblePrefix='stereo.module.'</find>
@@ -273,6 +290,13 @@
       <find>dilation</find>
       <find>_make_layer</find>
       <find>crop_</find>
+      <find>nan</find>
+      <find>INTER</find>
+      <find>textSize</find>
+      <find>Size</find>
+      <find>LineTypes</find>
+      <find>log</find>
+      <find>saving</find>
     </findStrings>
     <replaceStrings>
       <replace>) for</replace>
@@ -329,7 +353,6 @@
         <option value="$PROJECT_DIR$/experiments/pretrain_div2k_SR.py" />
         <option value="$PROJECT_DIR$/dataloader/EDSR/benchmark.py" />
         <option value="$PROJECT_DIR$/dataloader/EDSR/div2kjpeg.py" />
-        <option value="$PROJECT_DIR$/utils/imProcess.py" />
         <option value="$PROJECT_DIR$/models/Stereo/__init__.py" />
         <option value="$PROJECT_DIR$/models/Stereo/PSMNet.py" />
         <option value="$PROJECT_DIR$/models/Model.py" />
@@ -337,9 +360,7 @@
         <option value="$PROJECT_DIR$/models/SR/__init__.py" />
         <option value="$PROJECT_DIR$/dataloader/EDSR/srdata.py" />
         <option value="$PROJECT_DIR$/train/Stereo_train.py" />
-        <option value="$PROJECT_DIR$/experiments/queue/135.sh" />
         <option value="$PROJECT_DIR$/dataloader/EDSR/__init__.py" />
-        <option value="$PROJECT_DIR$/evaluation/SR_eval.py" />
         <option value="$PROJECT_DIR$/utils/data.py" />
         <option value="$PROJECT_DIR$/evaluation/Evaluation.py" />
         <option value="$PROJECT_DIR$/experiments/settings.sh" />
@@ -350,13 +371,16 @@
         <option value="$PROJECT_DIR$/dataloader/DataLoader.py" />
         <option value="$PROJECT_DIR$/models/SR/PSMNetSR.py" />
         <option value="$PROJECT_DIR$/experiments/queue/95.sh" />
-        <option value="$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh" />
         <option value="$PROJECT_DIR$/experiments/queue/11.sh" />
+        <option value="$PROJECT_DIR$/evaluation/SR_eval.py" />
+        <option value="$PROJECT_DIR$/experiments/queue/135.sh" />
+        <option value="$PROJECT_DIR$/utils/imProcess.py" />
         <option value="$PROJECT_DIR$/experiments/pretrain_div2k_SR.sh" />
+        <option value="$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-7" />
     <option name="width" value="974" />
     <option name="height" value="1047" />
@@ -499,7 +523,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Stereo_train_PSMNet_kitti2015">
+  <component name="RunManager" selected="Python.SR_eval_PSMNetSRfullCatHalfRes_div2k">
     <configuration name="SR_eval_EDSRbaselineDisp_carla" type="PythonConfigurationType" factoryName="Python" folderName="EDSRbaselineDisp">
       <module name="SR-Stereo2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -630,7 +654,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/evaluation/SR_eval.py" />
-      <option name="PARAMETERS" value="--model PSMNetSRfullCatHalfRes --outputFolder pycharmruns --chkpoint logs/experiments/pretrain_div2k_SR/SR_train/190724163918_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --dataPath ../datasets/SR --dataset DIV2K --batchSize 16 --evalFcn psnr --resume toNew --noComet" />
+      <option name="PARAMETERS" value="--model PSMNetSRfullCatHalfRes --outputFolder pycharmruns --chkpoint logs/experiments/pretrain_div2k_SR/SR_train/190731111452_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --dataPath ../datasets/SR --dataset DIV2K --batchSize 16 1 --evalFcn psnr --subType subEval --resume toNew --noComet" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -653,7 +677,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/evaluation/SR_eval.py" />
-      <option name="PARAMETERS" value="--model PSMNetSRfullHalfCat --outputFolder pycharmruns --dataPath ../datasets/SR --dataset DIV2K --batchSize 16 --evalFcn psnr --resume toNew --noComet" />
+      <option name="PARAMETERS" value="--model PSMNetSRfullHalfCat --outputFolder pycharmruns --dataPath ../datasets/SR --dataset DIV2K --batchSize 16 1 --evalFcn psnr --subType subEval --resume toNew --noComet" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -1741,60 +1765,60 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.SR_eval_EDSRbaseline_carla" />
-      <item itemvalue="Python.SR_eval_EDSRbaseline_kitti2015" />
-      <item itemvalue="Python.SR_sub_EDSRbaseline_kitti2015" />
-      <item itemvalue="Python.SR_eval_EDSRbaseline_div2k" />
-      <item itemvalue="Python.SR_sub_EDSRbaseline_div2k" />
-      <item itemvalue="Python.SR_train_EDSRbaseline_carla" />
-      <item itemvalue="Python.SR_train_EDSRbaseline_kitti2015" />
-      <item itemvalue="Python.SR_train_EDSRbaseline_div2k" />
       <item itemvalue="Python.SR_eval_EDSRbaselineDisp_carla" />
+      <item itemvalue="Python.SR_eval_EDSRbaseline_carla" />
+      <item itemvalue="Python.SR_eval_EDSRbaseline_div2k" />
+      <item itemvalue="Python.SR_eval_EDSRbaseline_kitti2015" />
+      <item itemvalue="Python.SR_eval_PSMNetSR_div2k" />
+      <item itemvalue="Python.SR_eval_PSMNetSRfullCatHalfRes_div2k" />
+      <item itemvalue="Python.SR_eval_PSMNetSRfullHalfCat_div2k" />
+      <item itemvalue="Python.SR_sub_EDSRbaseline_div2k" />
+      <item itemvalue="Python.SR_sub_EDSRbaseline_kitti2015" />
       <item itemvalue="Python.SR_train_EDSRbaselineDisp_carla" />
+      <item itemvalue="Python.SR_train_EDSRbaseline_carla" />
+      <item itemvalue="Python.SR_train_EDSRbaseline_div2k" />
+      <item itemvalue="Python.SR_train_EDSRbaseline_kitti2015" />
+      <item itemvalue="Python.SR_train_PSMNetSR_div2k" />
+      <item itemvalue="Python.SR_train_PSMNetSR_kitti2015" />
+      <item itemvalue="Python.SR_train_PSMNetSRfullCatHalfRes_div2k" />
+      <item itemvalue="Python.SR_train_PSMNetSRfullCat_div2k" />
+      <item itemvalue="Python.SR_train_PSMNetSRfullHalfCat_div2k" />
       <item itemvalue="Python.Stereo_eval_EDSRbaselineDispPSMNet_carla" />
-      <item itemvalue="Python.Stereo_train_EDSRbaselineDispPSMNet_carla" />
       <item itemvalue="Python.Stereo_eval_EDSRbaselineGwcNetGC_kitti2015" />
-      <item itemvalue="Python.Stereo_train_EDSRbaselineGwcNet_kitti2015" />
+      <item itemvalue="Python.Stereo_eval_EDSRbaselinePSMNetRefine_carla" />
       <item itemvalue="Python.Stereo_eval_EDSRbaselinePSMNet_carla" />
       <item itemvalue="Python.Stereo_eval_EDSRbaselinePSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNet_carla" />
-      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_eval_EDSRbaselinePSMNetRefine_carla" />
-      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNetRefine_carla" />
-      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNet_sceneflow" />
-      <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNet_sceneflow" />
-      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNetBody_kitti2015" />
       <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNetBody_kitti2015" />
       <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNetBody_sceneflow" />
+      <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNet_kitti2015" />
+      <item itemvalue="Python.Stereo_eval_EDSRfeaturePSMNet_sceneflow" />
       <item itemvalue="Python.Stereo_eval_GANet_sceneflow" />
-      <item itemvalue="Python.Stereo_train_GANet_sceneflow" />
       <item itemvalue="Python.Stereo_eval_GwcNetGC_sceneflow" />
+      <item itemvalue="Python.Stereo_eval_MDSRfeaturePSMNetBody_kitti2015" />
+      <item itemvalue="Python.Stereo_eval_PSMNetDown_carla" />
+      <item itemvalue="Python.Stereo_eval_PSMNet_carla" />
+      <item itemvalue="Python.Stereo_eval_PSMNet_kitti2015" />
+      <item itemvalue="Python.Stereo_eval_PSMNet_sceneflow" />
+      <item itemvalue="Python.Stereo_train_EDSRbaselineDispPSMNet_carla" />
+      <item itemvalue="Python.Stereo_train_EDSRbaselineGwcNet_kitti2015" />
+      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNetRefine_carla" />
+      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNet_carla" />
+      <item itemvalue="Python.Stereo_train_EDSRbaselinePSMNet_kitti2015" />
+      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNetBody_kitti2015" />
+      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNet_kitti2015" />
+      <item itemvalue="Python.Stereo_train_EDSRfeaturePSMNet_sceneflow" />
+      <item itemvalue="Python.Stereo_train_GANet_sceneflow" />
       <item itemvalue="Python.Stereo_train_GwcNetGC_sceneflow" />
       <item itemvalue="Python.Stereo_train_GwcNetG_sceneflow" />
       <item itemvalue="Python.Stereo_train_MDSRfeaturePSMNetBody_kitti2015" />
-      <item itemvalue="Python.Stereo_eval_MDSRfeaturePSMNetBody_kitti2015" />
+      <item itemvalue="Python.Stereo_train_PSMNetDown_carla" />
+      <item itemvalue="Python.Stereo_train_PSMNet_carla" />
+      <item itemvalue="Python.Stereo_train_PSMNet_kitti2015" />
+      <item itemvalue="Python.Stereo_train_PSMNet_sceneflow" />
       <item itemvalue="Python.listCarlaFiles" />
       <item itemvalue="Python.listKitti2015Sub" />
       <item itemvalue="Python.warpCarla_moduletest" />
       <item itemvalue="Python.warpSceneFlow_moduletest" />
-      <item itemvalue="Python.Stereo_eval_PSMNet_carla" />
-      <item itemvalue="Python.Stereo_eval_PSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_eval_PSMNet_sceneflow" />
-      <item itemvalue="Python.Stereo_train_PSMNet_carla" />
-      <item itemvalue="Python.Stereo_train_PSMNet_kitti2015" />
-      <item itemvalue="Python.Stereo_train_PSMNet_sceneflow" />
-      <item itemvalue="Python.Stereo_eval_PSMNetDown_carla" />
-      <item itemvalue="Python.Stereo_train_PSMNetDown_carla" />
-      <item itemvalue="Python.SR_train_PSMNetSR_kitti2015" />
-      <item itemvalue="Python.SR_train_PSMNetSR_div2k" />
-      <item itemvalue="Python.SR_train_PSMNetSRfullHalfCat_div2k" />
-      <item itemvalue="Python.SR_train_PSMNetSRfullCatHalfRes_div2k" />
-      <item itemvalue="Python.SR_train_PSMNetSRfullCat_div2k" />
-      <item itemvalue="Python.SR_eval_PSMNetSR_div2k" />
-      <item itemvalue="Python.SR_eval_PSMNetSRfullHalfCat_div2k" />
-      <item itemvalue="Python.SR_eval_PSMNetSRfullCatHalfRes_div2k" />
     </list>
   </component>
   <component name="SvnConfiguration">
@@ -1832,12 +1856,12 @@
       <workItem from="1563764712276" duration="28172000" />
       <workItem from="1563937158839" duration="29374000" />
       <workItem from="1564133254896" duration="10200000" />
-      <workItem from="1564456561616" duration="15372000" />
+      <workItem from="1564456561616" duration="23537000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="703180000" />
+    <option name="totallyTimeSpent" value="711355000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1854,11 +1878,11 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.05970149" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.11567164" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3253796" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.26898047" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49520257" weight="0.28308025" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49520257" visible="true" weight="0.28308025" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32968238" />
@@ -1950,23 +1974,52 @@
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="x.shape" language="Python" />
-        <watch expression="output.shape" language="Python" />
-        <watch expression="output_raw.shape" language="Python" />
-        <watch expression="output2.shape" language="Python" />
-        <watch expression="outputBy2.shape" language="Python" />
-        <watch expression="inputBy2.shape" language="Python" />
-        <watch expression="outputBy4.shape" language="Python" />
-        <watch expression="cat1.shape" language="Python" />
-        <watch expression="cat2.shape" language="Python" />
-        <watch expression="res1.shape" language="Python" />
-        <watch expression="self.training" language="Python" />
         <watch expression="torch.is_grad_enabled()" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>gifFrames = collections.OrderedDict()
+for name in self.keys():
+    if name.startswith('bicubicSr'):
+        gifFrames[name] = self[name]
+        outputName = 'output' + name[len('bicubic'):]
+        gifFrames[outputName] = self[outputName]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>gifFrames = collections.OrderedDict()
+for name in self.keys():
+    if name.startswith('bicubicSr'):
+        gifFrames[name] = self[name]
+        inputName = 'input' + name[len('bicubic'):]
+        gifFrames[inputName] = self[inputName]
+gifFrames</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>gifFrames = collections.OrderedDict()
+for name in self.keys():
+    if name.startswith('bicubicSr'):
+        gifFrames[name] = self[name]
+        inputName = 'input' + name[len('bicubic'):]
+        gifFrames[inputName] = self[inputName]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>gifFrames = Imgs()
+for name in self.keys():
+    if name.startswith('bicubicSr'):
+        gifFrames.addImage(self[name])
+        gifFrames.addImage(self['input' + name[len('bicubic'):]])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>self.experiment.args.batchSize[0] == 12 \
                             and self.experiment.model.__class__.__name__ == 'PSMNet' \
@@ -2013,23 +2066,6 @@
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>with print('Hello') if False else None:
-    pass</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>with print('Hello') if True else None:
-    pass</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>with print('Hello') if True else None:</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="breakpointCondition">
       <expression>
@@ -2052,60 +2088,58 @@
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>self.experiment.args.batchSize[0]</expression-string>
+        <expression-string>(im.shape[0]//2, im.shape[1]//2)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.experiment.model.__class__.__name__</expression-string>
+        <expression-string>im.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.experiment.model.half</expression-string>
+        <expression-string>im.shape/2</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.experiment.model.__class__</expression-string>
+        <expression-string>im.shape[0]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>torch.is_grad_enabled()</expression-string>
+        <expression-string>im</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.training</expression-string>
+        <expression-string>im.size</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>res1.shape</expression-string>
+        <expression-string>im.size()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>res1</expression-string>
+        <expression-string>self[name]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>cat1.shape</expression-string>
+        <expression-string>cv2.resize(self[name], None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>cv2.resize(self[name], None, 2, 2, interpolation = cv2.INTER_CUBIC)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/train/SR_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="28" column="51" selection-start-line="28" selection-start-column="47" selection-end-line="28" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/experiments/compare_kitti_FeatureStereo.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="346">
@@ -2122,8 +2156,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/SR/RawEDSR/common.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="13" column="8" selection-start-line="13" selection-start-column="8" selection-end-line="13" selection-end-column="8" />
+        <state relative-caret-position="193">
+          <caret line="42" column="19" selection-start-line="42" selection-start-column="14" selection-end-line="42" selection-end-column="19" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
@@ -2234,8 +2268,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/stackhourglass.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="64" column="43" selection-start-line="64" selection-start-column="43" selection-end-line="64" selection-end-column="43" />
+        <state relative-caret-position="495">
+          <caret line="75" column="30" selection-start-line="75" selection-start-column="21" selection-end-line="75" selection-end-column="30" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
           </folding>
@@ -2321,51 +2355,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-2139413991/723454304/torch/nn/modules/batchnorm.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="211" column="16" selection-start-line="211" selection-start-column="8" selection-end-line="211" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="114" column="8" selection-start-line="114" selection-start-column="8" selection-end-line="114" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/imProcess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="69">
-          <caret line="113" column="20" selection-start-line="113" selection-start-column="20" selection-end-line="113" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-184">
-          <caret line="47" column="36" selection-start-line="47" selection-start-column="36" selection-end-line="47" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evaluation/Stereo_eval.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -2402,11 +2395,52 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dataloader/DataLoader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="295" column="48" selection-start-line="295" selection-start-column="48" selection-end-line="295" selection-end-column="48" />
+        <state relative-caret-position="571">
+          <caret line="323" column="43" lean-forward="true" selection-start-line="323" selection-start-column="43" selection-end-line="323" selection-end-column="43" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/queue/11.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/SR/PSMNetSR.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="99" column="18" lean-forward="true" selection-start-line="99" selection-start-column="18" selection-end-line="99" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="518">
+          <caret line="67" column="106" lean-forward="true" selection-start-line="67" selection-start-column="106" selection-end-line="67" selection-end-column="106" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train/Train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="722">
+          <caret line="113" column="91" selection-start-line="113" selection-start-column="91" selection-end-line="113" selection-end-column="91" />
         </state>
       </provider>
     </entry>
@@ -2420,22 +2454,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/experiment.py">
+    <entry file="file://$PROJECT_DIR$/evaluation/Stereo_eval.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="32" lean-forward="true" selection-start-line="32" selection-end-line="32" />
+        <state relative-caret-position="304">
+          <caret line="16" column="41" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="41" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/evaluation/SR_eval.py">
+    <entry file="file://$PROJECT_DIR$/utils/data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="23" column="80" selection-start-line="23" selection-start-column="80" selection-end-line="23" selection-end-column="80" />
+        <state relative-caret-position="231">
+          <caret line="162" column="44" selection-start-line="162" selection-start-column="39" selection-end-line="162" selection-end-column="44" />
           <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2447,44 +2481,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/Stereo/RawPSMNet/submodule.py">
+    <entry file="file://$USER_HOME$/.PyCharm2018.3/system/python_stubs/1649728691/cv2/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="12" column="52" selection-start-line="12" selection-start-column="52" selection-end-line="12" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="198">
+          <caret line="4971" column="68" selection-start-line="4971" selection-start-column="59" selection-end-line="4971" selection-end-column="68" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/SR/PSMNetSR.py">
+    <entry file="file://$PROJECT_DIR$/experiments/pretrain_kitti_SR.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="276" selection-start-line="276" selection-end-line="276" />
+        <state relative-caret-position="209">
+          <caret line="11" column="57" lean-forward="true" selection-start-line="11" selection-start-column="57" selection-end-line="11" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/evaluation/SR_eval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="95">
+          <caret line="33" column="41" selection-start-line="33" selection-start-column="41" selection-end-line="33" selection-end-column="41" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh">
+    <entry file="file://$PROJECT_DIR$/evaluation/Evaluation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="460">
-          <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/settings.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="517">
-          <caret line="67" column="37" selection-start-line="67" selection-start-column="37" selection-end-line="67" selection-end-column="82" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/queue/135.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+        <state relative-caret-position="345">
+          <caret line="50" column="47" lean-forward="true" selection-start-line="50" selection-start-column="47" selection-end-line="50" selection-end-column="47" />
         </state>
       </provider>
     </entry>
@@ -2495,24 +2519,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/queue/11.sh">
+    <entry file="file://$PROJECT_DIR$/experiments/queue/135.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
           <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train/Train.py">
+    <entry file="file://$PROJECT_DIR$/utils/experiment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="722">
-          <caret line="113" column="91" selection-start-line="113" selection-start-column="91" selection-end-line="113" selection-end-column="91" />
+        <state relative-caret-position="202">
+          <caret line="335" column="39" selection-start-line="335" selection-start-column="39" selection-end-line="335" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/imProcess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="197" column="24" lean-forward="true" selection-start-line="197" selection-start-column="24" selection-end-line="197" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/experiments/pretrain_div2k_SR.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="727">
-          <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
+        <state relative-caret-position="442">
+          <caret line="55" column="101" selection-start-line="55" selection-start-column="101" selection-end-line="55" selection-end-column="101" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/pretrain_sceneflow_Stereo.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
         </state>
       </provider>
     </entry>

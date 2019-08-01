@@ -14,7 +14,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 2 --maxDisp 96 --dataPath $sceneflow_dataset --dataset sceneflow --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
 # PSMNet_load_PSMNetSR: load feature from PSMNetSR trained with DIV2K
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_PSMNetSR --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
-# (SERVER 95) PSMNet_loadPSMNetSRfChR: load feature from PSMNetSRfullHalfCat trained with DIV2K
+# (SERVER 95) PSMNet_loadPSMNetSRfhC: load feature from PSMNetSRfullHalfCat trained with DIV2K
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_PSMNetSRfullHalfCat --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
 
 
@@ -55,7 +55,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 # EDSRfPSMNetB_lr_0.0002_allUpdate: NaN
 #PYTHONPATH=./ python train/Stereo_train.py --model FeatureStereo EDSRfeature PSMNetBody --outputFolder experiments/pretrain_sceneflow_Stereo --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_EDSR_baseline_x2 None --loadScale 1 --batchSize 4 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.0005 --lossWeights 1 1 --logEvery 50 --testEvery 1 --saveEvery 1 --mask 1 1 1 0
 
-# (SERVER 162) EDSRfeaturePSMNet_allUpdate lr test
+# EDSRfeaturePSMNet_allUpdate lr test
 # EDSRfPSMNet_lr_0.0005_allUpdate: NaN
 #PYTHONPATH=./ python train/Stereo_train.py --model FeatureStereo EDSRfeature PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_EDSR_baseline_x2 None --loadScale 1 --batchSize 4 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.0005 --lossWeights 1 1 --logEvery 50 --testEvery 1 --saveEvery 1 --mask 1 1 1 0
 # EDSRfPSMNet_lr_0.0002_allUpdate
