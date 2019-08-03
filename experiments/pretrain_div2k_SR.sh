@@ -9,7 +9,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/SR_train.py --model EDSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.0001 250 0.00005 --logEvery 500 --testEvery 10 --saveEvery 50
 
 # train PSMNetSR
-#PYTHONPATH=./ python train/SR_train.py --model PSMNetSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
+PYTHONPATH=./ python train/SR_train.py --model PSMNetSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 375 --lr 0.001 250 0.0005 --logEvery 500 --testEvery 10 --saveEvery 50
 
 # PSMNetSR lr test
 # lr starts from 0.0001
@@ -54,6 +54,11 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726102730_model_PSMNetSRfullHalfCat_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
 #190724163918:
 #PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190724163918_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
-
+#190801193707:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190801193707_model_PSMNetSRfullCatHalfRes_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+#190722193216:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190722193216_model_PSMNetSR_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
+#190726102730:
+#PYTHONPATH=./ python evaluation/SR_eval.py --model PSMNetSRfullHalfCat --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 1 --chkpoint ${experiment_dir}/pretrain_div2k_SR/SR_train/190726102730_model_PSMNetSRfullHalfCat_loadScale_1_trainCrop_96_batchSize_16_lossWeights_1_DIV2K --evalFcn psnr --resume toOld --subType subEval --noComet
 
 
