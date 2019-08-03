@@ -177,22 +177,23 @@ class Imgs(collections.OrderedDict):
                 gifFrames[outputName] = self[outputName]
 
         # add title
-        frames=[]
-        framesCrop=[]
-        for title, im in gifFrames.items():
-            frames.append(putTitle(im, title))
-            cropCenter = [l // 2 for l in im.shape]
-            framesCrop.append(putTitle(
-                im[(cropCenter[0] - 100):(cropCenter[0] + 100), (cropCenter[0] - 100):(cropCenter[0] + 100)], title))
-        checkDir(os.path.join(dir, 'compareSr'))
-        saveDir = os.path.join(dir, 'compareSr', name + '.gif')
-        imageio.mimsave(saveDir, frames, 'GIF', duration=1)
-        print('saved to: %s' % saveDir)
+        if len(gifFrames) > 0:
+            frames=[]
+            framesCrop=[]
+            for title, im in gifFrames.items():
+                frames.append(putTitle(im, title))
+                cropCenter = [l // 2 for l in im.shape]
+                framesCrop.append(putTitle(
+                    im[(cropCenter[0] - 100):(cropCenter[0] + 100), (cropCenter[0] - 100):(cropCenter[0] + 100)], title))
+            checkDir(os.path.join(dir, 'compareSr'))
+            saveDir = os.path.join(dir, 'compareSr', name + '.gif')
+            imageio.mimsave(saveDir, frames, 'GIF', duration=1)
+            print('saved to: %s' % saveDir)
 
-        checkDir(os.path.join(dir, 'compareSrCrop'))
-        saveDir = os.path.join(dir, 'compareSrCrop', name + '.gif')
-        imageio.mimsave(saveDir, framesCrop, 'GIF', duration=1)
-        print('saved to: %s' % saveDir)
+            checkDir(os.path.join(dir, 'compareSrCrop'))
+            saveDir = os.path.join(dir, 'compareSrCrop', name + '.gif')
+            imageio.mimsave(saveDir, framesCrop, 'GIF', duration=1)
+            print('saved to: %s' % saveDir)
 
 
 def putTitle(im, title):

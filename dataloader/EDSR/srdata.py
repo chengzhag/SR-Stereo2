@@ -57,7 +57,7 @@ class SRData(data.Dataset):
                     self.images_lr[i].append(b)
                     self._check_and_load(args.ext, l, b, verbose=True) 
         if train:
-            n_patches = args.batch_size * len(self.images_hr)
+            n_patches = len(self.images_hr)
             n_images = len(args.data_train) * len(self.images_hr)
             if n_images == 0:
                 self.repeat = 0
