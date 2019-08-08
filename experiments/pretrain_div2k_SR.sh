@@ -8,7 +8,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 # train EDSR
 #PYTHONPATH=./ python train/SR_train.py --model EDSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 96 --evalFcn psnr --epochs 6000 --lr 0.0001 4000 0.00005 --logEvery 500 --testEvery 200 --saveEvery 1000
 
-# (SERVER 162) train PSMNetSR
+# train PSMNetSR
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSR --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 512 --evalFcn psnr --epochs 6000 --lr 0.001 4000 0.0005 --logEvery 500 --testEvery 200 --saveEvery 1000
 
 # PSMNetSR lr test
@@ -31,7 +31,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 # train PSMNetSRfullCatHalfRes
 # PSMNetSRfChR_noDilated: no dilated convolution
 # PSMNetSRfChR_avgBN: momentum set to None
-# (SERVER 162) PSMNetSRfChR_smootherBN: momentum set to 0.01
+# (SERVER 11) PSMNetSRfChR_smootherBN: momentum set to 0.01
 PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 512 --evalFcn psnr --epochs 6000 --lr 0.001 4000 0.0005 --logEvery 500 --testEvery 200 --saveEvery 1000
 # PSMNetSRfChR_crop256: cropsize 256
 #PYTHONPATH=./ python train/SR_train.py --model PSMNetSRfullCatHalfRes --outputFolder experiments/pretrain_div2k_SR --dataPath $sr_dataset --dataset DIV2K --batchSize 16 --trainCrop 256 --evalFcn psnr --epochs 6000 --lr 0.001 4000 0.0005 --logEvery 500 --testEvery 200 --saveEvery 1000
