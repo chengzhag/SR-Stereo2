@@ -8,9 +8,8 @@ from ..Model import Model
 
 
 class SR(Model):
-    def __init__(self, cInput=3, cuda=True, half=False):
+    def __init__(self, cuda=True, half=False):
         super().__init__(cuda=cuda, half=half)
-        self.cInput = cInput
 
     def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         self.model.eval()

@@ -74,7 +74,7 @@ def gray2rgb(im):
 
 
 def quantize(img, range):
-    return img.clamp(0, range) / (range)
+    return img.clamp(0, range) / range
 
 
 def savePreprocessRGB(im):

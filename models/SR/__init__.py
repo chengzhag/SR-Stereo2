@@ -5,6 +5,7 @@ from .MDSR import MDSRfeature
 from .EDSR import EDSRfeature
 from .PSMNetSR import *
 from ..Stereo.PSMNet import PSMNetFeature
+from .Interpolation import Bilinear
 
 def getMask(model):
     if type(model) in (list, tuple):

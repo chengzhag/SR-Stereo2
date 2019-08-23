@@ -8,8 +8,8 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 ## Stereo
 
 # train PSMNet
-# (SERVER 11) PSMNet: create baseline
-#PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 30 --lr 0.001 --logEvery 50 --testEvery 2 --saveEvery 1 --half --mask 1 1 1 0
+# (SERVER 95) PSMNet: create baseline
+PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 30 --lr 0.001 --logEvery 50 --testEvery 2 --saveEvery 1 --half --mask 1 1 1 0
 # PSMNet_step_2: try creating cost volume with step 2
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 2 --maxDisp 96 --dataPath $sceneflow_dataset --dataset sceneflow --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
 # PSMNet_load_PSMNetSR: load feature from PSMNetSR trained with DIV2K
@@ -18,7 +18,7 @@ nGPUs=$(( (${#CUDA_VISIBLE_DEVICES} + 1) / 2 ))
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_PSMNetSRfullHalfCat --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
 # PSMNet_loadPSMNetSRfChR: load feature from PSMNetSRfullCatHalfRes trained with DIV2K
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_PSMNetSRfullCatHalfRes --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --logEvery 50 --testEvery 1 --saveEvery 1 --half --mask 1 1 1 0
-# (SERVER 95) PSMNet_loadPSMNetSRsceneflow: load feature from PSMNetSR trained with sceneflow
+# PSMNet_loadPSMNetSRsceneflow: load feature from PSMNetSR trained with sceneflow
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_sceneflow_PSMNetSR --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 30 --lr 0.001 --lossWeights 0 1 --logEvery 50 --testEvery 2 --saveEvery 1 --half --mask 1 1 1 0
 # PSMNet_loadPSMNetSRfeatureFixed: load feature from PSMNetSR trained with DIV2K and train with parameters of feature extraction layers fixed
 #PYTHONPATH=./ python train/Stereo_train.py --model PSMNet --outputFolder experiments/pretrain_sceneflow_Stereo --dispScale 1 --dataPath $sceneflow_dataset --dataset sceneflow --chkpoint $pretrained_DIV2K_PSMNetSR --loadScale 1 --batchSize 12 $nGPUs --trainCrop 256 512 --evalFcn l1 --epochs 10 --lr 0.001 --lossWeights 0 1 --logEvery 50 --testEvery 2 --saveEvery 1 --half --mask 1 1 1 0

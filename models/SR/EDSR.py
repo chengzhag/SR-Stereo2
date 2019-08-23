@@ -41,7 +41,8 @@ class RawEDSR(edsr.EDSR):
 
 class EDSR(SR):
     def __init__(self, cInput=3, cuda=True, half=False):
-        super().__init__(cInput=cInput, cuda=cuda, half=half)
+        super().__init__(cuda=cuda, half=half)
+        self.cInput = cInput
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:

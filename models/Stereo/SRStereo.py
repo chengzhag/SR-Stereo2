@@ -106,17 +106,17 @@ class SRStereo(Stereo):
             loss.update(self.sr.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
         return loss, outputs
 
-    def load(self, checkpointDir):
+    def load(self, checkpointDir, strict=True):
         if checkpointDir is None:
             return None, None
 
         if type(checkpointDir) in (list, tuple):
             if len(checkpointDir) == 2:
-                self.sr.load(checkpointDir[0])
-                self.stereo.load(checkpointDir[1])
+                self.sr.load(checkpointDir[0], strict=strict)
+                self.stereo.load(checkpointDir[1], strict=strict)
                 return None, None
             elif len(checkpointDir) == 1:
-                return super().load(checkpointDir)
+                return super().load(checkpointDir, strict=strict)
         elif type(checkpointDir) is str:
-            return super().load(checkpointDir)
+            return super().load(checkpointDir, strict=strict)
         raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')
