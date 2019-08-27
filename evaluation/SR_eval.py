@@ -47,7 +47,10 @@ def main():
     experiment = utils.experiment.Experiment(model=sr, stage=stage, args=args)
     test = Evaluation(experiment=experiment, testImgLoader=testImgLoader)
     test()
-    test.estimateFlops()
+    try:
+        test.estimateFlops()
+    except RuntimeError as error:
+        print('Warning: ' + error.args[0])
 
 
 if __name__ == '__main__':
