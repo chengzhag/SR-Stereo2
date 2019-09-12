@@ -18,7 +18,7 @@ class RawSRStereo(nn.Module):
         self.updateSR = True
 
     def forward(self, left, right):
-        with torch.set_grad_enabled(self.updateSR):
+        with torch.set_grad_enabled(self.updateSR and self.training):
             outputSrL = self.sr.forward(left)['outputSr']
             outputSrR = self.sr.forward(right)['outputSr']
 
@@ -57,6 +57,7 @@ class SRStereo(Stereo):
 
     def initModel(self):
         self.model = RawSRStereo(self.sr, self.stereo)
+        self.getParamNum()
 
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None):
         return self.stereo.packOutputs(outputs, self.sr.packOutputs(outputs, imgs))
@@ -105,17 +106,17 @@ class SRStereo(Stereo):
             loss.update(self.sr.testOutput(outputs=outputs, gt=batch.highResRGBs(), evalType=evalType))
         return loss, outputs
 
-    def load(self, checkpointDir):
+    def load(self, checkpointDir, strict=True):
         if checkpointDir is None:
             return None, None
 
         if type(checkpointDir) in (list, tuple):
             if len(checkpointDir) == 2:
-                self.sr.load(checkpointDir[0])
-                self.stereo.load(checkpointDir[1])
+                self.sr.load(checkpointDir[0], strict=strict)
+                self.stereo.load(checkpointDir[1], strict=strict)
                 return None, None
             elif len(checkpointDir) == 1:
-                return super().load(checkpointDir)
+                return super().load(checkpointDir, strict=strict)
         elif type(checkpointDir) is str:
-            return super().load(checkpointDir)
+            return super().load(checkpointDir, strict=strict)
         raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')

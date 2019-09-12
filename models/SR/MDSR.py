@@ -74,12 +74,11 @@ class MDSRfeature(Feature):
         super().__init__(cuda=cuda, half=half)
         self.cOutput = 64
         self.initModel()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:
             self.model.cuda()
-            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = RawMDSRfeature()
+        self.getParamNum()
 

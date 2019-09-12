@@ -42,6 +42,10 @@ class Train:
                 # iteration
                 ticETC = time.time()
                 for self.experiment.iteration, batch in enumerate(self.trainImgLoader, 1):
+                    if self.experiment.args.batchSize[0] == 12 \
+                            and self.experiment.model.__class__.__name__ == 'PSMNet' \
+                            and not self.experiment.model.half:
+                        torch.cuda.empty_cache()
                     batch = utils.data.Batch(batch, cuda=self.experiment.model.cuda, half=self.experiment.model.half)
 
                     self.experiment.globalStep += 1
@@ -95,7 +99,8 @@ class Train:
 
             # save
             if (self.experiment.args.saveEvery > 0 and self.experiment.epoch % self.experiment.args.saveEvery == 0) \
-                    or (self.experiment.args.saveEvery == 0 and self.experiment.epoch == self.experiment.args.epochs):
+                    or (self.experiment.args.saveEvery == 0 and self.experiment.epoch == self.experiment.args.epochs) \
+                    or (self.experiment.epoch == self.experiment.args.epochs):
                 self.experiment.save(epoch=self.experiment.epoch, iteration=self.experiment.iteration)
 
             # test
@@ -115,3 +120,9 @@ class Train:
 
             self.experiment.cometExp.log_epoch_end(
                 epoch_cnt=self.experiment.args.epochs, step=self.experiment.epoch)
+        if self.test.testImgLoader is not None:
+            torch.cuda.empty_cache()
+            try:
+                self.test.estimateFlops()
+            except RuntimeError as error:
+                print('Warning: ' + error.args[0])

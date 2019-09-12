@@ -35,6 +35,9 @@ class Stereo(Model):
 
             return outputs
 
+    def getFlops(self, inputs, show=True):
+        return super().getFlops(inputs=inputs.lowestResRGBs())
+
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = utils.data.NameValues()
         for disp, side in zip(gt, ('L', 'R')):

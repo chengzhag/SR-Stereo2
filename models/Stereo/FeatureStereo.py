@@ -18,7 +18,7 @@ class RawFeatureStereo(nn.Module):
         self.updateFeature = True
 
     def forward(self, left, right):
-        with torch.set_grad_enabled(self.updateFeature):
+        with torch.set_grad_enabled(self.updateFeature and self.training):
             outputFeatureL = self.feature.forward(left)['outputFeature']
             outputFeatureR = self.feature.forward(right)['outputFeature']
 
@@ -60,6 +60,7 @@ class FeatureStereo(Stereo):
 
     def initModel(self):
         self.model = RawFeatureStereo(self.feature, self.stereoBody)
+        self.getParamNum()
 
     def packOutputs(self, outputs, imgs: utils.imProcess.Imgs = None):
         return self.stereoBody.packOutputs(outputs, self.feature.packOutputs(outputs, imgs))
@@ -77,7 +78,7 @@ class FeatureStereo(Stereo):
         if type(checkpointDir) in (list, tuple):
             if len(checkpointDir) == 2:
                 self.feature.load(checkpointDir[0], strict=False)
-                self.stereoBody.load(checkpointDir[1])
+                self.stereoBody.load(checkpointDir[1], strict=False)
                 return None, None
             elif len(checkpointDir) == 1:
                 return super().load(checkpointDir, strict=True)

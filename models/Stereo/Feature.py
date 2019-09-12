@@ -24,4 +24,7 @@ class Feature(Model):
 
         return outputs
 
+    def getFlops(self, inputs, show=True):
+        return super().getFlops(inputs=inputs.lowestResRGBs(), show=show)
+
 

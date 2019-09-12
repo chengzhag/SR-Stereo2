@@ -9,6 +9,7 @@ import torchvision.transforms as transforms
 import operator
 import torch
 import os
+from .EDSR import Data as EDSRdata
 
 
 def rgbLoader(path):
@@ -192,95 +193,128 @@ class myImageFloder(data.Dataset):
 # loadScale: A list of scale to load. Will return 4 * len(loadScale) images. Should be decreasing values.
 def getDataLoader(dataPath, dataset='sceneflow', trainCrop=(256, 512), batchSizes=(0, 0),
                   loadScale=(1,), mode='normal', mask=None, validSetSample=1, argument=None):
-    if mask is None:
-        mask = (1, 1, 1, 1)
 
-    # import listing file fcn according to param dataset
-    if dataset == 'sceneflow':
-        from dataloader import listSceneFlowFiles as listFile
-    elif dataset == 'kitti2012':
-        if mode == 'subTest':
-            from dataloader import listKitti2012Sub as listFile
+    kitti = dataset in ('kitti2012', 'kitti2015', 'kitti2015_dense')
+
+    if dataset in ('sceneflow', 'kitti2012', 'kitti2015', 'kitti2015dense', 'carla'):
+        if mask is None:
+            mask = (1, 1, 1, 1)
+
+        # import listing file fcn according to param dataset
+        if dataset == 'sceneflow':
+            from dataloader import listSceneFlowFiles as listFile
+        elif dataset == 'kitti2012':
+            if mode == 'subTest':
+                from dataloader import listKitti2012Sub as listFile
+            else:
+                from dataloader import listKitti2012Files as listFile
+        elif dataset in ('kitti2015', 'kitti2015dense'):
+            if mode == 'subTest':
+                from dataloader import listKitti2015Sub as listFile
+            else:
+                from dataloader import listKitti2015Files as listFile
+        elif dataset == 'carla':
+            from dataloader import listCarlaFiles as listFile
         else:
-            from dataloader import listKitti2012Files as listFile
-    elif dataset in ('kitti2015', 'kitti2015dense'):
-        if mode == 'subTest':
-            from dataloader import listKitti2015Sub as listFile
+            raise Exception('No dataloader for dataset \'%s\'!' % dataset)
+
+        # split returned tuple into training and testing
+        paths = list(listFile.dataloader(dataPath))
+        pathsTrain = paths[0:4]
+        pathsTest = paths[4:8] if len(paths) == 8 else None
+
+        # sample first validSetSample dirs from pathsTest
+        if validSetSample < 1:
+            pathsTest = list(zip(*pathsTest))
+            pathsTest = pathsTest[:round(len(pathsTest) * validSetSample)]
+            pathsTest = list(zip(*pathsTest))
+
+        # special params setting for kitti dataset
+        if dataset in ('kitti2012', 'kitti2015'):
+            mask = [a and b for a, b in zip(mask, (1, 1, 1, 0))]
+            dispScale = 256
+            kittiScale = 1
+        elif dataset == 'kitti2015_dense':
+            dispScale = 170
+            kittiScale = 2
         else:
-            from dataloader import listKitti2015Files as listFile
-    elif dataset == 'carla':
-        from dataloader import listCarlaFiles as listFile
+            dispScale = 1
+            kittiScale = 1
+
+        testCrop = (round(1232 * loadScale[0] * kittiScale), round(368 * loadScale[0] * kittiScale)) if kitti else None
+
+        if mode in ('subTrain', 'subEval', 'subTrainEval', 'subTest'):
+            if mode == 'subTrain':
+                pathsTest = pathsTrain
+            elif mode == 'subEval':
+                pass
+            elif mode == 'subTrainEval':
+                pathsTest = [dirsTrain + dirsEval if dirsTrain is not None else None for dirsTrain, dirsEval in
+                             zip(pathsTrain, pathsTest)]
+            elif mode == 'subTest':
+                pathsTest = pathsTrain
+            pathsTrain = None
+            mode = 'submission'
+
+        if mode == 'trainSub':
+            pathsTrain = [dirsTrain + dirsEval if dirsTrain is not None else None for dirsTrain, dirsEval in
+                          zip(pathsTrain, pathsTest)]
+            pathsTest = None
+            mode = 'training'
+
+        trainImgLoader = torch.utils.data.DataLoader(
+            myImageFloder(*pathsTrain,
+                          trainCrop,
+                          kitti=kitti,
+                          loadScale=loadScale,
+                          mode=mode,
+                          mask=mask,
+                          dispScale=dispScale,
+                          argument=argument),
+            batch_size=batchSizes[0], shuffle=True, num_workers=4, drop_last=False
+        ) if batchSizes[0] > 0 and pathsTrain is not None else None
+
+        testImgLoader = torch.utils.data.DataLoader(
+            myImageFloder(*pathsTest,
+                          cropSize=testCrop if mode in ('testing', 'training') else trainCrop,
+                          kitti=kitti,
+                          loadScale=loadScale,
+                          mode='testing' if mode == 'training' else mode,
+                          mask=mask,
+                          dispScale=dispScale,
+                          argument=None),
+            batch_size=batchSizes[1], shuffle=False, num_workers=4, drop_last=False
+        ) if batchSizes[1] > 0 and pathsTest is not None else None
+
+    elif dataset in ('DIV2K'):
+        class Arg:
+            def __init__(self):
+                self.test_only = False
+                self.dir_data = dataPath
+                self.data_train = [dataset]
+                self.data_test = [dataset]
+                self.data_range = '1-800/801-810'
+                self.scale = '2'
+                self.patch_size = trainCrop[0]
+                self.rgb_range = 255
+                self.n_colors = 3
+                self.chop = False
+                self.no_augment = False
+                self.batch_size = batchSizes[0]
+                self.model = 'EDSR'
+                self.ext = 'sep'
+                self.cpu = False
+                self.n_threads = 4
+
+        if mode in ('subTrain', 'subTest', 'subTrainEval'):
+            raise Exception(f'Mode \'{mode}\' not implemented!')
+
+        loader = EDSRdata(Arg())
+
+        trainImgLoader, testImgLoader = loader.loader_train, loader.loader_test[0]
+
     else:
         raise Exception('No dataloader for dataset \'%s\'!' % dataset)
-
-    # split returned tuple into training and testing
-    paths = list(listFile.dataloader(dataPath))
-    pathsTrain = paths[0:4]
-    pathsTest = paths[4:8] if len(paths) == 8 else None
-
-    # sample first validSetSample dirs from pathsTest
-    if validSetSample < 1:
-        pathsTest = list(zip(*pathsTest))
-        pathsTest = pathsTest[:round(len(pathsTest) * validSetSample)]
-        pathsTest = list(zip(*pathsTest))
-
-    # special params setting for kitti dataset
-    kitti = dataset in ('kitti2012', 'kitti2015', 'kitti2015_dense')
-    if dataset in ('kitti2012', 'kitti2015'):
-        mask = [a and b for a, b in zip(mask, (1, 1, 1, 0))]
-        dispScale = 256
-        kittiScale = 1
-    elif dataset == 'kitti2015_dense':
-        dispScale = 170
-        kittiScale = 2
-    else:
-        dispScale = 1
-        kittiScale = 1
-
-    testCrop = (round(1232 * loadScale[0] * kittiScale), round(368 * loadScale[0] * kittiScale)) if kitti else None
-
-    if mode in ('subTrain', 'subEval', 'subTrainEval', 'subTest'):
-        if mode == 'subTrain':
-            pathsTest = pathsTrain
-        elif mode == 'subEval':
-            pass
-        elif mode == 'subTrainEval':
-            pathsTest = [dirsTrain + dirsEval if dirsTrain is not None else None for dirsTrain, dirsEval in
-                         zip(pathsTrain, pathsTest)]
-        elif mode == 'subTest':
-            pathsTest = pathsTrain
-        pathsTrain = None
-        mode = 'submission'
-
-    if mode == 'trainSub':
-        pathsTrain = [dirsTrain + dirsEval if dirsTrain is not None else None for dirsTrain, dirsEval in
-                      zip(pathsTrain, pathsTest)]
-        pathsTest = None
-        mode = 'training'
-
-    trainImgLoader = torch.utils.data.DataLoader(
-        myImageFloder(*pathsTrain,
-                      trainCrop,
-                      kitti=kitti,
-                      loadScale=loadScale,
-                      mode=mode,
-                      mask=mask,
-                      dispScale=dispScale,
-                      argument=argument),
-        batch_size=batchSizes[0], shuffle=True, num_workers=4, drop_last=False
-    ) if batchSizes[0] > 0 and pathsTrain is not None else None
-
-    testImgLoader = torch.utils.data.DataLoader(
-        myImageFloder(*pathsTest,
-                      cropSize=testCrop if mode in ('testing', 'training') else trainCrop,
-                      kitti=kitti,
-                      loadScale=loadScale,
-                      mode='testing' if mode == 'training' else mode,
-                      mask=mask,
-                      dispScale=dispScale,
-                      argument=None),
-        batch_size=batchSizes[1], shuffle=False, num_workers=4, drop_last=False
-    ) if batchSizes[1] > 0 and pathsTest is not None else None
 
     # Add dataset info to imgLoader objects
     # For KITTI, evaluation should exclude zero disparity pixels. A flag kitti will be added to imgLoader.

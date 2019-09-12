@@ -2,10 +2,17 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="kc110_server_199" showNewOnSourceInSync="false">
     <serverData>
+      <paths name="kc110_server_11">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/media/omnisky/3f13637f-0f30-4e61-b807-fb0109552b19/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="kc110_server_135">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/xddz/zc/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/media/xddz/zcHDD/projects/SR-Stereo/SR-Stereo2" local="$PROJECT_DIR$" web="/" />
           </mappings>
           <excludedPaths>
             <excludedPath path="/home/xddz/zc/SR-Stereo/SR-Stereo2/logs" />

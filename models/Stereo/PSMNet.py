@@ -10,7 +10,7 @@ import torch.optim as optim
 from apex import amp
 from .RawPSMNet.stackhourglass import hourglass
 from .RawPSMNet.submodule import *
-
+from .Feature import Feature
 
 def getRawPSMNetScale(Base):
     class RawPSMNetScale(Base):
@@ -45,7 +45,7 @@ def getRawPSMNetScale(Base):
 
         def load_state_dict(self, state_dict, strict=False):
             state_dict = utils.experiment.checkStateDict(
-                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+                model=self, stateDict=state_dict, strict=strict, possiblePrefix=('stereo.module.', 'module.stereoBody.'))
             super().load_state_dict(state_dict, strict=False)
     return RawPSMNetScale
 
@@ -62,8 +62,18 @@ class PSMNet(Stereo):
             self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
             self.model = nn.DataParallel(self.model)
 
+    def setLossWeights(self, lossWeights):
+        if type(lossWeights) in (tuple, list):
+            self.model.module.updateFeature = lossWeights[0] > 0
+            super().setLossWeights(lossWeights[1])
+        else:
+            super().setLossWeights(lossWeights)
+
+        print('UpdateFeature ' + ('Enabled' if self.model.module.updateFeature else 'Disabled'))
+
     def initModel(self):
         self.model = getRawPSMNetScale(rawPSMNet)(maxDisp=self.maxDisp, dispScale=self.dispScale, cInput=self.cInput, normalize=self.normalize)
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -231,7 +241,7 @@ def getRawPSMNetBody(Base):
 
         def load_state_dict(self, state_dict, strict=False):
             state_dict = utils.experiment.checkStateDict(
-                model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+                model=self, stateDict=state_dict, strict=strict, possiblePrefix='module.stereoBody.')
             super().load_state_dict(state_dict, strict=False)
     return RawPSMNetScale
 
@@ -241,14 +251,13 @@ class PSMNetBody(Stereo):
         super().__init__(kitti=kitti, maxDisp=maxDisp, dispScale=dispScale, cuda=cuda, half=half)
         self.cInput = cInput * 2
         self.initModel()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001, betas=(0.9, 0.999))
         if self.cuda:
             self.model.cuda()
-            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = getRawPSMNetBody(RawPSMNetBody)(maxDisp=self.maxDisp, dispScale=self.dispScale, cInput=self.cInput)
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -276,3 +285,95 @@ class PSMNetBody(Stereo):
 
         return loss
 
+class RawPSMNetFeature(nn.Module):
+    def __init__(self, cInput=3):
+        super().__init__()
+        self.inplanes = 32
+        self.firstconv = nn.Sequential(convbn(cInput, 32, 3, 2, 1, 1),
+                                       nn.ReLU(inplace=True),
+                                       convbn(32, 32, 3, 1, 1, 1),
+                                       nn.ReLU(inplace=True),
+                                       convbn(32, 32, 3, 1, 1, 1),
+                                       nn.ReLU(inplace=True))
+
+        self.layer1 = self._make_layer(BasicBlock, 32, 3, 1,1,1)
+        self.layer2 = self._make_layer(BasicBlock, 64, 16, 2,1,1)
+        self.layer3 = self._make_layer(BasicBlock, 128, 3, 1,1,1)
+        self.layer4 = self._make_layer(BasicBlock, 128, 3, 1,1,2)
+
+        self.branch1 = nn.Sequential(nn.AvgPool2d((64, 64), stride=(64,64)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch2 = nn.Sequential(nn.AvgPool2d((32, 32), stride=(32,32)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch3 = nn.Sequential(nn.AvgPool2d((16, 16), stride=(16,16)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.branch4 = nn.Sequential(nn.AvgPool2d((8, 8), stride=(8,8)),
+                                     convbn(128, 32, 1, 1, 0, 1),
+                                     nn.ReLU(inplace=True))
+
+        self.lastconv = nn.Sequential(convbn(320, 128, 3, 1, 1, 1),
+                                      nn.ReLU(inplace=True),
+                                      nn.Conv2d(128, 32, kernel_size=1, padding=0, stride = 1, bias=False))
+
+    def _make_layer(self, block, planes, blocks, stride, pad, dilation):
+        downsample = None
+        if stride != 1 or self.inplanes != planes * block.expansion:
+           downsample = nn.Sequential(
+                nn.Conv2d(self.inplanes, planes * block.expansion,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes * block.expansion),)
+
+        layers = []
+        layers.append(block(self.inplanes, planes, stride, downsample, pad, dilation))
+        self.inplanes = planes * block.expansion
+        for i in range(1, blocks):
+            layers.append(block(self.inplanes, planes,1,None,pad,dilation))
+
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        output      = self.firstconv(x)
+        output      = self.layer1(output)
+        output_raw  = self.layer2(output)
+        output      = self.layer3(output_raw)
+        output_skip = self.layer4(output)
+
+
+        output_branch1 = self.branch1(output_skip)
+        output_branch1 = F.interpolate(output_branch1, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch2 = self.branch2(output_skip)
+        output_branch2 = F.interpolate(output_branch2, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch3 = self.branch3(output_skip)
+        output_branch3 = F.interpolate(output_branch3, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_branch4 = self.branch4(output_skip)
+        output_branch4 = F.interpolate(output_branch4, (output_skip.size()[2],output_skip.size()[3]),mode='bilinear',align_corners=False)
+
+        output_feature = torch.cat((output_raw, output_skip, output_branch4, output_branch3, output_branch2, output_branch1), 1)
+        output_feature = self.lastconv(output_feature)
+
+        output_feature = {'outputFeature': output_feature}
+
+        return output_feature
+
+
+class PSMNetFeature(Feature):
+    def __init__(self, cuda=True, half=False):
+        super().__init__(cuda=cuda, half=half)
+        self.cOutput = 32
+        self.initModel()
+        if self.cuda:
+            self.model.cuda()
+            self.model = nn.DataParallel(self.model)
+
+    def initModel(self):
+        self.model = RawPSMNetFeature(cInput=3)
+        self.getParamNum()

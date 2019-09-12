@@ -58,6 +58,7 @@ class hourglass(nn.Module):
 class PSMNet(nn.Module):
     def __init__(self, maxdisp, dispScale=1, cInput=3):
         super(PSMNet, self).__init__()
+        self.updateFeature = True
         self.maxdisp = maxdisp
         self.dispScale = int(dispScale)
         self.outMaxDisp = self.maxdisp * self.dispScale
@@ -108,9 +109,9 @@ class PSMNet(nn.Module):
                 m.bias.data.zero_()
 
     def forward(self, left, right):
-
-        refimg_fea = self.feature_extraction(left)
-        targetimg_fea = self.feature_extraction(right)
+        with torch.set_grad_enabled(self.updateFeature):
+            refimg_fea = self.feature_extraction(left)
+            targetimg_fea = self.feature_extraction(right)
 
         # matching
         cost = torch.zeros(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4, refimg_fea.size()[2],

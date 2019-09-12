@@ -195,7 +195,7 @@ class DefaultParser:
         return self
 
     def trainCrop(self):
-        self.parser.add_argument('--trainCrop', type=int, default=(256, 512), nargs=2,
+        self.parser.add_argument('--trainCrop', type=int, default=(256, 512), nargs='+',
                                  help='size of random crop (H x W) applied to data during training')
         return self
 
@@ -392,8 +392,14 @@ def checkStateDict(model: torch.nn.Module, stateDict: dict, strict=False, possib
     selectModelDict = {}
     for name, value in stateDict.items():
         if possiblePrefix is not None:
-            if name.startswith(possiblePrefix):
-                name = name[len(possiblePrefix):]
+            if type(possiblePrefix) is str:
+                if name.startswith(possiblePrefix):
+                    name = name[len(possiblePrefix):]
+            elif type(possiblePrefix) in (list, tuple):
+                for prefix in possiblePrefix:
+                    if name.startswith(prefix):
+                        name = name[len(prefix):]
+                        break
         if name in writeModelDict and writeModelDict[name].size() == value.size():
             selectModelDict[name] = value
         else:

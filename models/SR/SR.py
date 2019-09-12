@@ -8,9 +8,8 @@ from ..Model import Model
 
 
 class SR(Model):
-    def __init__(self, cInput=3, cuda=True, half=False):
+    def __init__(self, cuda=True, half=False):
         super().__init__(cuda=cuda, half=half)
-        self.cInput = cInput
 
     def predict(self, batch: utils.data.Batch, mask=(1, 1)):
         self.model.eval()
@@ -23,6 +22,9 @@ class SR(Model):
                     outputs.update(imgs=output, suffix=side)
 
         return outputs
+
+    def getFlops(self, inputs, show=True):
+        return super().getFlops(inputs=(inputs.lowestResRGBs()[0], ))
 
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = utils.data.NameValues()

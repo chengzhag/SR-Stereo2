@@ -35,13 +35,14 @@ class RawEDSR(edsr.EDSR):
 
     def load_state_dict(self, state_dict, strict=False):
         state_dict = utils.experiment.checkStateDict(
-            model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module')
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix='sr.module.')
         super().load_state_dict(state_dict, strict=False)
 
 
 class EDSR(SR):
     def __init__(self, cInput=3, cuda=True, half=False):
-        super().__init__(cInput=cInput, cuda=cuda, half=half)
+        super().__init__(cuda=cuda, half=half)
+        self.cInput = cInput
         self.initModel()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:
@@ -51,6 +52,7 @@ class EDSR(SR):
 
     def initModel(self):
         self.model = RawEDSR(cInput=self.cInput)
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs, imgs)
@@ -86,8 +88,6 @@ class EDSR(SR):
 
     def testOutput(self, outputs: utils.imProcess.Imgs, gt, evalType: str):
         loss = super().testOutput(outputs=outputs, gt=gt, evalType=evalType)
-        for name in loss.keys():
-            loss[name] *= self.model.module.args.rgb_range
         return loss
 
 class RawEDSRfeature(nn.Module):
@@ -169,11 +169,10 @@ class EDSRfeature(Feature):
         super().__init__(cuda=cuda, half=half)
         self.cOutput = 64
         self.initModel()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001, betas=(0.9, 0.999))
         if self.cuda:
             self.model.cuda()
-            self.model, self.optimizer = amp.initialize(models=self.model, optimizers=self.optimizer, enabled=half)
             self.model = nn.DataParallel(self.model)
 
     def initModel(self):
         self.model = RawEDSRfeature()
+        self.getParamNum()

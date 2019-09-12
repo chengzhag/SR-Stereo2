@@ -21,7 +21,7 @@ class RawStereoDown(nn.Module):
 
     def load_state_dict(self, state_dict, strict=False):
         state_dict = utils.experiment.checkStateDict(
-            model=self, stateDict=state_dict, strict=str, possiblePrefix='stereo.module')
+            model=self, stateDict=state_dict, strict=strict, possiblePrefix='stereo.module.')
         super().load_state_dict(state_dict, strict=False)
 
 
@@ -48,6 +48,7 @@ class StereoDown(Stereo):
 
     def initModel(self):
         self.model = RawStereoDown(self.stereo)
+        self.getParamNum()
 
     def packOutputs(self, outputs: dict, imgs: utils.imProcess.Imgs = None) -> utils.imProcess.Imgs:
         imgs = super().packOutputs(outputs=outputs, imgs=imgs)
@@ -88,18 +89,18 @@ class StereoDown(Stereo):
         batch = utils.data.Batch(batch.highResRGBs() + batch.lowResDisps(), cuda=batch.cuda, half=batch.half)
         return super(StereoDown, self).test(batch=batch, evalType=evalType)
 
-    def load(self, checkpointDir):
+    def load(self, checkpointDir, strict=True):
         if checkpointDir is None:
             return None, None
 
         if (type(checkpointDir) in (list, tuple) and len(checkpointDir) == 1):
-            return self.load(checkpointDir[0])
+            return self.load(checkpointDir[0], strict=strict)
         elif type(checkpointDir) is str:
             try:
                 # Complete load StereoDown from checkpoint
-                return super().load(checkpointDir)
+                return super().load(checkpointDir, strict=strict)
             except:
                 # Only load stereo from checkpoint
-                self.stereo.load(checkpointDir)
+                self.stereo.load(checkpointDir, strict=strict)
                 return None, None
         raise Exception('Error: SRStereo need 2 checkpoints SR/Stereo or 1 checkpoint SRStereo to load!')
